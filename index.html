@@ -58,7 +58,7 @@ html[data-theme=dark]{color-scheme:dark;background:#0b1020;--bd:#2a3350;--tx:#e5
 [data-theme=dark] #ps{background:#0f1429}
 </style></head><body>
 <header><div><h1>Code <span>→</span> Flowchart</h1><div class="sub">Paste C / C++ code, get a faithful control-flow diagram.</div><div class="by">Made by Parth V</div><span id="vc" class="vc" hidden></span></div>
-<span style="display:flex;gap:6px;align-items:center"><button id="th">🌙 Dark</button><select id="exs"><option value="">Load example…</option><option value="0">Loops + switch + function</option><option value="1">Positive / negative</option><option value="2">while / do-while / break</option></select></span></header>
+<span style="display:flex;gap:6px;align-items:center"><button id="th">🌙 Dark</button><select id="exs"><option value="">Load example…</option><option value="0">Loop + if/else + switch</option><option value="1">Positive / negative</option><option value="2">while / do-while / break</option></select></span></header>
 <main>
 <section class="card"><div class="bar"><button class="pri" id="go">▶ Generate Flowchart</button><button id="rs">Reset</button></div>
 <div id="err"></div><div class="ed"><div id="g"></div><textarea id="ta" spellcheck="false" wrap="off" placeholder="Paste C or C++ code here…"></textarea></div><div id="chips"></div></section>
@@ -73,29 +73,23 @@ const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').r
 const SITE={ga:'G-8VGN06RJCS',/* Google Analytics 4 Measurement ID, e.g. 'G-XXXXXXXXXX' */ns:'parthvevahare-flowchart',/* unique counter name, e.g. 'yourgithubname-flowchart' (leave '' to hide the counter) */key:'visits'};
 const EX=[String.raw`#include <stdio.h>
 
-int square(int x) {
-    return x * x;
-}
-
 int main() {
-    int n, i, sum = 0;
+    int n, i, evens = 0, odds = 0;
     printf("Enter a number: ");
     scanf("%d", &n);
     for (i = 1; i <= n; i++) {
         if (i % 2 == 0) {
-            sum += square(i);
-        } else if (i == 5) {
-            continue;
+            evens++;
         } else {
-            sum += i;
+            odds++;
         }
     }
-    switch (sum % 3) {
+    switch (n % 3) {
         case 0: printf("Divisible by 3\n"); break;
-        case 1:
-        case 2: printf("Not divisible\n"); break;
-        default: printf("Unexpected\n");
+        case 1: printf("Remainder 1\n"); break;
+        default: printf("Remainder 2\n");
     }
+    printf("Evens: %d, Odds: %d\n", evens, odds);
     return 0;
 }`,String.raw`#include <iostream>
 using namespace std;

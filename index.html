@@ -52,6 +52,10 @@ html[data-theme=dark]{color-scheme:dark;background:#0b1020;--bd:#2a3350;--tx:#e5
 [data-theme=dark] #err{background:#3b1219;color:#fecaca;border-color:#7f1d1d}
 .dd{position:relative}.menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:8;min-width:170px;flex-direction:column;gap:2px;padding:5px;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,.18)}.menu.open{display:flex}.menu button{border:0;text-align:left;width:100%;border-radius:8px;background:transparent}
 [data-theme=dark] .menu{background:#1a2142}[data-theme=dark] .menu button{background:transparent}[data-theme=dark] .menu button:hover{background:#232b55}
+#ps{display:none;max-height:38%;overflow:auto;border-top:1px solid var(--bd);padding:10px 14px;background:#fafaff}
+#psh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:sticky;top:-10px;background:inherit;padding:2px 0;font-size:13px}#psh button{padding:3px 10px;font-size:12px}
+#psb{margin:0;font:12.5px/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre;overflow:auto}
+[data-theme=dark] #ps{background:#0f1429}
 </style></head><body>
 <header><div><h1>Code <span>→</span> Flowchart</h1><div class="sub">Paste C / C++ code, get a faithful control-flow diagram.</div><div class="by">Made by Parth V</div><span id="vc" class="vc" hidden></span></div>
 <span style="display:flex;gap:6px;align-items:center"><button id="th">🌙 Dark</button><select id="exs"><option value="">Load example…</option><option value="0">Loops + switch + function</option><option value="1">Positive / negative</option><option value="2">while / do-while / break</option></select></span></header>
@@ -59,9 +63,9 @@ html[data-theme=dark]{color-scheme:dark;background:#0b1020;--bd:#2a3350;--tx:#e5
 <section class="card"><div class="bar"><button class="pri" id="go">▶ Generate Flowchart</button><button id="rs">Reset</button></div>
 <div id="err"></div><div class="ed"><div id="g"></div><textarea id="ta" spellcheck="false" wrap="off" placeholder="Paste C or C++ code here…"></textarea></div><div id="chips"></div></section>
 <section class="card" id="pane"><div class="bar" id="tb"><span id="tabs" style="display:flex;gap:4px;flex-wrap:wrap"></span><span style="flex:1"></span>
-<button id="zo">−</button><button id="zi">+</button><button id="fit">Fit</button><button id="fs">⛶</button><button id="xp">Algorithm</button>
+<button id="zo">−</button><button id="zi">+</button><button id="fit">Fit</button><button id="fs">⛶</button><button id="xp">Algorithm</button><button id="pcb">Pseudocode</button>
 <span class="dd"><button id="exm">Export ▾</button><div class="menu" id="mn"><button id="ePng">Download PNG</button><button id="eSvg">Download SVG</button><button id="ePdf">Download PDF</button><button id="cp">Copy image</button><button id="sh">Share…</button></div></span></div>
-<div id="stage"><div class="empty" id="em">Your flowchart will appear here</div></div><div id="exp"><div id="exh"><b>Algorithm</b><button id="cpa">Copy algorithm</button></div><div id="exb"></div></div><div id="ld" hidden><div class="sp"></div>Parsing code…</div></section>
+<div id="stage"><div class="empty" id="em">Your flowchart will appear here</div></div><div id="exp"><div id="exh"><b>Algorithm</b><button id="cpa">Copy algorithm</button></div><div id="exb"></div></div><div id="ps"><div id="psh"><b>Pseudocode</b><button id="cpp">Copy pseudocode</button></div><pre id="psb"></pre></div><div id="ld" hidden><div class="sp"></div>Parsing code…</div></section>
 </main><div id="toast"></div>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -122,7 +126,9 @@ int main() {
 /* ---------- parser ---------- */
 function lex(src){const T=[],re=/\/\/[^\n]*|\/\*[\s\S]*?\*\/|^[ \t]*#[^\n]*|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|\d[\w.]*|[A-Za-z_]\w*|<<=|>>=|<<|>>|\+\+|--|->|::|[=!<>+\-*\/%&|^]=|&&|\|\||\S|\n/gm;let line=1,m;
 while(m=re.exec(src)){const t=m[0];if(t=='\n'){line++;continue}if(/^\s*(\/[\/*]|#)/.test(t)){line+=(t.match(/\n/g)||[]).length;continue}T.push({t,l:line})}return T}
-const fm=a=>a.map(x=>x.t).join(' ').replace(/\s+([,;)\]])/g,'$1').replace(/([(\[!])\s+/g,'$1').replace(/\s*(::|->|\+\+|--|\.)\s*/g,(m,o)=>o).replace(/\b(?!return\b)(\w+)\s+\(/g,'$1(').replace(/\s+/g,' ').trim();
+function isUn(a,k){const t=a[k].t;if(!/^(\+|-|\+\+|--)$/.test(t))return false;if(!k)return true;const p=a[k-1].t;return!(/^[\w"')\]]/.test(p)&&!/^(return|case|else|do)$/.test(p))}
+const jt=a=>a.reduce((o,x,i)=>o+(i&&!isUn(a,i-1)?' ':'')+x.t,'');
+const fm=a=>jt(a).replace(/\s+([,;)\]])/g,'$1').replace(/([(\[!])\s+/g,'$1').replace(/\s*(::|->|\+\+|--|\.)\s*/g,(m,o)=>o).replace(/\b(?!return\b)(\w+)\s+\(/g,'$1(').replace(/\s+/g,' ').trim();
 const split=(a,s)=>{const r=[[]];let d=0;a.forEach(x=>{if('([{'.includes(x.t)&&x.t.length==1)d++;if(')]}'.includes(x.t)&&x.t.length==1)d--;if(x.t==s&&!d)r.push([]);else r[r.length-1].push(x)});return r};
 function parse(src){const T=lex(src);let i=0;const vars=new Set();
 const err=(m,l)=>{throw{m,l:l||(T[Math.min(i,T.length-1)]||{l:1}).l}};
@@ -140,55 +146,55 @@ const TP=/^((const|static|unsigned|signed|register|extern)\s+)*(int|float|double
 function simple(){const a=semi(),f=fm(a),s=a.map(x=>x.t),has=n=>s.includes(n),l=a[0]?a[0].l:0;let k='p',t=f;
 if(['scanf','scanf_s','cin','gets','getline','getchar','fgets'].some(has)){k='in';t='Input: '+f;
 if(has('scanf')||has('scanf_s')){const j=a.findIndex(x=>x.t[0]=='"');t='Input: '+split(a.slice(j+2,-1),',').map(x=>fm(x).replace(/^&/,'')).join(', ')}
-else if(has('cin'))t='Input: '+split(a.slice(s.indexOf('cin')+1),'>>').map(fm).filter(Boolean).join(', ')}
+else if(has('cin')&&s[s.indexOf('cin')+1]=='>>')t='Input: '+split(a.slice(s.indexOf('cin')+1),'>>').map(fm).filter(Boolean).join(', ')}
 else if(['printf','puts','putchar','cout','cerr','fprintf'].some(has)){k='out';t='Output: '+f;
 const pi=s.findIndex(x=>/^(printf|puts|putchar)$/.test(x));
 if(pi>=0)t='Output: '+fm(a.slice(pi+2,-1));
-else if(has('cout')||has('cerr'))t='Output: '+split(a.slice(s.findIndex(x=>/^c(out|err)$/.test(x))+1),'<<').map(fm).filter(x=>x&&!/endl$/.test(x)).join(', ')}
+else if(has('cout')||has('cerr'))t='Output: '+split(a.slice(s.findIndex(x=>/^c(out|err)$/.test(x))+1),'<<').map(fm).filter(Boolean).join(', ')}
 else if(TP.test(f)){const rest=f.replace(TP,'');split(a.slice(a.findIndex((x,j)=>j>0&&/^[*&A-Za-z_]/.test(x.t)&&!/^(int|float|double|char|long|short|const|unsigned|signed|static|bool|string|auto|size_t|struct)$/.test(x.t))),',').forEach(p=>{const m=fm(p).match(/^[*&\s]*([A-Za-z_]\w*)/);if(m)vars.add(m[1])});
 if(!f.includes('=')&&!f.includes('('))t='Declare '+f}
-return{k,t,l}}
+return{k,t,l,q:a}}
 function stmt(){const q=T[i];if(!q)err('Unexpected end of code');const t=q.t,l=q.l;
 if(t=='{'){i++;return seq()}if(t==';'){i++;return[]}
-if(t=='if'){i++;const c=fm(paren()),y=stmt();let e=null;if(is('else')){i++;e=stmt();if(!e.length)e=null}return[{k:'if',c,y,e,l}]}
+if(t=='if'){i++;const ct=paren(),c=fm(ct),y=stmt();let e=null;if(is('else')){i++;e=stmt();if(!e.length)e=null}return[{k:'if',c,ct,y,e,l}]}
 if(t=='else')err("'else' without a matching 'if'");
-if(t=='while'){i++;const c=fm(paren());return[{k:'while',c,b:stmt(),l}]}
-if(t=='do'){i++;const b=stmt();eat('while');const c=fm(paren());eat(';');return[{k:'do',c,b,l}]}
-if(t=='for'){i++;const h=paren(),p=split(h,';');let init=null,c,step=null,pre=[];
-if(p.length==3){init=fm(p[0])||null;c=fm(p[1])||'true';step=fm(p[2])||null}
-else{const q2=split(h,':');if(q2.length<2)err("Invalid 'for' header",l);c='Items left in '+fm(q2[1])+'?';pre=[{k:'p',t:fm(q2[0])+' = next item of '+fm(q2[1]),l}]}
-return[{k:'for',i:init,c,s:step,b:pre.concat(stmt()),l}]}
-if(t=='switch'){i++;const c=fm(paren());eat('{');const cs=[];let cur=null;
+if(t=='while'){i++;const ct=paren(),c=fm(ct);return[{k:'while',c,ct,b:stmt(),l}]}
+if(t=='do'){i++;const b=stmt();eat('while');const ct=paren(),c=fm(ct);eat(';');return[{k:'do',c,ct,b,l}]}
+if(t=='for'){i++;const h=paren(),p=split(h,';');let init=null,c,step=null,pre=[],it=null,ct=null,stt=null,rf=null;
+if(p.length==3){init=fm(p[0])||null;c=fm(p[1])||'true';step=fm(p[2])||null;it=p[0];ct=p[1];stt=p[2]}
+else{const q2=split(h,':');if(q2.length<2)err("Invalid 'for' header",l);c='Items left in '+fm(q2[1])+'?';rf=[fm(q2[0]),fm(q2[1])];pre=[{k:'p',t:fm(q2[0])+' = next item of '+fm(q2[1]),l}]}
+return[{k:'for',i:init,c,it,ct,stt,rf,s:step,b:pre.concat(stmt()),l}]}
+if(t=='switch'){i++;const ct=paren(),c=fm(ct);eat('{');const cs=[];let cur=null;
 while(!is('}')){if(i>=T.length)err("Missing '}' for switch",l);const w=T[i];
 if(w.t=='case'||w.t=='default'){i++;let lab='default';if(w.t=='case'){const a=[];while(!is(':')){if(i>=T.length||is('}'))err("Expected ':' after case label",w.l);a.push(T[i++])}lab=fm(a)}eat(':');
 if(cur&&!cur.b.length){cur.lab+=', '+lab;if(w.t=='default')cur.d=1}else{cur={lab:w.t=='case'?'case '+lab:'default',d:w.t=='default',b:[]};cs.push(cur)}}
 else{if(!cur)err('Statement before the first case label',w.l);cur.b.push(...stmt())}}
-i++;return[{k:'sw',c,cs,l}]}
-if(t=='return'){i++;const a=semi();return[{k:'ret',t:'return'+(a.length?' '+fm(a):''),l}]}
+i++;return[{k:'sw',c,ct,cs,l}]}
+if(t=='return'){i++;const a=semi();return[{k:'ret',t:'return'+(a.length?' '+fm(a):''),q:a,l}]}
 if(t=='break'||t=='continue'){i++;eat(';');return[{k:t=='break'?'brk':'cnt',l}]}
 if(t=='goto')err('goto is not supported — it cannot be drawn as structured control flow');
 if(t=='case'||t=='default')err(`'${t}' outside of a switch`);
 return[simple()]}
-const fns=[],glob=[];
-while(i<T.length){if(is('}')){i++;continue}const h=[];let d=0;
-while(i<T.length&&!(d==0&&(T[i].t=='{'||T[i].t==';'))){if(T[i].t=='(')d++;if(T[i].t==')')d--;h.push(T[i++])}
+const fns=[],glob=[],globq=[];
+while(i<T.length){if(is('}')){i++;continue}const h=[];let d=0,eq=false;
+while(i<T.length&&!(d==0&&(T[i].t==';'||(T[i].t=='{'&&!eq)))){if(T[i].t=='='&&d==0)eq=true;if(T[i].t=='(')d++;if(T[i].t==')')d--;h.push(T[i++])}
 if(i>=T.length){if(h.length)err("Missing ';' at end of declaration",h[h.length-1].l);break}
 const ht=h.map(x=>x.t);
 if(T[i].t=='{'){const p=ht.indexOf('(');
-if(p>0&&!/^(struct|class|enum|union|namespace)$/.test(ht[0])){i++;fns.push({name:ht[p-1],params:fm(h.slice(p+1,ht.lastIndexOf(')'))),body:seq(),l:h[0].l})}
+if(p>0&&!/^(struct|class|enum|union|namespace)$/.test(ht[0])){i++;fns.push({name:ht[p-1],rt:fm(h.slice(0,p-1)).replace(/\S*::$/,'').trim(),params:fm(h.slice(p+1,ht.lastIndexOf(')'))),body:seq(),l:h[0].l})}
 else if(ht[0]=='namespace')i++;
 else{let dd=0;do{if(T[i].t=='{')dd++;if(T[i].t=='}')dd--;i++}while(dd&&i<T.length)}}
-else{i++;if(h.length&&!(ht.includes('(')&&!ht.includes('='))&&!/^(using|typedef)$/.test(ht[0]))glob.push(fm(h))}}
+else{i++;if(h.length&&!(ht.includes('(')&&!ht.includes('='))&&!/^(using|typedef)$/.test(ht[0])){glob.push(fm(h));globq.push(h)}}}
 if(!fns.length)err("No function found. Wrap your code in a function such as 'int main() { ... }'.",1);
 fns.sort((a,b)=>(b.name=='main')-(a.name=='main'));
-return{fns,glob,vars}}
+return{fns,glob,vars,globq}}
 /* ---------- layout ---------- */
 const CW=7.6,LH=17,GAP=34;let N,E,BK,CN,RT;
 function wrapT(t,n){const L=[];let c='';for(const w of t.split(' ')){if(c&&(c+' '+w).length>n){L.push(c);c=w}else c=c?c+' '+w:w}L.push(c);return L}
 function bx(t,k){const d=k=='dec',io=k=='in'||k=='out',L=wrapT(t,d?14:26),m=Math.max(...L.map(l=>l.length))*CW,h=L.length*LH;
 return d?{L,w:Math.max(130,m*1.5+36),h:Math.max(74,h+52)}:{L,w:Math.max(k=='term'?110:100,m+(io?72:44)),h:Math.max(k=='term'?40:38,h+24)}}
 function mk(k,t,cx,y){const g=bx(t,k),n={k,L:g.L,w:g.w,h:g.h,x:cx-g.w/2,y,cx};N.push(n);return n}
-function link(pe,tx,ty){pe.forEach(e=>{const p=e.pts.slice(),lx=p[p.length-1][0];if(lx!=tx)p.push([lx,ty-14],[tx,ty-14]);p.push([tx,ty]);E.push({pts:p,label:e.label,lp:e.lp})})}
+function link(pe,tx,ty){pe.forEach(e=>{const p=e.pts.slice(),lx=p[p.length-1][0];if(lx!=tx)p.push([lx,ty-14],[tx,ty-14]);p.push([tx,ty]);E.push({pts:p,label:e.label,lp:e.lp,dash:e.dash})})}
 const bad=(m,s)=>{throw{m,l:s.l}};
 function measure(l){let a=0,b=0;l.forEach(s=>{const m=M[s.k](s);a=Math.max(a,m.l);b=Math.max(b,m.r)});return{l:a,r:b}}
 function place(l,cx,y,pe,top){let first=null;for(let i=0;i<l.length;i++){if(!pe.length)break;const r=P[s=l[i],s.k](s,cx,y,pe,top&&i==l.length-1);first=first||r.first;y=r.y;pe=r.pend}return{y,pend:pe,first}}
@@ -200,41 +206,43 @@ function sim(k,t,cx,y,pe){const n=mk(k,t,cx,y);link(pe,cx,y);return{first:n,y:y+
 ['brk','cnt'].forEach(k=>M[k]=()=>{const w=bx('continue','p').w/2;return{l:w,r:w}});
 P.ret=(s,cx,y,pe,last)=>{if(last)return sim('ret',s.t,cx,y,pe);const n=mk('ret',s.t,cx,y);link(pe,cx,y);RT.push(n);return{first:n,y:y+n.h+GAP,pend:[]}};
 P.brk=(s,cx,y,pe)=>{const T=BK[BK.length-1];if(!T)bad("'break' used outside a loop or switch",s);const n=mk('brk','break',cx,y),cy=y+n.h/2;link(pe,cx,y);
-T.ends.push(T.sw?{pts:[[cx,y+n.h]]}:{pts:[[cx+n.w/2,cy],[T.R,cy]]});return{first:n,y:y+n.h+GAP,pend:[]}};
+T.ends.push(T.sw?{pts:[[cx,y+n.h]],bn:n}:cx<T.cx-2?{pts:[[cx-n.w/2,cy],[T.Lb,cy]],dash:true}:{pts:[[cx+n.w/2,cy],[T.R,cy]],dash:true});return{first:n,y:y+n.h+GAP,pend:[]}};
 P.cnt=(s,cx,y,pe)=>{const T=CN[CN.length-1];if(!T)bad("'continue' used outside a loop",s);const n=mk('cnt','continue',cx,y),cy=y+n.h/2;link(pe,cx,y);
-T.cends.push({pts:[[cx-n.w/2,cy],[T.L,cy]]});return{first:n,y:y+n.h+GAP,pend:[]}};
+T.cends.push({pts:[[cx-n.w/2,cy],[T.L,cy]],dash:true});return{first:n,y:y+n.h+GAP,pend:[]}};
 M.if=s=>{const dw=bx(s.c,'dec').w/2,T=measure(s.y);if(!s.e)return{l:Math.max(dw,T.l),r:Math.max(dw,T.r)+26};const e=measure(s.e);return{l:Math.max(T.r+22,dw+22)+T.l,r:Math.max(e.l+22,dw+22)+e.r}};
 P.if=(s,cx,y,pe)=>{const d=mk('dec',s.c,cx,y),dw=d.w/2,dh=d.h,cy=y+dh/2,ty=y+dh+GAP;link(pe,cx,y);const T=measure(s.y);
 if(!s.e){const a=place(s.y,cx,ty,[{pts:[[cx,y+dh]],label:'YES'}]),R=cx+Math.max(dw,T.r)+26;return{first:d,y:a.y,pend:[...a.pend,{pts:[[cx+dw,cy],[R,cy]],label:'NO'}]}}
 const e=measure(s.e),lx=cx-Math.max(T.r+22,dw+22),rx=cx+Math.max(e.l+22,dw+22);
 const a=place(s.y,lx,ty,[{pts:[[cx-dw,cy],[lx,cy]],label:'YES'}]),b=place(s.e,rx,ty,[{pts:[[cx+dw,cy],[rx,cy]],label:'NO'}]);
 return{first:d,y:Math.max(a.y,b.y),pend:[...a.pend,...b.pend]}};
-function back(ends,L,dx,dy){const ys=ends.map(e=>e.pts[e.pts.length-1][1]).filter(v=>v>dy),bY=Math.max(dy,...ys)+18;
-ends.forEach(e=>{const p=e.pts,lx=p[p.length-1][0];E.push({pts:lx==L?p.concat([[L,dy],[dx,dy]]):p.concat([[lx,bY],[L,bY],[L,dy],[dx,dy]]),label:e.label})})}
-M.while=s=>{const dw=bx(s.c,'dec').w/2,B=measure(s.b),m=Math.max(dw,B.l)+30,r=Math.max(dw,B.r)+30;return{l:m,r}};
-M.for=s=>{const dw=bx(s.c,'dec').w/2,B=measure(s.b),x=Math.max(dw,B.l,s.i?bx(s.i,'p').w/2:0,s.s?bx(s.s,'p').w/2:0)+30;return{l:x,r:Math.max(dw,B.r,s.i?bx(s.i,'p').w/2:0,s.s?bx(s.s,'p').w/2:0)+30}};
+function back(ends,L,dx,dy,bot){const ys=ends.map(e=>e.pts[e.pts.length-1][1]).filter(v=>v>dy),bY=Math.max(dy,bot||0,...ys)+18;
+ends.forEach(e=>{const p=e.pts,lx=p[p.length-1][0];E.push({pts:lx==L?p.concat([[L,dy],[dx,dy]]):p.concat([[lx,bY],[L,bY],[L,dy],[dx,dy]]),label:e.label,dash:e.dash})})}
+M.while=s=>{const dw=bx(s.c,'dec').w/2,B=measure(s.b),m=Math.max(dw,B.l)+46,r=Math.max(dw,B.r)+30;return{l:m,r}};
+M.for=s=>{const dw=bx(s.c,'dec').w/2,B=measure(s.b),x=Math.max(dw,B.l,s.i?bx(s.i,'p').w/2:0,s.s?bx(s.s,'p').w/2:0)+46;return{l:x,r:Math.max(dw,B.r,s.i?bx(s.i,'p').w/2:0,s.s?bx(s.s,'p').w/2:0)+30}};
 M.do=M.while;
-function loop(s,cx,y,pe,kind){const m=M[kind](s),L=cx-m.l,R=cx+m.r,T={ends:[],cends:[],R,L:kind=='for'?L+12:L};
+function loop(s,cx,y,pe,kind){const m=M[kind](s),Lb=cx-m.l,L=Lb+16,R=cx+m.r,T={ends:[],cends:[],R,Lb,cx,L:kind=='for'?L+12:L};
 let r0={first:null,y,pend:pe};if(kind=='for'&&s.i)r0=sim('p',s.i,cx,y,pe);y=r0.y;
-const d=mk('dec',s.c,cx,y),dw=d.w/2,dh=d.h,cy=y+dh/2;link(r0.pend,cx,y);BK.push(T);CN.push(T);
+const d=mk('dec',s.c,cx,y),dw=d.w/2,dh=d.h,cy=y+dh/2;link(r0.pend,cx,y);const nb0=N.length;BK.push(T);CN.push(T);
 const b=place(s.b,cx,y+dh+GAP,[{pts:[[cx,y+dh]],label:'YES'}]);BK.pop();CN.pop();
 let ends=b.pend.concat(T.cends),yy=b.y;
 if(kind=='for'&&s.s){const st=sim('p',s.s,cx,yy,ends);ends=st.pend;yy=st.y}
-back(ends,L,cx-dw,cy);
+back(ends,L,cx-dw,cy,Math.max(0,...N.slice(nb0).map(n=>n.y+n.h)));
 return{first:r0.first||d,y:yy,pend:[{pts:[[cx+dw,cy],[R,cy]],label:'NO'},...T.ends]}}
 P.while=(s,cx,y,pe)=>loop(s,cx,y,pe,'while');P.for=(s,cx,y,pe)=>loop(s,cx,y,pe,'for');
-P.do=(s,cx,y,pe)=>{const m=M.do(s),L=cx-m.l,R=cx+m.r,T={ends:[],cends:[],R,L},dg=bx(s.c,'dec');BK.push(T);CN.push(T);
+P.do=(s,cx,y,pe)=>{const m=M.do(s),Lb=cx-m.l,L=Lb+16,R=cx+m.r,T={ends:[],cends:[],R,Lb,cx,L},dg=bx(s.c,'dec');BK.push(T);CN.push(T);
 const b=place(s.b,cx,y,pe);BK.pop();CN.pop();const ends=b.pend.concat(T.cends),dy=b.y,d=mk('dec',s.c,cx,dy),cy=dy+d.h/2;link(ends,cx,dy);
 E.push({pts:[[cx-dg.w/2,cy],[L,cy],[L,y-14],[cx,y-14],[cx,y]],label:'YES',lp:[L+20,cy-9]});
 return{first:b.first||d,y:dy+d.h+GAP,pend:[{pts:[[cx,dy+d.h]],label:'NO'},...T.ends]}};
 function swGeo(s){const dg=bx('switch ('+s.c+')','dec'),cols=s.cs.map(c=>{const m=measure(c.b),a=Math.max(m.l,58),b=Math.max(m.r,58);return{c,a,w:a+b}}),tot=cols.reduce((t,c)=>t+c.w,0)+34*(cols.length-1);return{dg,cols,tot}}
-M.sw=s=>{const g=swGeo(s),h=Math.max(g.tot/2,g.dg.w/2);return{l:h,r:h+(s.cs.some(c=>c.d)?0:26)}};
+M.sw=s=>{const g=swGeo(s),h=Math.max(g.tot/2,g.dg.w/2);return{l:h+12,r:h+26}};
 P.sw=(s,cx,y,pe)=>{const g=swGeo(s),d=mk('dec','switch ('+s.c+')',cx,y),dh=d.h,cy=y+dh/2,ty=y+dh+GAP+14,m=M.sw(s),R=cx+m.r,T={ends:[],cends:[],R,sw:1};link(pe,cx,y);
 BK.push(T);let x0=cx-g.tot/2,ymax=ty,placed=[];
-g.cols.forEach(c=>{const ccx=x0+c.a,r=place(c.c.b,ccx,ty,[{pts:[[cx,y+dh],[cx,y+dh+16],[ccx,y+dh+16]],label:c.c.lab,lp:[ccx,y+dh+12]}]);placed.push({r,x0,x1:x0+c.w});ymax=Math.max(ymax,r.y);x0+=c.w+34});BK.pop();
+g.cols.forEach(c=>{const ccx=x0+c.a,n0=N.length,r=place(c.c.b,ccx,ty,[{pts:[[cx,y+dh],[cx,y+dh+16],[ccx,y+dh+16]],label:c.c.lab,lp:[ccx,y+dh+12]}]);placed.push({r,x0,x1:x0+c.w,n0,n1:N.length,cx:ccx});ymax=Math.max(ymax,r.y);x0+=c.w+34});BK.pop();
+T.ends.forEach(e=>{const b=e.bn;if(!b)return;const pc=placed.find(q=>b.cx>=q.x0-1&&b.cx<=q.x1+1);if(!pc)return;
+if(N.slice(pc.n0,pc.n1).some(n=>n!==b&&n.x<b.cx+2&&n.x+n.w>b.cx-2&&n.y>b.y+b.h-2&&n.y<ymax)){const cy=b.y+b.h/2;e.pts=b.cx<pc.cx-2?[[b.x,cy],[pc.x0-10,cy]]:[[b.x+b.w,cy],[pc.x1+10,cy]];e.dash=true}});
 const out=[...T.ends];
-placed.forEach((p,i)=>{const nx=placed[i+1];if(nx&&nx.r.first){p.r.pend.forEach(e=>{const q=e.pts[e.pts.length-1],gx=(p.x1+nx.x0)/2,fy=nx.r.first.y+nx.r.first.h/2;
-E.push({pts:e.pts.concat([[q[0],q[1]+16],[gx,q[1]+16],[gx,fy],[nx.r.first.x,fy]]),label:'fall through',lp:[gx,q[1]+8]})})}else out.push(...p.r.pend)});
+placed.forEach((p,i)=>{const nx=placed[i+1];if(nx&&nx.r.first){p.r.pend.forEach(e=>{const q=e.pts[e.pts.length-1],gx=(p.x1+nx.x0)/2,fy=nx.r.first.y+nx.r.first.h/2,yb=Math.max(q[1],...N.slice(p.n0,p.n1).map(n=>n.y+n.h))+16;
+const fp=e.pts.concat([[q[0],yb],[gx,yb],[gx,fy],[nx.r.first.x,fy]]);E.push(e.label?{pts:fp,label:e.label,label2:'fall through',lp2:[gx,yb-9],dash:true}:{pts:fp,label:'fall through',lp:[gx,yb-9],dash:true})})}else out.push(...p.r.pend)});
 if(!s.cs.some(c=>c.d))out.push({pts:[[cx+d.w/2,cy],[R,cy]],label:'no match'});
 return{first:d,y:ymax,pend:out}};
 /* ---------- rendering ---------- */
@@ -252,16 +260,17 @@ const y0=cy-(n.L.length-1)*LH/2+4,tx=n.L.map((l,i)=>`<tspan x="${n.cx}" y="${y0+
 return`<g fill="${f}" stroke="${s}" stroke-width="1.6" filter="url(#sh)">${sh}</g>${ex}<text text-anchor="middle" font-size="12.5" fill="#0f172a" font-weight="${n.k=='term'?700:500}">${tx}</text>`}
 function walk(l,f){l.forEach(s=>{f(s);[s.y,s.e,s.b,...(s.cs||[]).map(c=>c.b)].filter(Array.isArray).forEach(x=>walk(x,f))})}
 function lay(body,name,brk){N=[];E=[];BK=[];CN=[];RT=[];
-const st=mk('term',name,0,0),hs=[],m=measure(body),cw=m.l+m.r+70;let cx=0,pe=[{pts:[[0,st.h]]}],y=st.h+GAP;const top0=y;
+const st=mk('term',name,0,0),hs=[],m=measure(body),cw=m.l+m.r+70;let cx=0,pe=[{pts:[[0,st.h]]}],y=st.h+GAP,cs=N.length;const top0=y;
 for(let i=0;i<body.length;i++){
-if(brk.includes(i)&&pe.length){const yb=Math.max(...pe.map(e=>e.pts[e.pts.length-1][1]))+14,gx=cx+m.r+35;
-pe=pe.map(e=>{const q=e.pts[e.pts.length-1];return{pts:e.pts.concat([[q[0],yb],[gx,yb],[gx,top0-14]])}});cx+=cw;y=top0}
+if(brk.includes(i)&&pe.length){const yb=Math.max(...pe.map(e=>e.pts[e.pts.length-1][1]),...N.slice(cs).map(n=>n.y+n.h))+16,gx=cx+m.r+35;
+pe=pe.map(e=>{const q=e.pts[e.pts.length-1];return{pts:e.pts.concat([[q[0],yb],[gx,yb],[gx,top0-14]]),label:e.label}});cx+=cw;y=top0;cs=N.length}
 if(!pe.length)break;
 const y0=y,q=body[i],r=P[q.k](q,cx,y,pe,i==body.length-1);hs.push(r.y-y0);y=r.y;pe=r.pend}
 const sy=y,sp=mk('term','STOP',cx,sy);link(pe,cx,sy);
 if(brk.length&&RT.some(n=>n.x+n.w<cx-m.l))return null;
 let mx=-1e9;N.forEach(n=>mx=Math.max(mx,n.x+n.w));E.forEach(e=>e.pts.forEach(p=>mx=Math.max(mx,p[0])));
-RT.forEach((n,i)=>{const rx=mx+26+i*12,cy=n.y+n.h/2;E.push({pts:[[n.x+n.w,cy],[rx,cy],[rx,sy+sp.h/2],[sp.x+sp.w,sy+sp.h/2]]})});
+let mn=1e9;N.forEach(n=>mn=Math.min(mn,n.x));E.forEach(e=>e.pts.forEach(p=>mn=Math.min(mn,p[0])));let ri=0,li=0;
+RT.forEach(n=>{const cy=n.y+n.h/2,sc=sy+sp.h/2;if(n.cx<sp.cx-2){const lx=mn-26-li++*12;E.push({pts:[[n.x,cy],[lx,cy],[lx,sc],[sp.x,sc]],dash:true})}else{const rx=mx+26+ri++*12;E.push({pts:[[n.x+n.w,cy],[rx,cy],[rx,sc],[sp.x+sp.w,sc]],dash:true})}});
 let a=1e9,b=1e9,c=-1e9,d=-1e9;N.forEach(n=>{a=Math.min(a,n.x);b=Math.min(b,n.y);c=Math.max(c,n.x+n.w);d=Math.max(d,n.y+n.h)});
 E.forEach(e=>e.pts.forEach(p=>{a=Math.min(a,p[0]);b=Math.min(b,p[1]);c=Math.max(c,p[0]);d=Math.max(d,p[1])}));
 return{a,b,c,d,hs}}
@@ -274,9 +283,9 @@ if(H0/W0>1.8&&body.length>1){const n=Math.min(5,body.length,Math.max(2,Math.roun
 R.hs.forEach((h,i)=>{if(i>0&&acc>=k*tg&&br.length<n-1){br.push(i);k++}acc+=h});
 if(br.length){const R2=lay(body,name,br);R=R2||lay(body,name,[])}}
 const{a,b,c,d}=R;
-const lbl=E.map(e=>{if(!e.label)return'';let lp=e.lp;if(!lp){const p=e.pts,q=p[0],r=p.find(z=>z[0]!=q[0]||z[1]!=q[1])||q;lp=r[1]==q[1]?[q[0]+Math.sign(r[0]-q[0])*Math.min(26,Math.abs(r[0]-q[0])/2+6),q[1]-10]:[q[0]+17,q[1]+15]}return pill(e.label,lp[0],lp[1])}).join('');
+const lbl=E.map(e=>{if(!e.label)return'';let lp=e.lp;if(!lp){const p=e.pts,q=p[0],r=p.find(z=>z[0]!=q[0]||z[1]!=q[1])||q;lp=r[1]==q[1]?[q[0]+Math.sign(r[0]-q[0])*Math.min(26,Math.abs(r[0]-q[0])/2+6),q[1]-10]:[q[0]+17,q[1]+15]}return pill(e.label,lp[0],lp[1])+(e.label2?pill(e.label2,e.lp2[0],e.lp2[1]):'')}).join('');
 const defs=`<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0f172a" flood-opacity=".14"/></filter><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" fill="#64748b"/></marker></defs>`;
-const inner=defs+E.map(e=>`<path d="${pd(e.pts)}" fill="none" stroke="#94a3b8" stroke-width="1.5" marker-end="url(#ar)"/>`).join('')+N.map(drawN).join('')+lbl;
+const inner=defs+E.map(e=>`<path d="${pd(e.pts)}" fill="none" stroke="#94a3b8" stroke-width="1.5"${e.dash?' stroke-dasharray="6 4"':''} marker-end="url(#ar)"/>`).join('')+N.map(drawN).join('')+lbl;
 const S=sheet(f.name,inner,{x:a-30,y:b-30,w:c-a+60,h:d-b+60});return{name:f.name,inner:S.inner,W:S.W,H:S.H,b:{x:-24,y:-24,w:S.W+48,h:S.H+48},ex:explain(body)}}
 function sheet(name,inner,b){const land=b.w>b.h,W=land?1123:794,H=land?794:1123,m=40,top=m+30,aw=W-2*m,ah=H-top-m-16,k=Math.min(aw/b.w,ah/b.h,1.5),tx=m+(aw-b.w*k)/2-b.x*k,ty=top+(ah-b.h*k)/2-b.y*k;
 return{W,H,inner:`<text x="${m}" y="${m+8}" font-size="16" font-weight="700" fill="#0f172a" font-family="system-ui,sans-serif">${esc(name)}() — Flowchart</text><g transform="translate(${tx} ${ty}) scale(${k})">${inner}</g>`}}
@@ -293,6 +302,68 @@ case'do':a('Run the body once, then repeat while '+code(s.c)+':');go(s.b,d+1);br
 case'sw':a('Compare '+code(s.c)+' with each case:');s.cs.forEach(c=>{a('<b>'+esc(c.lab)+'</b> →');go(c.b,d+1)});break}})})(body,0);
 X.unshift([0,'<b>START</b>']);X.push([0,'<b>STOP</b>']);
 return X.map(([d,t],i)=>`<div style="margin-left:${d*18}px"><span style="color:var(--ac);font-weight:700">Step ${i+1}:</span> ${t}</div>`).join('')}
+/* ---------- pseudocode ---------- */
+const TPS=/^((const|static|unsigned|signed|register|extern)\s+)*(int|float|double|char|long|short|bool|string|auto|size_t|vector\S*|struct \w+)\b/;
+const TYK=/^(int|float|double|char|long|short|const|unsigned|signed|static|bool|string|auto|size_t|register|extern)$/;
+const KWS=/^(return|delete|new|throw|goto|else|case|default|sizeof|typedef|using|do)$/;
+const PM=Object.assign(Object.create(null),{'&&':'AND','||':'OR','!':'NOT','!=':'≠','<=':'≤','>=':'≥','%':'MOD'});
+const AOP=Object.assign(Object.create(null),{'=':1,'+=':'+','-=':'-','*=':'*','/=':'/','%=':'MOD','&=':'&','|=':'|','^=':'^','<<=':'<<','>>=':'>>'});
+let PS={};const ind=d=>'    '.repeat(d);
+function jn(a){let o='';a.forEach((x,i)=>{const t=PM[x.t]||x.t,p=i?a[i-1].t:'';if(x.t=='%')PS.mod=1;if(x.t=='/')PS.div=1;
+const ns=!i||/^([,;)\].]|::|->|\+\+|--)$/.test(t)||/^([(\[.]|::|->)$/.test(p)||t=='['||(i>0&&isUn(a,i-1))||(t=='('&&/^[A-Za-z_]\w*$/.test(p)&&!/^(return|sizeof)$/.test(p)&&!PM[p]);o+=(ns?'':' ')+t});return o}
+function topAssign(a){let dp=0;for(let i=0;i<a.length;i++){const t=a[i].t;if(t.length==1&&'([{'.includes(t))dp++;else if(t.length==1&&')]}'.includes(t))dp--;else if(!dp&&AOP[t])return i}return-1}
+function asg(a){const k=topAssign(a);if(k<1||k==a.length-1)return null;const lhs=a.slice(0,k),rhs=a.slice(k+1),op=a[k].t;
+if(lhs.some(t=>t.t=='++'||t.t=='--'||t.t=='('))return null;
+const L=jn(lhs),k2=topAssign(rhs);let pre=[],val;
+if(k2>0){const inn=asg(rhs);if(!inn)return null;pre=inn;val=jn(rhs.slice(0,k2))}else val=jn(rhs);
+const w=/^[\w.]+(\([^()]*\))?$/.test(val)?val:'('+val+')';
+return pre.concat(['SET '+L+' TO '+(op=='='?val:L+' '+AOP[op]+' '+w)])}
+function isCall(a){if(a[a.length-1].t!=')')return false;const k=a.findIndex(t=>t.t=='(');if(k<1)return false;
+if(!a.slice(0,k).every(t=>/^([A-Za-z_]\w*|\.|::|->)$/.test(t.t)))return false;let dp=0;
+for(let i=k;i<a.length;i++){if(a[i].t=='(')dp++;if(a[i].t==')'){dp--;if(!dp&&i<a.length-1)return false}}return true}
+function decl(a){const s0=/^(struct|enum|union)$/.test(a[0].t)?2:1,k=a.findIndex((x,j)=>j>=s0&&/^[*&A-Za-z_]/.test(x.t)&&!TYK.test(x.t));if(k<1)return null;
+const ty=jn(a.slice(0,k)).replace(/ ?([<>]) ?/g,'$1');
+return split(a.slice(k),',').map(d=>{let e=-1,dp=0;d.forEach((x,i)=>{const t=x.t;if(t.length==1&&'([{'.includes(t))dp++;else if(t.length==1&&')]}'.includes(t))dp--;else if(t=='='&&!dp&&e<0)e=i});
+const nm=jn(e<0?d:d.slice(0,e)).replace(/^([*&]+)\s+/,'$1');return'DECLARE '+nm+' : '+ty+(e<0?'':' ← '+jn(d.slice(e+1)))})}
+function stm(s){const a=s.q;if(!a||!a.length)return[s.t||''];const y0=a.map(t=>t.t),a2=y0[0]=='std'&&y0[1]=='::'?a.slice(2):a,y=a2.map(t=>t.t),last=y[y.length-1];
+if((y[0]=='scanf'||y[0]=='scanf_s')&&y[1]=='('&&last==')'){const j=a2.findIndex(t=>t.t[0]=='"');if(j>0){const r=split(a2.slice(j+2,-1),',').map(p=>jn(p).replace(/^&\s*/,''));if(r.length&&r.every(Boolean))return['READ '+r.join(', ')]}}
+if(y[0]=='cin'&&y[1]=='>>'){const r=split(a2.slice(1),'>>').filter(p=>p.length).map(jn);if(r.length)return['READ '+r.join(', ')]}
+if((y[0]=='cout'||y[0]=='cerr')&&y[1]=='<<'){const r=split(a2.slice(1),'<<').filter(p=>p.length).map(p=>{const t=jn(p);return/^(std::)?endl$/.test(t)?'NEWLINE':t});if(r.length)return[(y[0]=='cerr'?'PRINT TO ERROR STREAM ':'PRINT ')+r.join(', ')]}
+if(/^(printf|puts|putchar)$/.test(y[0])&&y[1]=='('&&last==')'){const v=jn(a2.slice(2,-1));if(v)return[{printf:'PRINT FORMATTED ',puts:'PRINT LINE ',putchar:'PRINT CHARACTER '}[y[0]]+v]}
+const ft=fm(a);
+if(TPS.test(ft)||TPS.test(ft.replace(/^std::/,''))||(/^[A-Za-z_]\w*$/.test(y0[0])&&/^[A-Za-z_]\w*$/.test(y0[1]||'')&&!KWS.test(y0[0]))){const dc=decl(a);if(dc)return dc}
+const parts=split(a,',');if(parts.length>1&&parts.every(p=>p.length))return parts.flatMap(p=>stm({q:p}));
+const f=y0[y0.length-1],isI=t=>t=='++'||t=='--',hasA=a.some(t=>AOP[t.t]);
+if(a.length>1&&isI(f)&&!hasA&&!a.slice(0,-1).some(t=>isI(t.t)))return[(f=='++'?'INCREMENT ':'DECREMENT ')+jn(a.slice(0,-1))];
+if(a.length>1&&isI(y0[0])&&!hasA&&!a.slice(1).some(t=>isI(t.t)))return[(y0[0]=='++'?'INCREMENT ':'DECREMENT ')+jn(a.slice(1))];
+const as=asg(a);if(as)return as;
+if(isCall(a))return['CALL '+jn(a)];
+return['EXECUTE '+jn(a)]}
+const jumps=l=>{const x=l[l.length-1];return!!x&&(/^(brk|ret|cnt)$/.test(x.k)||(x.k=='if'&&!!x.e&&jumps(x.y)&&jumps(x.e)))};
+function pg(l,d,L,cx){if(!l.length){L.push(ind(d)+'// do nothing');return}const I=ind(d);
+l.forEach(s=>{switch(s.k){
+case'p':case'call':case'in':case'out':stm(s).forEach(x=>L.push(I+x));break;
+case'ret':L.push(I+'RETURN'+(s.q&&s.q.length?' '+jn(s.q):''));break;
+case'brk':L.push(I+'BREAK   // leaves the '+cx[cx.length-1]);break;
+case'cnt':L.push(I+'CONTINUE');break;
+case'if':{L.push(I+'IF '+jn(s.ct)+' THEN');pg(s.y,d+1,L,cx);let e=s.e;
+while(e&&e.length==1&&e[0].k=='if'){const n=e[0];L.push(I+'ELSE IF '+jn(n.ct)+' THEN');pg(n.y,d+1,L,cx);e=n.e}
+if(e&&e.length){L.push(I+'ELSE');pg(e,d+1,L,cx)}L.push(I+'END IF');break}
+case'while':L.push(I+'WHILE '+(jn(s.ct)||'true')+' DO');pg(s.b,d+1,L,cx.concat('loop'));L.push(I+'END WHILE');break;
+case'do':L.push(I+'DO');pg(s.b,d+1,L,cx.concat('loop'));L.push(I+'WHILE '+jn(s.ct)+'   // checked after each pass');break;
+case'for':{const hp=a=>a&&a.length?stm({q:a}).join(', '):'';
+if(s.rf){L.push(I+'FOR EACH '+s.rf[0]+' IN '+s.rf[1]+' DO');pg(s.b.slice(1),d+1,L,cx.concat('loop'))}
+else{L.push(I+'FOR ('+hp(s.it)+'; '+(jn(s.ct)||'true')+'; '+hp(s.stt)+') DO');pg(s.b,d+1,L,cx.concat('loop'))}
+L.push(I+'END FOR');break}
+case'sw':{L.push(I+'SWITCH '+jn(s.ct));s.cs.forEach((c,i)=>{L.push(I+'    '+c.lab.replace(/^case /,'CASE ').replace(/\bdefault\b/,'DEFAULT')+':');pg(c.b,d+2,L,cx.concat('switch'));
+if(i<s.cs.length-1&&!jumps(c.b))L.push(I+'        // no BREAK: continues into the next case')});L.push(I+'END SWITCH');break}
+default:L.push(I+'EXECUTE '+(s.t||s.k))}})}
+function pseudo(Pr){PS={};const L=[];
+if(Pr.globq.length){L.push('// Global declarations');Pr.globq.forEach(q=>stm({q}).forEach(x=>L.push(x)));L.push('')}
+Pr.fns.forEach((f,i)=>{const rt=f.rt?(f.rt=='void'?' RETURNS nothing':' RETURNS '+f.rt):'';L.push('FUNCTION '+f.name+'('+f.params+')'+rt);pg(f.body,1,L,[]);L.push('END FUNCTION');if(i<Pr.fns.length-1)L.push('')});
+const n=[];if(PS.mod)n.push('MOD means remainder (the % operator).');if(PS.div)n.push('"/" works as in C: integer division when both operands are integers.');
+if(n.length){L.push('');n.forEach(x=>L.push('// Note: '+x))}
+return L.join('\n')}
 /* ---------- app ---------- */
 const ta=$('ta'),g=$('g'),stage=$('stage');let charts=[],cur=0,V={k:1,x:0,y:0},vp=null;
 const toast=m=>{const t=$('toast');t.textContent=m;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1800)};
@@ -312,15 +383,18 @@ const P=parse(ta.value),names=P.fns.map(f=>f.name);charts=P.fns.map((f,i)=>build
 let cnt={in:0,out:0,dec:0,loop:0,call:0,ret:0};
 P.fns.forEach((f,i)=>{const re=new RegExp('\\b('+names.join('|')+')\\s*\\(');walk(f.body,s=>{if(s.k=='in')cnt.in++;if(s.k=='out')cnt.out++;if(s.k=='if'||s.k=='sw')cnt.dec++;if(/^(while|for|do)$/.test(s.k))cnt.loop++;if(s.k=='ret')cnt.ret++;if(s.k=='p'&&re.test(s.t))cnt.call++})});
 $('chips').innerHTML=[`Entry: ${P.fns[0].name}()`,`Functions: ${P.fns.length}`,`Variables: ${P.vars.size}${P.vars.size?' ('+[...P.vars].slice(0,6).join(', ')+(P.vars.size>6?'…':'')+')':''}`,`Inputs: ${cnt.in}`,`Outputs: ${cnt.out}`,`Conditions: ${cnt.dec}`,`Loops: ${cnt.loop}`,`Calls: ${cnt.call}`,`Returns: ${cnt.ret}`].map(t=>`<span class="chip">${esc(t)}</span>`).join('');
-show(0)}catch(e){showErr(e)}$('ld').hidden=true},450)}
+try{$('psb').textContent=pseudo(P)}catch(e){$('psb').textContent='// Pseudocode could not be generated for this code.'}show(0)}catch(e){showErr(e)}$('ld').hidden=true},450)}
 $('go').onclick=gen;
-$('rs').onclick=()=>{ta.value='';gut();charts=[];stage.innerHTML='<div class="empty">Your flowchart will appear here</div>';$('tabs').innerHTML='';$('chips').innerHTML='';$('err').style.display='none';$('exb').innerHTML=''};
+$('rs').onclick=()=>{ta.value='';gut();charts=[];stage.innerHTML='<div class="empty">Your flowchart will appear here</div>';$('tabs').innerHTML='';$('chips').innerHTML='';$('err').style.display='none';$('exb').innerHTML='';$('psb').textContent=''};
 $('exs').onchange=e=>{if(e.target.value!==''){ta.value=EX[e.target.value];gut();gen();e.target.value=''}};
 $('zi').onclick=()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.25)};
 $('zo').onclick=()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,.8)};$('fit').onclick=fit;
 $('fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():$('pane').requestFullscreen&&$('pane').requestFullscreen();
 document.addEventListener('fullscreenchange',()=>setTimeout(fit,100));window.addEventListener('resize',fit);
-$('xp').onclick=()=>{const e=$('exp'),o=e.style.display=='block';e.style.display=o?'none':'block';$('xp').classList.toggle('on',!o);setTimeout(fit,50)};
+function pnl(id,btn){const e=$(id),o=e.style.display=='block';['exp','ps'].forEach(x=>$(x).style.display='none');['xp','pcb'].forEach(x=>$(x).classList.remove('on'));if(!o){e.style.display='block';$(btn).classList.add('on')}setTimeout(fit,50)}
+$('xp').onclick=()=>pnl('exp','xp');$('pcb').onclick=()=>pnl('ps','pcb');
+function cpt(t,msg){const ok=()=>toast(msg);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(ok,()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')?ok():toast('Copy not permitted here')}catch(e){toast('Copy not permitted here')}a.remove()})}
+$('cpp').onclick=()=>{const t=$('psb').textContent;if(!t)return toast('Generate a flowchart first');cpt(t,'Pseudocode copied')};
 stage.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.clientX,e.clientY,e.deltaY<0?1.12:.89)},{passive:false});
 const pts=new Map();
 stage.onpointerdown=e=>{stage.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY])};

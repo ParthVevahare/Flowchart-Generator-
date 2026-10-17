@@ -50,6 +50,8 @@ html[data-theme=dark]{color-scheme:dark;background:#0b1020;--bd:#2a3350;--tx:#e5
 [data-theme=dark] #exp{background:#0f1429}[data-theme=dark] #exp code{background:#232b55}
 [data-theme=dark] #ld{background:rgba(18,24,48,.85)}
 [data-theme=dark] #err{background:#3b1219;color:#fecaca;border-color:#7f1d1d}
+.dd{position:relative}.menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:8;min-width:170px;flex-direction:column;gap:2px;padding:5px;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,.18)}.menu.open{display:flex}.menu button{border:0;text-align:left;width:100%;border-radius:8px;background:transparent}
+[data-theme=dark] .menu{background:#1a2142}[data-theme=dark] .menu button{background:transparent}[data-theme=dark] .menu button:hover{background:#232b55}
 </style></head><body>
 <header><div><h1>Code <span>→</span> Flowchart</h1><div class="sub">Paste C / C++ code, get a faithful control-flow diagram.</div><div class="by">Made by Parth V</div><span id="vc" class="vc" hidden></span></div>
 <span style="display:flex;gap:6px;align-items:center"><button id="th">🌙 Dark</button><select id="exs"><option value="">Load example…</option><option value="0">Loops + switch + function</option><option value="1">Positive / negative</option><option value="2">while / do-while / break</option></select></span></header>
@@ -58,7 +60,7 @@ html[data-theme=dark]{color-scheme:dark;background:#0b1020;--bd:#2a3350;--tx:#e5
 <div id="err"></div><div class="ed"><div id="g"></div><textarea id="ta" spellcheck="false" wrap="off" placeholder="Paste C or C++ code here…"></textarea></div><div id="chips"></div></section>
 <section class="card" id="pane"><div class="bar" id="tb"><span id="tabs" style="display:flex;gap:4px;flex-wrap:wrap"></span><span style="flex:1"></span>
 <button id="zo">−</button><button id="zi">+</button><button id="fit">Fit</button><button id="fs">⛶</button><button id="xp">Algorithm</button>
-<button id="ePng">PNG</button><button id="eSvg">SVG</button><button id="ePdf">PDF</button><button id="cp">Copy</button><button id="sh">Share</button></div>
+<span class="dd"><button id="exm">Export ▾</button><div class="menu" id="mn"><button id="ePng">Download PNG</button><button id="eSvg">Download SVG</button><button id="ePdf">Download PDF</button><button id="cp">Copy image</button><button id="sh">Share…</button></div></span></div>
 <div id="stage"><div class="empty" id="em">Your flowchart will appear here</div></div><div id="exp"><div id="exh"><b>Algorithm</b><button id="cpa">Copy algorithm</button></div><div id="exb"></div></div><div id="ld" hidden><div class="sp"></div>Parsing code…</div></section>
 </main><div id="toast"></div>
 <script>
@@ -349,5 +351,7 @@ $('cpa').onclick=()=>{const t=[...$('exb').children].map(d=>'  '.repeat(Math.rou
 if(/^G-[A-Z0-9]+$/.test(SITE.ga)){const gs=document.createElement('script');gs.async=1;gs.src='https://www.googletagmanager.com/gtag/js?id='+SITE.ga;document.head.appendChild(gs);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config',SITE.ga)}
 if(SITE.ns){let seen=null;try{seen=sessionStorage.getItem('vc')}catch(e){}
 fetch(`https://abacus.jasoncameron.dev/${seen?'get':'hit'}/${encodeURIComponent(SITE.ns)}/${encodeURIComponent(SITE.key)}`).then(r=>r.json()).then(d=>{if(d&&d.value!=null){$('vc').hidden=false;$('vc').textContent='📈 '+Number(d.value).toLocaleString()+' visits';try{sessionStorage.setItem('vc','1')}catch(e){}}}).catch(()=>{})}
+const mn=$('mn');$('exm').onclick=e=>{e.stopPropagation();mn.classList.toggle('open')};mn.onclick=()=>mn.classList.remove('open');
+document.addEventListener('click',()=>mn.classList.remove('open'));document.addEventListener('keydown',e=>{if(e.key=='Escape')mn.classList.remove('open')});
 ta.value=EX[0];gut();gen();
 </script></body></html>

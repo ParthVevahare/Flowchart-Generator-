@@ -348,6 +348,6 @@ $('cpa').onclick=()=>{const t=[...$('exb').children].map(d=>'  '.repeat(Math.rou
 (navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(ok,()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')?ok():toast('Copy not permitted here')}catch(e){toast('Copy not permitted here')}a.remove()})};
 if(/^G-[A-Z0-9]+$/.test(SITE.ga)){const gs=document.createElement('script');gs.async=1;gs.src='https://www.googletagmanager.com/gtag/js?id='+SITE.ga;document.head.appendChild(gs);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config',SITE.ga)}
 if(SITE.ns){let seen=null;try{seen=sessionStorage.getItem('vc')}catch(e){}
-fetch(`https://abacus.jasoncameron.dev/${seen?'get':'hit'}/${encodeURIComponent(SITE.ns)}/${encodeURIComponent(SITE.key)}`).then(r=>r.json()).then(d=>{if(d&&d.value!=null){$('vc').hidden=false;$('vc').textContent='👁 '+Number(d.value).toLocaleString()+' visits';try{sessionStorage.setItem('vc','1')}catch(e){}}}).catch(()=>{})}
+fetch(`https://abacus.jasoncameron.dev/${seen?'get':'hit'}/${encodeURIComponent(SITE.ns)}/${encodeURIComponent(SITE.key)}`).then(r=>r.json()).then(d=>{if(d&&d.value!=null){$('vc').hidden=false;$('vc').textContent='📈 '+Number(d.value).toLocaleString()+' visits';try{sessionStorage.setItem('vc','1')}catch(e){}}}).catch(()=>{})}
 ta.value=EX[0];gut();gen();
 </script></body></html>

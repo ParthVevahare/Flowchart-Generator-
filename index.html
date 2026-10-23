@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><title>Code → Flowchart</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--ac:#6366f1;--bd:#e2e8f0;--tx:#0f172a;--mu:#64748b}
+*{box-sizing:border-box}html,body{height:100%;margin:0}
+body{background:linear-gradient(160deg,#f8fafc,#eef2ff);color:var(--tx);font:14px system-ui,-apple-system,Segoe UI,sans-serif;display:flex;flex-direction:column;padding:12px;gap:10px}
+h1{font-size:19px;margin:0}h1 span{color:var(--ac)}header{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.sub{color:var(--mu);font-size:12px}.by{display:inline-block;margin-top:5px;padding:3px 13px;border-radius:99px;background:linear-gradient(90deg,#6366f1,#ec4899);color:#fff;font-size:12.5px;font-weight:700;letter-spacing:.3px;box-shadow:0 2px 10px rgba(99,102,241,.4)}
+main{flex:1;min-height:0;display:grid;grid-template-columns:minmax(300px,36%) 1fr;gap:12px}
+.card{background:#fff;border:1px solid var(--bd);border-radius:16px;box-shadow:0 4px 18px rgba(15,23,42,.06);display:flex;flex-direction:column;min-height:0;overflow:hidden}
+.bar{display:flex;gap:6px;padding:8px;border-bottom:1px solid var(--bd);flex-wrap:wrap;align-items:center}
+button,select{font:inherit;border:1px solid var(--bd);background:#fff;border-radius:10px;padding:6px 10px;cursor:pointer;color:var(--tx)}
+button:hover{background:#f1f5f9}button.pri{background:var(--ac);color:#fff;border-color:var(--ac);font-weight:600}button.pri:hover{background:#4f46e5}
+button.on{background:#e0e7ff;border-color:var(--ac)}
+.ed{flex:1;display:flex;min-height:0;font:13px/20px ui-monospace,Menlo,Consolas,monospace}
+#g{padding:10px 8px;text-align:right;color:#94a3b8;background:#f8fafc;border-right:1px solid var(--bd);overflow:hidden;user-select:none}
+#g div{height:20px}#g .e{background:#fee2e2;color:#b91c1c;font-weight:700}
+#ta{flex:1;border:0;outline:0;resize:none;padding:10px;font:inherit;white-space:pre;overflow:auto;tab-size:4;color:#0f172a;background:#fff;color-scheme:light;caret-color:#4f46e5}
+#ta::selection{background:#c7d2fe}.ed{background:#fff}html{color-scheme:light;background:#f8fafc}
+#err{display:none;margin:8px;padding:8px 10px;border-radius:10px;background:#fef2f2;color:#991b1b;border:1px solid #fecaca;font-size:13px}
+#chips{display:flex;gap:5px;flex-wrap:wrap;padding:8px;border-top:1px solid var(--bd)}
+.chip{background:#eef2ff;color:#3730a3;border-radius:99px;padding:2px 9px;font-size:12px}
+#pane{position:relative;background:#fff}
+#stage{flex:1;min-height:0;touch-action:none;cursor:grab;background:radial-gradient(#e2e8f0 1px,transparent 1px) 0 0/18px 18px}
+#stage svg{width:100%;height:100%;display:block}
+#ld{position:absolute;inset:0;background:rgba(255,255,255,.8);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;z-index:5;color:var(--mu)}
+#ld[hidden]{display:none}.sp{width:34px;height:34px;border:4px solid #e0e7ff;border-top-color:var(--ac);border-radius:50%;animation:r .8s linear infinite}@keyframes r{to{transform:rotate(360deg)}}
+#exp{display:none;max-height:38%;overflow:auto;border-top:1px solid var(--bd);padding:10px 14px;background:#fafaff;font-size:13px;line-height:1.7}
+.algorithm ol,.algorithm ul{margin:6px 0;padding-left:24px}.algorithm li{padding:2px 0;overflow-wrap:anywhere}.algorithm ol>li::marker{color:var(--ac);font-weight:700}
+#exp code{background:#eef2ff;padding:1px 5px;border-radius:5px}
+#exh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:sticky;top:-10px;background:inherit;padding:2px 0}#exh button{padding:3px 10px;font-size:12px}
+.vc{margin-left:8px;font-size:12px;color:var(--mu)}
+.empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--mu);pointer-events:none}
+#toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#0f172a;color:#fff;padding:8px 14px;border-radius:10px;opacity:0;transition:.25s;pointer-events:none;z-index:9}
+@media(max-width:860px){body{height:auto}main{grid-template-columns:1fr}.card{min-height:340px}#pane{height:75dvh}}
+
+html[data-theme=dark]{color-scheme:dark;background:#0b1020;--bd:#2a3350;--tx:#e5e9f5;--mu:#94a3b8;--ac:#818cf8}
+[data-theme=dark] body{background:linear-gradient(160deg,#0b1020,#151a33);color:var(--tx)}
+[data-theme=dark] .card,[data-theme=dark] .ed,[data-theme=dark] #pane,[data-theme=dark] #ta{background:#121830}
+[data-theme=dark] #ta{color:#e5e9f5;caret-color:#a5b4fc;color-scheme:dark}
+[data-theme=dark] #ta::selection{background:#3b4390}
+[data-theme=dark] #g{background:#0f1429;color:#64748b}[data-theme=dark] #g .e{background:#4c1d24;color:#fca5a5}
+[data-theme=dark] button,[data-theme=dark] select{background:#1a2142;color:var(--tx);border-color:var(--bd)}
+[data-theme=dark] button:hover{background:#232b55}
+[data-theme=dark] button.pri{background:#6366f1;color:#fff;border-color:#6366f1}
+[data-theme=dark] button.on{background:#2b3270;border-color:#818cf8}
+[data-theme=dark] .chip{background:#232b55;color:#c7d2fe}
+[data-theme=dark] #stage{background:radial-gradient(#2a3350 1px,transparent 1px) 0 0/18px 18px}
+[data-theme=dark] #exp{background:#0f1429}[data-theme=dark] #exp code{background:#232b55}
+[data-theme=dark] #ld{background:rgba(18,24,48,.85)}
+[data-theme=dark] #err{background:#3b1219;color:#fecaca;border-color:#7f1d1d}
+footer{text-align:center;font-size:12px;color:var(--mu);padding:0 8px 2px}footer a{color:var(--ac);font-weight:600;text-decoration:none}footer a:hover{text-decoration:underline}
+.dd{position:relative}.menu{display:none;position:absolute;right:0;top:calc(100% + 6px);z-index:8;min-width:170px;flex-direction:column;gap:2px;padding:5px;background:#fff;border:1px solid var(--bd);border-radius:12px;box-shadow:0 10px 30px rgba(15,23,42,.18)}.menu.open{display:flex}.menu button{border:0;text-align:left;width:100%;border-radius:8px;background:transparent}
+[data-theme=dark] .menu{background:#1a2142}[data-theme=dark] .menu button{background:transparent}[data-theme=dark] .menu button:hover{background:#232b55}
+#ps{display:none;max-height:38%;overflow:auto;border-top:1px solid var(--bd);padding:10px 14px;background:#fafaff}
+#psh{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;position:sticky;top:-10px;background:inherit;padding:2px 0;font-size:13px}#psh button{padding:3px 10px;font-size:12px}
+#psb{margin:0;font:12.5px/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre;overflow:auto}
+[data-theme=dark] #ps{background:#0f1429}
+</style></head><body>
+<header><div><h1>Code <span>→</span> Flowchart</h1><div class="by">Made by Parth V</div><span id="vc" class="vc" hidden></span></div>
+<span style="display:flex;gap:6px;align-items:center"><button id="th">🌙 Dark</button><select id="exs"><option value="">Load example…</option><option value="0">C · loop + if/else + switch</option><option value="1">C++ · positive / negative</option><option value="2">C · while / do-while / break</option><option value="3">Python · loops + if/elif</option><option value="4">Python · functions</option><option value="5">Java · loop + switch</option></select></span></header>
+<main>
+<section class="card"><div class="bar"><button class="pri" id="go">▶ Generate Flowchart</button><button id="rs">Reset</button><span style="flex:1"></span><select id="lang" title="Language of your code"><option value="auto">Auto-detect language</option><option value="c">C / C++</option><option value="python">Python</option><option value="java">Java</option></select></div>
+<div id="err"></div><div class="ed"><div id="g"></div><textarea id="ta" spellcheck="false" wrap="off" placeholder="Paste C, C++, Python or Java code here…"></textarea></div><div id="chips"></div></section>
+<section class="card" id="pane"><div class="bar" id="tb"><span id="tabs" style="display:flex;gap:4px;flex-wrap:wrap"></span><span style="flex:1"></span>
+<button id="zo">−</button><button id="zi">+</button><button id="fit">Fit</button><button id="fs">⛶</button><button id="xp">Algorithm</button><button id="pcb">Pseudocode</button>
+<span class="dd"><button id="exm">Export ▾</button><div class="menu" id="mn"><button id="ePng">Download PNG</button><button id="eSvg">Download SVG</button><button id="ePdf">Download PDF</button><button id="cp">Copy image</button><button id="sh">Share…</button></div></span></div>
+<div id="stage"><div class="empty" id="em">Your flowchart will appear here</div></div><div id="exp"><div id="exh"><b>Algorithm</b><button id="cpa">Copy algorithm</button></div><div id="exb"></div></div><div id="ps"><div id="psh"><b>Pseudocode</b><button id="cpp">Copy pseudocode</button></div><pre id="psb"></pre></div><div id="ld" hidden><div class="sp"></div>Parsing code…</div></section>
+</main><footer id="aff">Preparing for exams? <a href="https://www.amazon.in/Casio-FX-991CW-Non-Programmable-Scientific-Calculator/dp/B0BLVCFK8D?crid=2SKRL88L8R3SA&amp;dib=eyJ2IjoiMSJ9.chtpo9_MTp_njGRxMXK2vGUjCnQ793_O5vuoqDirEJXGhwcUsdb15I3pKmJn7dlO31V_wJbgdGy6g1IF-zg-EC1yUzb167A8MtmKg8VX6T1nzSuZFhPVrjpyiqQQyjuuz30PQYS_3VjqqSaTGeW4IQDT8fffvx9Kg8NNNLhs7sK08G1poN9f_q766AOt_eDgOYv6_0goWvsQzVpJdqs0_avT_rVm_EjIgBQIqKg6b3e44bJlFiR1IuO0vi2_1I0uIJW2Uik7_is6JGvE8kgV3QotqZ078kmh-bp521ncaFY.pRBBURL9H9pwVW59SgcWx3F8FnfwXhweABko881WKiw&amp;dib_tag=se&amp;keywords=scientific%2Bcalculator%2Bcasio&amp;qid=1792439735&amp;s=electronics&amp;sprefix=scie%2Celectronics%2C260&amp;sr=1-8&amp;th=1&amp;linkCode=ll2&amp;tag=parthvevahare-21&amp;linkId=cd219fa68ba4091f183d01fb5638f682&amp;ref_=as_li_ss_tl" target="_blank" rel="sponsored nofollow noopener noreferrer">Casio fx-991CW calculator ↗</a></footer><div id="toast"></div>
+<script>
+const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+/* ===== SITE SETTINGS — fill these in before deploying ===== */
+const SITE={ga:'G-8VGN06RJCS',/* Google Analytics 4 Measurement ID, e.g. 'G-XXXXXXXXXX' */ns:'parthvevahare-flowchart',/* unique counter name, e.g. 'yourgithubname-flowchart' (leave '' to hide the counter) */key:'visits'};
+const EX=[String.raw`#include <stdio.h>
+
+int main() {
+    int n, i, evens = 0, odds = 0;
+    printf("Enter a number: ");
+    scanf("%d", &n);
+    for (i = 1; i <= n; i++) {
+        if (i % 2 == 0) {
+            evens++;
+        } else {
+            odds++;
+        }
+    }
+    switch (n % 3) {
+        case 0: printf("Divisible by 3\n"); break;
+        case 1: printf("Remainder 1\n"); break;
+        default: printf("Remainder 2\n");
+    }
+    printf("Evens: %d, Odds: %d\n", evens, odds);
+    return 0;
+}`,String.raw`#include <iostream>
+using namespace std;
+int main() {
+    int n;
+    cout << "Enter n: ";
+    cin >> n;
+    if (n > 0) {
+        cout << "POSITIVE" << endl;
+    } else {
+        cout << "NEGATIVE" << endl;
+    }
+    return 0;
+}`,String.raw`#include <stdio.h>
+int main() {
+    int n = 10, count = 0;
+    while (n > 0) {
+        n = n - 3;
+        if (n == 4) break;
+        count++;
+    }
+    do {
+        count--;
+    } while (count > 0);
+    printf("%d", count);
+    return 0;
+}`,String.raw`n = int(input("Enter a number: "))
+total = 0
+for i in range(1, n + 1):
+    if i % 3 == 0:
+        total += i
+    elif i % 5 == 0:
+        print("multiple of 5:", i)
+    else:
+        continue
+while total > 10:
+    total -= 4
+print("Total:", total)`,String.raw`def is_prime(n):
+    if n < 2:
+        return False
+    for d in range(2, n):
+        if n % d == 0:
+            return False
+    return True
+
+limit = int(input("Limit: "))
+count = 0
+for k in range(2, limit + 1):
+    if is_prime(k):
+        count += 1
+print("Primes up to", limit, ":", count)`,String.raw`import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        System.out.print("Enter a number: ");
+        int n = sc.nextInt();
+        int evens = 0, odds = 0;
+        for (int i = 1; i <= n; i++) {
+            if (i % 2 == 0) {
+                evens++;
+            } else {
+                odds++;
+            }
+        }
+        switch (n % 3) {
+            case 0:
+                System.out.println("Divisible by 3");
+                break;
+            case 1:
+                System.out.println("Remainder 1");
+                break;
+            default:
+                System.out.println("Remainder 2");
+        }
+        System.out.println("Evens: " + evens + ", Odds: " + odds);
+    }
+}`];
+/* ---------- parser ---------- */
+function lex(src){const T=[],re=/\/\/[^\n]*|\/\*[\s\S]*?\*\/|^[ \t]*#[^\n]*|"(?:\\.|[^"\\\n])*"|'(?:\\.|[^'\\\n])*'|\d[\w.]*|[A-Za-z_]\w*|<<=|>>=|<<|>>|\+\+|--|->|::|[=!<>+\-*\/%&|^]=|&&|\|\||\S|\n/gm;let line=1,m;
+while(m=re.exec(src)){const t=m[0];if(t=='\n'){line++;continue}if(/^\s*(\/[\/*]|#)/.test(t)){line+=(t.match(/\n/g)||[]).length;continue}T.push({t,l:line})}return T}
+function isUn(a,k){const t=a[k].t;if(!/^(\+|-|\+\+|--)$/.test(t))return false;if(!k)return true;const p=a[k-1].t;return!(/^[\w"')\]]/.test(p)&&!/^(return|case|else|do|and|or|not|in|is|if|elif|while|lambda|yield)$/.test(p))}
+const jt=a=>{let o='',st=[],nn=false;a.forEach((x,i)=>{const t=x.t;let sp=i&&!isUn(a,i-1)&&!nn;nn=false;
+if(t=='['&&i&&/^[A-Za-z_0-9)\]"']/.test(a[i-1].t)&&!/^(return|in|and|or|not|is|if|else|elif|yield|lambda|case|do)$/.test(a[i-1].t))sp=false;
+if(LANG=='python'){const top=st[st.length-1];if(t==':'){sp=false;if(top=='[')nn=true}else if(t=='}'||(i&&a[i-1].t=='{'))sp=false}
+if(t.length==1){if('([{'.includes(t))st.push(t);else if(')]}'.includes(t))st.pop()}
+o+=(sp?' ':'')+t});return o};
+const fm=a=>jt(a).replace(/\s+([,;)\]])/g,'$1').replace(/([(\[!])\s+/g,'$1').replace(/\s*(::|->|\+\+|--|\.)\s*/g,(m,o)=>o).replace(/\b(?!(?:return|not|and|or|in|is|if|elif|while|lambda|yield|await|assert|del)\b)(\w+)\s+\(/g,'$1(').replace(/\s+/g,' ').trim();
+const split=(a,s)=>{const r=[[]];let d=0;a.forEach(x=>{if('([{'.includes(x.t)&&x.t.length==1)d++;if(')]}'.includes(x.t)&&x.t.length==1)d--;if(x.t==s&&!d)r.push([]);else r[r.length-1].push(x)});return r};
+const JIN=/^(nextInt|nextLine|nextDouble|nextLong|nextFloat|nextBoolean|nextShort|nextByte|next|readLine|read)$/;
+const MODS=/^(const|static|final|public|private|protected|abstract|volatile|transient|synchronized|native|register|extern|signed|mutable|inline|constexpr)$/;
+function mc(a,k){let d=0;for(let i=k;i<a.length;i++){if(a[i].t=='(')d++;else if(a[i].t==')'){d--;if(!d)return i}}return-1}
+function topEq(a){let d=0;for(let i=0;i<a.length;i++){const t=a[i].t;if(t.length==1&&'([{'.includes(t))d++;else if(t.length==1&&')]}'.includes(t))d--;else if(!d&&t=='=')return i}return-1}
+function lname(l){let k=l.length-1;if(l[k].t==']'){let d=0;for(;k>=0;k--){if(l[k].t==']')d++;else if(l[k].t=='['){d--;if(!d){k--;break}}}}while(k>0&&l[k-1].t=='.')k-=2;return fm(l.slice(Math.max(k,0)))}
+function javaIO(a,s,f,l,hasIO){
+if(s[0]=='System'&&s[1]=='.'&&/^(out|err)$/.test(s[2])&&s[3]=='.'&&/^(print|println|printf|format)$/.test(s[4])&&s[5]=='('&&mc(a,5)==a.length-1){
+const args=a.slice(6,-1),m=s[4];return{k:'out',t:'Output: '+(m=='println'?(args.length?fm(args)+', newline':'newline'):fm(args)||'(nothing)'),l,q:a,pk:'jout',pm:m,pa:args,pe:s[2]=='err'}}
+if(hasIO){const j=s.findIndex((x,i)=>i>1&&s[i-1]=='.'&&JIN.test(x)&&s[i+1]=='(');
+if(j>0){const eq=topEq(a);if(eq>0){const lhs=a.slice(0,eq),rhs=a.slice(eq+1),nm=lname(lhs);return{k:'in',t:'Input: '+nm,l,q:a,pk:'jread',pl:lhs,pr:rhs,pn:nm}}return{k:'in',t:'Input: '+f,l,q:a}}}
+return null}
+function parseC(src,java){const T=lex(src);let i=0;const vars=new Set(),hasIO=java&&T.some(x=>/^(Scanner|BufferedReader|Console|DataInputStream)$/.test(x.t));
+const err=(m,l)=>{throw{m,l:l||(T[Math.min(i,T.length-1)]||{l:1}).l}};
+const st=[];for(const k of T){if(k.t.length>1)continue;if('({['.includes(k.t))st.push(k);else if(')}]'.includes(k.t)){const o=st.pop();if(!o||'({['.indexOf(o.t)!=')}]'.indexOf(k.t))err(`Unmatched '${k.t}'`+(o?` (the last open bracket was '${o.t}' on line ${o.l})`:''),k.l)}}
+if(st.length)err(`'${st[st.length-1].t}' is never closed`,st[st.length-1].l);
+const is=t=>T[i]&&T[i].t==t;
+const eat=t=>{if(!is(t))err(`Expected '${t}'`+(T[i]?` but found '${T[i].t}'`:' but reached the end of the code'),t==';'?T[i-1].l:(T[i]||T[i-1]).l);i++};
+const paren=()=>{eat('(');const a=[];let d=0;while(i<T.length){const t=T[i].t;if(t=='(')d++;if(t==')'){if(!d)break;d--}a.push(T[i++])}eat(')');return a};
+function semi(){const a=[];let d=0;while(i<T.length){const t=T[i].t;if(t.length==1&&'({['.includes(t))d++;else if(t.length==1&&')}]'.includes(t))d--;
+if(d<0)err(`Missing ';' before '${t}'`,T[i-1].l);if(t==';'&&!d)break;const p=a[a.length-1];
+if(p&&/^[\w"')\]]/.test(p.t)&&/^[\w"']/.test(t)&&T[i].l>p.l&&!d)err(`Missing ';' at the end of line ${p.l}`,p.l);a.push(T[i++])}
+if(i>=T.length)err("Missing ';' at end of statement",T[T.length-1].l);i++;return a}
+function seq(){const r=[];while(!is('}')){if(i>=T.length)err("Missing '}'");r.push(...stmt())}i++;return r}
+const TP=/^((const|static|unsigned|signed|register|extern)\s+)*(int|float|double|char|long|short|bool|string|auto|size_t|vector\S*|struct \w+)\b/;
+function simple(){const a=semi(),f=fm(a),s=a.map(x=>x.t),has=n=>s.includes(n),l=a[0]?a[0].l:0;let k='p',t=f;if(java){const jr=javaIO(a,s,f,l,hasIO);if(jr)return jr}
+if(['scanf','scanf_s','cin','gets','getline','getchar','fgets'].some(has)){k='in';t='Input: '+f;
+if(has('scanf')||has('scanf_s')){const j=a.findIndex(x=>x.t[0]=='"');t='Input: '+split(a.slice(j+2,-1),',').map(x=>fm(x).replace(/^&/,'')).join(', ')}
+else if(has('cin')&&s[s.indexOf('cin')+1]=='>>')t='Input: '+split(a.slice(s.indexOf('cin')+1),'>>').map(fm).filter(Boolean).join(', ')}
+else if(['printf','puts','putchar','cout','cerr','fprintf'].some(has)){k='out';t='Output: '+f;
+const pi=s.findIndex(x=>/^(printf|puts|putchar)$/.test(x));
+if(pi>=0)t='Output: '+fm(a.slice(pi+2,-1));
+else if(has('cout')||has('cerr'))t='Output: '+split(a.slice(s.findIndex(x=>/^c(out|err)$/.test(x))+1),'<<').map(fm).filter(Boolean).join(', ')}
+else if(TP.test(f)){const rest=f.replace(TP,'');split(a.slice(a.findIndex((x,j)=>j>0&&/^[*&A-Za-z_]/.test(x.t)&&!/^(int|float|double|char|long|short|const|unsigned|signed|static|bool|string|auto|size_t|struct)$/.test(x.t))),',').forEach(p=>{const m=fm(p).match(/^[*&\s]*([A-Za-z_]\w*)/);if(m)vars.add(m[1])});
+if(!f.includes('=')&&!f.includes('('))t='Declare '+f}
+if(java&&k=='p'&&isDeclStmt(a)){(decl(a)||[]).forEach(x=>{const m=x.match(/^DECLARE \*?(\w+)/);if(m)vars.add(m[1])})}
+return{k,t,l,q:a}}
+function stmt(){const q=T[i];if(!q)err('Unexpected end of code');const t=q.t,l=q.l;
+if(t=='{'){i++;return seq()}if(t==';'){i++;return[]}
+if(t=='if'){i++;const ct=paren(),c=fm(ct),y=stmt();let e=null;if(is('else')){i++;e=stmt();if(!e.length)e=null}return[{k:'if',c,ct,y,e,l}]}
+if(t=='else')err("'else' without a matching 'if'");
+if(t=='while'){i++;const ct=paren(),c=fm(ct);return[{k:'while',c,ct,b:stmt(),l}]}
+if(t=='do'){i++;const b=stmt();eat('while');const ct=paren(),c=fm(ct);eat(';');return[{k:'do',c,ct,b,l}]}
+if(t=='for'){i++;const h=paren(),p=split(h,';');let init=null,c,step=null,pre=[],it=null,ct=null,stt=null,rf=null;
+if(p.length==3){init=fm(p[0])||null;c=fm(p[1])||'true';step=fm(p[2])||null;it=p[0];ct=p[1];stt=p[2]}
+else{const q2=split(h,':');if(q2.length<2)err("Invalid 'for' header",l);c='Items left in '+fm(q2[1])+'?';rf=[fm(q2[0]),fm(q2[1])];pre=[{k:'p',t:fm(q2[0])+' = next item of '+fm(q2[1]),l}]}
+return[{k:'for',i:init,c,it,ct,stt,rf,rft:rf?split(h,':'):null,s:step,b:pre.concat(stmt()),l}]}
+if(t=='switch'){i++;const ct=paren(),c=fm(ct);eat('{');const cs=[];let cur=null;
+while(!is('}')){if(i>=T.length)err("Missing '}' for switch",l);const w=T[i];
+if(w.t=='case'||w.t=='default'){i++;if(is('->'))err("Arrow-style switch cases (case X -> ...) are not supported yet — use case X: ... break;",w.l);let lab='default';if(w.t=='case'){const a=[];while(!is(':')){if(is('->'))err("Arrow-style switch cases (case X -> ...) are not supported yet — use case X: ... break;",w.l);if(i>=T.length||is('}'))err("Expected ':' after case label",w.l);a.push(T[i++])}lab=fm(a)}eat(':');
+if(cur&&!cur.b.length){cur.lab+=', '+lab;if(w.t=='default')cur.d=1}else{cur={lab:w.t=='case'?'case '+lab:'default',d:w.t=='default',b:[]};cs.push(cur)}}
+else{if(!cur)err('Statement before the first case label',w.l);cur.b.push(...stmt())}}
+i++;return[{k:'sw',c,ct,cs,l}]}
+if(t=='return'){i++;const a=semi();return[{k:'ret',t:'return'+(a.length?' '+fm(a):''),q:a,l}]}
+if(t=='break'||t=='continue'){i++;if(T[i]&&/^[A-Za-z_]/.test(T[i].t))err('Labeled '+t+' is not supported yet',l);eat(';');return[{k:t=='break'?'brk':'cnt',l}]}
+if(t=='try')err("'try / catch / finally' is not supported yet — exception paths can't be drawn faithfully",l);
+if(/^[A-Za-z_]\w*$/.test(t)&&T[i+1]&&T[i+1].t==':'&&!/^(case|default|public|private|protected)$/.test(t))err('Labels ('+t+':) are not supported yet',l);
+if(t=='goto')err('goto is not supported — it cannot be drawn as structured control flow');
+if(t=='case'||t=='default')err(`'${t}' outside of a switch`);
+return[simple()]}
+const fns=[],glob=[],globq=[];
+while(i<T.length){if(is('}')){i++;continue}const h=[];let d=0,eq=false;
+while(i<T.length&&!(d==0&&(T[i].t==';'||(T[i].t=='{'&&!eq)))){if(java&&T[i].t=='@'&&T[i+1]&&/^[A-Za-z_]/.test(T[i+1].t)){i+=2;if(T[i]&&T[i].t=='('){let dd=0;do{if(T[i].t=='(')dd++;if(T[i].t==')')dd--;i++}while(dd&&i<T.length)}continue}if(T[i].t=='='&&d==0)eq=true;if(T[i].t=='(')d++;if(T[i].t==')')d--;h.push(T[i++])}
+if(i>=T.length){if(h.length)err("Missing ';' at end of declaration",h[h.length-1].l);break}
+const ht=h.map(x=>x.t);
+if(T[i].t=='{'){const p=ht.indexOf('(');if(java&&ht.includes('class')&&p<0){i++;continue}
+if(p>0&&!/^(struct|class|enum|union|namespace)$/.test(ht[0])&&!(java&&ht.some(x=>/^(interface|enum|record)$/.test(x)))){i++;fns.push({name:ht[p-1],rt:fm(h.slice(0,p-1).filter(x=>!MODS.test(x.t))).replace(/\S*::$/,'').trim(),params:fm(h.slice(p+1,ht.lastIndexOf(')'))),body:seq(),l:h[0].l})}
+else if(ht[0]=='namespace')i++;
+else{let dd=0;do{if(T[i].t=='{')dd++;if(T[i].t=='}')dd--;i++}while(dd&&i<T.length)}}
+else{i++;if(h.length&&!(ht.includes('(')&&!ht.includes('='))&&!/^(using|typedef)$/.test(ht[0])&&!(java&&/^(import|package)$/.test(ht[0]))){glob.push(fm(h));globq.push(h)}}}
+if(!fns.length)err(java?"No method found. Put your code inside a method such as 'public static void main(String[] args) { ... }'.":"No function found. Wrap your code in a function such as 'int main() { ... }'.",1);
+fns.sort((a,b)=>(b.name=='main')-(a.name=='main'));
+return{fns,glob,vars,globq}}
+function parse(src,lang){LANG=lang||'c';const r=lang=='python'?parsePy(src):parseC(src,lang=='java');r.lang=lang||'c';return r}
+/* ---------- python ---------- */
+const PYOPS=/\*\*=|\/\/=|>>=|<<=|\.\.\.|->|:=|\*\*|\/\/|==|!=|<=|>=|\+=|-=|\*=|\/=|%=|&=|\|=|\^=|@=|<<|>>|[-+*\/%&|^~<>=!@.,:;()\[\]{}]/y;
+const PYID=/[^\W\d]\w*/uy,PYNUM=/0[xXoObB][\w]+|(?:\d[\d_]*\.?[\d_]*|\.\d[\d_]*)(?:[eE][+-]?\d+)?[jJ]?/y,PYSTR=/(?:[rRbBuUfF]{1,2})?("""|'''|"|')/y;
+function lexPy(src){const L=[],err=(m,l)=>{throw{m,l}};let i=0,line=1,depth=0,cur=[],ind=0,startLine=1,atStart=true;const st=[],n=src.length;
+const flush=()=>{if(cur.length)L.push({ind,t:cur,l:startLine});cur=[]};
+while(i<n){
+if(atStart&&depth==0){let w=0,j=i;while(j<n&&(src[j]==' '||src[j]=='\t'||src[j]=='\f')){w=src[j]=='\t'?(Math.floor(w/8)+1)*8:src[j]=='\f'?0:w+1;j++}
+if(j>=n){i=j;break}
+if(src[j]=='\n'||src[j]=='\r'||src[j]=='#'){while(j<n&&src[j]!='\n')j++;i=j<n?j+1:j;line++;continue}
+ind=w;i=j;atStart=false;startLine=line}
+const c=src[i];
+if(c=='\n'){line++;i++;if(depth==0){flush();atStart=true}continue}
+if(c=='\r'||c==' '||c=='\t'||c=='\f'){i++;continue}
+if(c=='#'){while(i<n&&src[i]!='\n')i++;continue}
+if(c=='\\'&&(src[i+1]=='\n'||(src[i+1]=='\r'&&src[i+2]=='\n'))){i+=src[i+1]=='\r'?3:2;line++;continue}
+PYSTR.lastIndex=i;let m=PYSTR.exec(src);
+if(m){const q=m[1],tl=line;let j=i+m[0].length;
+for(;;){if(j>=n)err('Unterminated string (it starts here)',tl);
+if(src[j]=='\\'){if(src[j+1]=='\n')line++;j+=2;continue}
+if(q.length==3){if(src.startsWith(q,j)){j+=3;break}if(src[j]=='\n')line++;j++}
+else{if(src[j]==q){j++;break}if(src[j]=='\n')err('Unterminated string (it starts here)',tl);j++}}
+cur.push({t:src.slice(i,j).replace(/\r?\n/g,'\\n'),l:tl});i=j;continue}
+PYID.lastIndex=i;m=PYID.exec(src);if(m){cur.push({t:m[0],l:line});i+=m[0].length;continue}
+PYNUM.lastIndex=i;m=PYNUM.exec(src);if(m){cur.push({t:m[0],l:line});i+=m[0].length;continue}
+PYOPS.lastIndex=i;m=PYOPS.exec(src);if(!m)err(`Unexpected character '${c}'`,line);
+const t=m[0];if(t.length==1&&'([{'.includes(t)){depth++;st.push({t,l:line})}
+else if(t.length==1&&')]}'.includes(t)){const o=st.pop();if(!o||'([{'.indexOf(o.t)!=')]}'.indexOf(t))err(`Unmatched '${t}'`+(o?` (the last open bracket was '${o.t}' on line ${o.l})`:''),line);depth--}
+cur.push({t,l:line});i+=t.length}
+if(st.length)err(`'${st[st.length-1].t}' is never closed`,st[st.length-1].l);
+flush();return L}
+function parsePy(src){const LN=lexPy(src),vars=new Set();let p=0;const err=(m,l)=>{throw{m,l}};
+if(!LN.length)err('No code found — paste a Python program.',1);
+if(LN[0].ind!=0)err('Unexpected indent (the first line should start at the left edge)',LN[0].l);
+const NO={class:'Classes are not supported yet',try:"'try / except / finally' is not supported yet — exception paths can't be drawn faithfully",except:"'try / except' is not supported yet",finally:"'try / finally' is not supported yet",with:"'with' blocks are not supported yet",async:'async code is not supported yet',await:'await is not supported yet',yield:'Generators (yield) are not supported yet','@':'Decorators are not supported yet'};
+const colon=(t,from)=>{let d=0,lam=0;for(let i=from;i<t.length;i++){const x=t[i].t;if(x.length==1&&'([{'.includes(x))d++;else if(x.length==1&&')]}'.includes(x))d--;else if(!d&&x=='lambda')lam++;else if(!d&&x==':'){if(lam)lam--;else return i}}return-1};
+const collect=t=>{if(t.length&&t.every(x=>/^([A-Za-z_]\w*|,|\(|\)|\*)$/.test(x.t)))t.forEach(x=>{if(/^[A-Za-z_]/.test(x.t))vars.add(x.t)})};
+const block=ind=>{const o=[];while(p<LN.length&&LN[p].ind==ind)o.push(...stmtP());if(p<LN.length&&LN[p].ind>ind)err('Unexpected indent (this line is indented more than the code above it)',LN[p].l);return o};
+const body=(ln,kw,inline)=>{if(inline.length)return simpleLine(inline,ln.l);
+if(!(p<LN.length&&LN[p].ind>ln.ind))err(`Expected an indented block after '${kw}' (line ${ln.l})`,ln.l);
+const r=block(LN[p].ind);if(p<LN.length&&LN[p].ind>ln.ind)err('Unindent does not match any outer indentation level',LN[p].l);return r};
+const elseCheck=(kw,ln)=>{if(p<LN.length&&LN[p].ind==ln.ind&&LN[p].t[0].t=='else')err(`'${kw} ... else' is not supported yet`,LN[p].l)};
+function oneP(a,l){const kw=a[0].t,s=a.map(x=>x.t);
+if(kw=='pass'||kw=='import'||kw=='from')return[];
+if((kw=='global'||kw=='nonlocal')&&a.length>1)return[{k:'p',t:fm(a),q:a,pk:'glob',l}];
+if(kw=='return'){const q=a.slice(1);return[{k:'ret',t:'return'+(q.length?' '+fm(q):''),q,l}]}
+if(kw=='break'&&a.length==1)return[{k:'brk',l}];if(kw=='continue'&&a.length==1)return[{k:'cnt',l}];
+if(a.length==1&&/^[rRbBuUfF]{0,2}["']/.test(kw))return[];
+if(NO[kw])err(NO[kw],l);
+if(kw=='match'&&s[s.length-1]==':')err("'match / case' is not supported yet",l);
+if(kw=='def')err('Nested function definitions are not supported yet',l);
+if(kw=='else'||kw=='elif')err(`'${kw}' without a matching 'if'`,l);
+if(kw=='print'&&s[1]=='('&&mc(a,1)==a.length-1){const q=a.slice(2,-1);return[{k:'out',t:'Output: '+(q.length?fm(q):'newline'),q:a,pk:'print',pa:q,l}]}
+if(s.some((x,i)=>x=='input'&&s[i+1]=='(')){const eq=topEq(a);
+if(eq>0){let lhs=a.slice(0,eq),rhs=a.slice(eq+1),conv=null;
+if(/^(int|float|str|bool|eval)$/.test(rhs[0].t)&&rhs[1]&&rhs[1].t=='('&&mc(rhs,1)==rhs.length-1){conv=rhs[0].t;rhs=rhs.slice(2,-1)}
+if(rhs[0]&&rhs[0].t=='input'&&rhs[1]&&rhs[1].t=='('&&mc(rhs,1)==rhs.length-1){const pr=rhs.slice(2,-1),o=[];collect(lhs);
+if(pr.length)o.push({k:'out',t:'Output: '+fm(pr),q:pr,pk:'prompt',pa:pr,l});
+o.push({k:'in',t:'Input: '+fm(lhs)+(conv&&conv!='str'?' ('+conv+')':''),q:a,pk:'read',pl:lhs,pc:conv,l});return o}}
+return[{k:'in',t:'Input: '+fm(a),q:a,l}]}
+const eq=topEq(a);if(eq>0)collect(a.slice(0,eq));
+return[{k:'p',t:fm(a),q:a,l}]}
+function simpleLine(t,l){const o=[],parts=[[]];let d=0;t.forEach(x=>{const c=x.t;if(c.length==1&&'([{'.includes(c))d++;if(c.length==1&&')]}'.includes(c))d--;if(c==';'&&!d)parts.push([]);else parts[parts.length-1].push(x)});parts.filter(x=>x.length).forEach(x=>o.push(...oneP(x,l)));return o}
+function ifNode(ln){const t=ln.t,kw=t[0].t,c=colon(t,1);if(c<0)err(`Missing ':' at the end of the '${kw}' line`,ln.l);
+const ct=t.slice(1,c);if(!ct.length)err(`Missing condition after '${kw}'`,ln.l);
+const y=body(ln,kw,t.slice(c+1));let e=null;
+if(p<LN.length&&LN[p].ind==ln.ind){const nk=LN[p].t[0].t;
+if(nk=='elif'){const l2=LN[p++];e=[ifNode(l2)]}
+else if(nk=='else'){const l2=LN[p++],c2=colon(l2.t,1);if(c2!=1)err("Expected ':' right after 'else'",l2.l);e=body(l2,'else',l2.t.slice(c2+1));if(!e.length)e=null}}
+return{k:'if',c:fm(ct),ct,y,e,l:ln.l}}
+function stmtP(){const ln=LN[p++],t=ln.t,kw=t[0].t,l=ln.l;
+if(kw=='if')return[ifNode(ln)];
+if(kw=='while'){const c=colon(t,1);if(c<0)err("Missing ':' at the end of the 'while' line",l);const ct=t.slice(1,c);if(!ct.length)err("Missing condition after 'while'",l);
+const b=body(ln,'while',t.slice(c+1));elseCheck('while',ln);return[{k:'while',c:fm(ct),ct,b,l}]}
+if(kw=='for'){const c=colon(t,1);if(c<0)err("Missing ':' at the end of the 'for' line",l);let d=0,ii=-1;
+for(let i=1;i<c;i++){const x=t[i].t;if(x.length==1&&'([{'.includes(x))d++;else if(x.length==1&&')]}'.includes(x))d--;else if(!d&&x=='in'){ii=i;break}}
+if(ii<2||ii==c-1)err("A 'for' loop needs the form:  for item in something:",l);
+const tg=t.slice(1,ii),it=t.slice(ii+1,c),b=body(ln,'for',t.slice(c+1));elseCheck('for',ln);collect(tg);
+const nm=fm(tg),rg=fm(it);return[{k:'for',i:null,c:'Items left in '+rg+'?',it:null,ct:null,stt:null,rf:[nm,rg],rft:[tg,it],s:null,b:[{k:'p',t:nm+' = next item of '+rg,l},...b],l}]}
+return simpleLine(t,l)}
+function defP(ln){const t=ln.t;if(!t[1]||!/^[A-Za-z_]/.test(t[1].t)||!t[2]||t[2].t!='(')err("A 'def' needs a name and a parameter list, like:  def name(a, b):",ln.l);
+const e=mc(t,2),c=colon(t,e+1);if(e<0)err("Missing ')' in the 'def' line",ln.l);if(c<0)err("Missing ':' at the end of the 'def' line",ln.l);
+return{name:t[1].t,params:fm(t.slice(3,e)),body:body(ln,'def',t.slice(c+1)),l:ln.l,rt:''}}
+const defs=[],script=[];
+while(p<LN.length){const ln=LN[p];if(ln.ind!=0)err('Unexpected indent (this line is indented more than the code above it)',ln.l);
+if(ln.t[0].t=='def'){p++;defs.push(defP(ln))}
+else stmtP().forEach(n=>{if(n.k=='if'&&!n.e&&/^__name__ == ["']__main__["']$/.test(n.c))script.push(...n.y);else script.push(n)})}
+if(script.length)defs.unshift({name:'__main__',disp:'Main program',params:'',body:script,script:true,l:script[0].l||1,rt:''});
+if(!defs.length)err('No code found — paste a Python program.',1);
+return{fns:defs,glob:[],globq:[],vars}}
+/* ---------- layout ---------- */
+const CW=7.6,LH=17,GAP=34;let N,E,BK,CN,RT;
+function wrapT(t,n){const L=[];let c='';for(const w of t.split(' ')){if(c&&(c+' '+w).length>n){L.push(c);c=w}else c=c?c+' '+w:w}L.push(c);return L}
+function bx(t,k){const d=k=='dec',io=k=='in'||k=='out',L=wrapT(t,d?14:26),m=Math.max(...L.map(l=>l.length))*CW,h=L.length*LH;
+return d?{L,w:Math.max(130,m*1.5+36),h:Math.max(74,h+52)}:{L,w:Math.max(k=='term'?110:100,m+(io?72:44)),h:Math.max(k=='term'?40:38,h+24)}}
+function mk(k,t,cx,y){const g=bx(t,k),n={k,L:g.L,w:g.w,h:g.h,x:cx-g.w/2,y,cx};N.push(n);return n}
+function link(pe,tx,ty){pe.forEach(e=>{const p=e.pts.slice(),lx=p[p.length-1][0];if(lx!=tx)p.push([lx,ty-14],[tx,ty-14]);p.push([tx,ty]);E.push({pts:p,label:e.label,lp:e.lp,dash:e.dash})})}
+const bad=(m,s)=>{throw{m,l:s.l}};
+function measure(l){let a=0,b=0;l.forEach(s=>{const m=M[s.k](s);a=Math.max(a,m.l);b=Math.max(b,m.r)});return{l:a,r:b}}
+function place(l,cx,y,pe,top){let first=null;for(let i=0;i<l.length;i++){if(!pe.length)break;const r=P[s=l[i],s.k](s,cx,y,pe,top&&i==l.length-1);first=first||r.first;y=r.y;pe=r.pend}return{y,pend:pe,first}}
+var s;
+const P={},M={};
+function sim(k,t,cx,y,pe){const n=mk(k,t,cx,y);link(pe,cx,y);return{first:n,y:y+n.h+GAP,pend:[{pts:[[cx,y+n.h]]}]}}
+['p','in','out','call'].forEach(k=>P[k]=(s,cx,y,pe)=>{const r=sim(s.k,s.t,cx,y,pe);r.first.pk=s.pk;r.first.pm=s.pm;return r});
+['p','in','out','call','ret'].forEach(k=>M[k]=s=>{const w=bx(s.t,s.k).w/2;return{l:w,r:w}});
+['brk','cnt'].forEach(k=>M[k]=()=>{const w=bx('continue','p').w/2;return{l:w,r:w}});
+P.ret=(s,cx,y,pe,last)=>{if(last)return sim('ret',s.t,cx,y,pe);const n=mk('ret',s.t,cx,y);link(pe,cx,y);RT.push(n);return{first:n,y:y+n.h+GAP,pend:[]}};
+P.brk=(s,cx,y,pe)=>{const T=BK[BK.length-1];if(!T)bad("'break' used outside a loop or switch",s);const n=mk('brk','break',cx,y),cy=y+n.h/2;link(pe,cx,y);
+T.ends.push(T.sw?{pts:[[cx,y+n.h]],bn:n}:cx<T.cx-2?{pts:[[cx-n.w/2,cy],[T.Lb,cy]],dash:true}:{pts:[[cx+n.w/2,cy],[T.R,cy]],dash:true});return{first:n,y:y+n.h+GAP,pend:[]}};
+P.cnt=(s,cx,y,pe)=>{const T=CN[CN.length-1];if(!T)bad("'continue' used outside a loop",s);const n=mk('cnt','continue',cx,y),cy=y+n.h/2;link(pe,cx,y);
+T.cends.push({pts:[[cx-n.w/2,cy],[T.L,cy]],dash:true});return{first:n,y:y+n.h+GAP,pend:[]}};
+M.if=s=>{const dw=bx(s.c,'dec').w/2,T=measure(s.y);if(!s.e)return{l:Math.max(dw,T.l),r:Math.max(dw,T.r)+26};const e=measure(s.e);return{l:Math.max(T.r+22,dw+22)+T.l,r:Math.max(e.l+22,dw+22)+e.r}};
+P.if=(s,cx,y,pe)=>{const d=mk('dec',s.c,cx,y),dw=d.w/2,dh=d.h,cy=y+dh/2,ty=y+dh+GAP;link(pe,cx,y);const T=measure(s.y);
+if(!s.e){const a=place(s.y,cx,ty,[{pts:[[cx,y+dh]],label:'YES'}]),R=cx+Math.max(dw,T.r)+26;return{first:d,y:a.y,pend:[...a.pend,{pts:[[cx+dw,cy],[R,cy]],label:'NO'}]}}
+const e=measure(s.e),lx=cx-Math.max(T.r+22,dw+22),rx=cx+Math.max(e.l+22,dw+22);
+const a=place(s.y,lx,ty,[{pts:[[cx-dw,cy],[lx,cy]],label:'YES'}]),b=place(s.e,rx,ty,[{pts:[[cx+dw,cy],[rx,cy]],label:'NO'}]);
+return{first:d,y:Math.max(a.y,b.y),pend:[...a.pend,...b.pend]}};
+function back(ends,L,dx,dy,bot){const ys=ends.map(e=>e.pts[e.pts.length-1][1]).filter(v=>v>dy),bY=Math.max(dy,bot||0,...ys)+18;
+ends.forEach(e=>{const p=e.pts,lx=p[p.length-1][0];E.push({pts:lx==L?p.concat([[L,dy],[dx,dy]]):p.concat([[lx,bY],[L,bY],[L,dy],[dx,dy]]),label:e.label,dash:e.dash,back:true})})}
+M.while=s=>{const dw=bx(s.c,'dec').w/2,B=measure(s.b),m=Math.max(dw,B.l)+46,r=Math.max(dw,B.r)+30;return{l:m,r}};
+M.for=s=>{const dw=bx(s.c,'dec').w/2,B=measure(s.b),x=Math.max(dw,B.l,s.i?bx(s.i,'p').w/2:0,s.s?bx(s.s,'p').w/2:0)+46;return{l:x,r:Math.max(dw,B.r,s.i?bx(s.i,'p').w/2:0,s.s?bx(s.s,'p').w/2:0)+30}};
+M.do=M.while;
+function loop(s,cx,y,pe,kind){const m=M[kind](s),Lb=cx-m.l,L=Lb+16,R=cx+m.r,T={ends:[],cends:[],R,Lb,cx,L:kind=='for'?L+12:L};
+let r0={first:null,y,pend:pe};if(kind=='for'&&s.i)r0=sim('p',s.i,cx,y,pe);y=r0.y;
+const d=mk('dec',s.c,cx,y),dw=d.w/2,dh=d.h,cy=y+dh/2;link(r0.pend,cx,y);const nb0=N.length;BK.push(T);CN.push(T);
+const b=place(s.b,cx,y+dh+GAP,[{pts:[[cx,y+dh]],label:'YES'}]);BK.pop();CN.pop();
+let ends=b.pend.concat(T.cends),yy=b.y;
+if(kind=='for'&&s.s){const st=sim('p',s.s,cx,yy,ends);ends=st.pend;yy=st.y}
+back(ends,L,cx-dw,cy,Math.max(0,...N.slice(nb0).map(n=>n.y+n.h)));
+return{first:r0.first||d,y:yy,pend:[{pts:[[cx+dw,cy],[R,cy]],label:'NO'},...T.ends]}}
+P.while=(s,cx,y,pe)=>loop(s,cx,y,pe,'while');P.for=(s,cx,y,pe)=>loop(s,cx,y,pe,'for');
+P.do=(s,cx,y,pe)=>{const m=M.do(s),Lb=cx-m.l,L=Lb+16,R=cx+m.r,T={ends:[],cends:[],R,Lb,cx,L},dg=bx(s.c,'dec');BK.push(T);CN.push(T);
+const b=place(s.b,cx,y,pe);BK.pop();CN.pop();const ends=b.pend.concat(T.cends),dy=b.y,d=mk('dec',s.c,cx,dy),cy=dy+d.h/2;link(ends,cx,dy);
+E.push({pts:[[cx-dg.w/2,cy],[L,cy],[L,y-14],[cx,y-14],[cx,y]],label:'YES',lp:[L+20,cy-9],back:true});
+return{first:b.first||d,y:dy+d.h+GAP,pend:[{pts:[[cx,dy+d.h]],label:'NO'},...T.ends]}};
+function swGeo(s){const dg=bx('switch ('+s.c+')','dec'),cols=s.cs.map(c=>{const m=measure(c.b),a=Math.max(m.l,58),b=Math.max(m.r,58);return{c,a,w:a+b}}),tot=cols.reduce((t,c)=>t+c.w,0)+34*(cols.length-1);return{dg,cols,tot}}
+M.sw=s=>{const g=swGeo(s),h=Math.max(g.tot/2,g.dg.w/2);return{l:h+12,r:h+26}};
+P.sw=(s,cx,y,pe)=>{const g=swGeo(s),d=mk('dec','switch ('+s.c+')',cx,y),dh=d.h,cy=y+dh/2,ty=y+dh+GAP+14,m=M.sw(s),R=cx+m.r,T={ends:[],cends:[],R,sw:1};link(pe,cx,y);
+BK.push(T);let x0=cx-g.tot/2,ymax=ty,placed=[];
+g.cols.forEach(c=>{const ccx=x0+c.a,n0=N.length,r=place(c.c.b,ccx,ty,[{pts:[[cx,y+dh],[cx,y+dh+16],[ccx,y+dh+16]],label:c.c.lab,lp:[ccx,y+dh+12]}]);placed.push({r,x0,x1:x0+c.w,n0,n1:N.length,cx:ccx});ymax=Math.max(ymax,r.y);x0+=c.w+34});BK.pop();
+T.ends.forEach(e=>{const b=e.bn;if(!b)return;const pc=placed.find(q=>b.cx>=q.x0-1&&b.cx<=q.x1+1);if(!pc)return;
+if(N.slice(pc.n0,pc.n1).some(n=>n!==b&&n.x<b.cx+2&&n.x+n.w>b.cx-2&&n.y>b.y+b.h-2&&n.y<ymax)){const cy=b.y+b.h/2;e.pts=b.cx<pc.cx-2?[[b.x,cy],[pc.x0-10,cy]]:[[b.x+b.w,cy],[pc.x1+10,cy]];e.dash=true}});
+const out=[...T.ends];
+placed.forEach((p,i)=>{const nx=placed[i+1];if(nx&&nx.r.first){p.r.pend.forEach(e=>{const q=e.pts[e.pts.length-1],gx=(p.x1+nx.x0)/2,fy=nx.r.first.y+nx.r.first.h/2,yb=Math.max(q[1],...N.slice(p.n0,p.n1).map(n=>n.y+n.h))+16;
+const fp=e.pts.concat([[q[0],yb],[gx,yb],[gx,fy],[nx.r.first.x,fy]]);E.push(e.label?{pts:fp,label:e.label,label2:'fall through',lp2:[gx,yb-9],dash:true}:{pts:fp,label:'fall through',lp:[gx,yb-9],dash:true})})}else out.push(...p.r.pend)});
+if(!s.cs.some(c=>c.d))out.push({pts:[[cx+d.w/2,cy],[R,cy]],label:'no match'});
+return{first:d,y:ymax,pend:out}};
+/* ---------- rendering ---------- */
+const COL={p:['#e0f2fe','#38bdf8'],call:['#ccfbf1','#14b8a6'],in:['#ede9fe','#8b5cf6'],out:['#fae8ff','#d946ef'],dec:['#fef3c7','#f59e0b'],ret:['#ffedd5','#fb923c'],brk:['#f1f5f9','#94a3b8'],cnt:['#f1f5f9','#94a3b8']};
+function pd(p){p=p.filter((q,i)=>!i||q[0]!=p[i-1][0]||q[1]!=p[i-1][1]);let d=`M${p[0]}`;const u=n=>{const l=Math.hypot(n[0],n[1])||1;return[n[0]/l,n[1]/l]};
+for(let i=1;i<p.length-1;i++){const a=p[i-1],b=p[i],c=p[i+1],r=Math.min(9,Math.hypot(b[0]-a[0],b[1]-a[1])/2,Math.hypot(c[0]-b[0],c[1]-b[1])/2),v=u([b[0]-a[0],b[1]-a[1]]),w=u([c[0]-b[0],c[1]-b[1]]);d+=`L${b[0]-v[0]*r},${b[1]-v[1]*r}Q${b},${b[0]+w[0]*r},${b[1]+w[1]*r}`}return d+`L${p[p.length-1]}`}
+function pill(t,x,y){const w=t.length*6.4+12;return`<rect x="${x-w/2}" y="${y-9}" width="${w}" height="17" rx="8.5" fill="#fff" stroke="#cbd5e1"/><text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#475569" font-family="system-ui,sans-serif">${esc(t)}</text>`}
+function drawN(n){const cy=n.y+n.h/2,[f,s]=n.k=='term'?(n.L[0][0]=='S'?['#d1fae5','#10b981']:['#fee2e2','#f43f5e']):COL[n.k],x=n.x,y=n.y,w=n.w,h=n.h;let sh;
+if(n.k=='term')sh=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/>`;
+else if(n.k=='dec')sh=`<polygon points="${n.cx},${y} ${x+w},${cy} ${n.cx},${y+h} ${x},${cy}" stroke-linejoin="round"/>`;
+else if(n.k=='in'||n.k=='out')sh=`<polygon points="${x+16},${y} ${x+w},${y} ${x+w-16},${y+h} ${x},${y+h}" stroke-linejoin="round"/>`;
+else sh=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${n.k=='brk'||n.k=='cnt'?h/2:12}"/>`;
+let ex=n.k=='call'?`<path d="M${x+10} ${y}V${y+h}M${x+w-10} ${y}V${y+h}" stroke="${s}" stroke-width="1.2"/>`:'';
+const y0=cy-(n.L.length-1)*LH/2+4,tx=n.L.map((l,i)=>`<tspan x="${n.cx}" y="${y0+i*LH}">${esc(l)}</tspan>`).join('');
+return`<g fill="${f}" stroke="${s}" stroke-width="1.6" filter="url(#sh)">${sh}</g>${ex}<text text-anchor="middle" font-size="12.5" fill="#0f172a" font-weight="${n.k=='term'?700:500}">${tx}</text>`}
+function walk(l,f){l.forEach(s=>{f(s);[s.y,s.e,s.b,...(s.cs||[]).map(c=>c.b)].filter(Array.isArray).forEach(x=>walk(x,f))})}
+function lay(body,name,brk){N=[];E=[];BK=[];CN=[];RT=[];
+const st=mk('term',name,0,0),hs=[],m=measure(body),cw=m.l+m.r+70;let cx=0,pe=[{pts:[[0,st.h]]}],y=st.h+GAP,cs=N.length;const top0=y;
+for(let i=0;i<body.length;i++){
+if(brk.includes(i)&&pe.length){const yb=Math.max(...pe.map(e=>e.pts[e.pts.length-1][1]),...N.slice(cs).map(n=>n.y+n.h))+16,gx=cx+m.r+35;
+pe=pe.map(e=>{const q=e.pts[e.pts.length-1];return{pts:e.pts.concat([[q[0],yb],[gx,yb],[gx,top0-14]]),label:e.label}});cx+=cw;y=top0;cs=N.length}
+if(!pe.length)break;
+const y0=y,q=body[i],r=P[q.k](q,cx,y,pe,i==body.length-1);hs.push(r.y-y0);y=r.y;pe=r.pend}
+const sy=y,sp=mk('term','STOP',cx,sy);link(pe,cx,sy);
+if(brk.length&&RT.some(n=>n.x+n.w<cx-m.l))return null;
+let mx=-1e9;N.forEach(n=>mx=Math.max(mx,n.x+n.w));E.forEach(e=>e.pts.forEach(p=>mx=Math.max(mx,p[0])));
+let mn=1e9;N.forEach(n=>mn=Math.min(mn,n.x));E.forEach(e=>e.pts.forEach(p=>mn=Math.min(mn,p[0])));let ri=0,li=0;
+RT.forEach(n=>{const cy=n.y+n.h/2,sc=sy+sp.h/2;if(n.cx<sp.cx-2){const lx=mn-26-li++*12;E.push({pts:[[n.x,cy],[lx,cy],[lx,sc],[sp.x,sc]],dash:true})}else{const rx=mx+26+ri++*12;E.push({pts:[[n.x+n.w,cy],[rx,cy],[rx,sc],[sp.x+sp.w,sc]],dash:true})}});
+let a=1e9,b=1e9,c=-1e9,d=-1e9;N.forEach(n=>{a=Math.min(a,n.x);b=Math.min(b,n.y);c=Math.max(c,n.x+n.w);d=Math.max(d,n.y+n.h)});
+E.forEach(e=>e.pts.forEach(p=>{a=Math.min(a,p[0]);b=Math.min(b,p[1]);c=Math.max(c,p[0]);d=Math.max(d,p[1])}));
+return{a,b,c,d,hs}}
+function build(f,first,glob,names,program){
+const body=(first?glob.map(g=>({k:'p',t:'(global) '+g})):[]).concat(f.body),re=names.length&&new RegExp('\\b('+names.join('|')+')\\s*\\(');
+walk(body,s=>{if(s.k=='p'&&re&&re.test(s.t))s.k='call'});
+const name=first&&(f.name=='main'||f.script)?'START':`START: ${f.name}(${f.params})`;
+let R=lay(body,name,[]);const W0=R.c-R.a,H0=R.d-R.b;
+if(H0/W0>1.8&&body.length>1){const n=Math.min(5,body.length,Math.max(2,Math.round(Math.sqrt(H0/(1.35*W0))))),tg=R.hs.reduce((t,v)=>t+v,0)/n,br=[];let acc=0,k=1;
+R.hs.forEach((h,i)=>{if(i>0&&acc>=k*tg&&br.length<n-1){br.push(i);k++}acc+=h});
+if(br.length){const R2=lay(body,name,br);R=R2||lay(body,name,[])}}
+const{a,b,c,d}=R;
+const lbl=E.map(e=>{if(!e.label)return'';let lp=e.lp;if(!lp){const p=e.pts,q=p[0],r=p.find(z=>z[0]!=q[0]||z[1]!=q[1])||q;lp=r[1]==q[1]?[q[0]+Math.sign(r[0]-q[0])*Math.min(26,Math.abs(r[0]-q[0])/2+6),q[1]-10]:[q[0]+17,q[1]+15]}return pill(e.label,lp[0],lp[1])+(e.label2?pill(e.label2,e.lp2[0],e.lp2[1]):'')}).join('');
+const defs=`<defs><filter id="sh" x="-20%" y="-20%" width="140%" height="160%"><feDropShadow dx="0" dy="2" stdDeviation="2.5" flood-color="#0f172a" flood-opacity=".14"/></filter><marker id="ar" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" fill="#64748b"/></marker></defs>`;
+const inner=defs+E.map(e=>`<path d="${pd(e.pts)}" fill="none" stroke="#94a3b8" stroke-width="1.5"${e.dash?' stroke-dasharray="6 4"':''} marker-end="url(#ar)"/>`).join('')+N.map(drawN).join('')+lbl;
+const algorithm=explain(f,program,first);
+const disp=f.disp||f.name+'()',S=sheet(disp,inner,{x:a-30,y:b-30,w:c-a+60,h:d-b+60});return{name:f.name,disp,fname:f.script?'main-program':f.name,inner:S.inner,W:S.W,H:S.H,b:{x:-24,y:-24,w:S.W+48,h:S.H+48},ex:algorithm.html,algText:algorithm.text}}
+function sheet(name,inner,b){const land=b.w>b.h,W=land?1123:794,H=land?794:1123,m=40,top=m+30,aw=W-2*m,ah=H-top-m-16,k=Math.min(aw/b.w,ah/b.h,1.5),tx=m+(aw-b.w*k)/2-b.x*k,ty=top+(ah-b.h*k)/2-b.y*k;
+return{W,H,inner:`<text x="${m}" y="${m+8}" font-size="16" font-weight="700" fill="#0f172a" font-family="system-ui,sans-serif">${esc(name)} — Flowchart</text><g transform="translate(${tx} ${ty}) scale(${k})">${inner}</g>`}}
+/* ---------- academic algorithm writer ----------
+ * A separate, conservative AST-to-algorithm pass. The diagram and pseudocode
+ * retain the original AST. Unknown constructs get a diagnostic, not a guess.
+ */
+function algorithmFor(f, program, first) {
+const lang=program.lang||'c', entry=f.script||f.name=='main';
+const fail=(m,s)=>{throw {m,l:s&&s.l}};
+const fmt=a=>{const strings=[];const safe=(a||[]).map(x=>/^(?:[rRbBuUfF]{0,2})?["']/.test(x.t)?{...x,t:'ALGSTRING'+(strings.push(x.t)-1)+'TOKEN'}:x);
+return fm(safe).replace(/ALGSTRING(\d+)TOKEN/g,(_,i)=>strings[+i])};
+const list=(a,join='and')=>a.length<2?(a[0]||''):a.length==2?a.join(' '+join+' '):a.slice(0,-1).join(', ')+', '+join+' '+a[a.length-1];
+const code=t=>'`'+t+'`', expr=a=>code(fmt(a));
+const node=(text,children=[])=>({text,children});
+const lower=t=>t.charAt(0).toLowerCase()+t.slice(1).replace(/\.$/,'');
+const literal=a=>a&&a.length==1&&/^(["'])(?:\\.|[^\\])*\1$/.test(a[0].t)?a[0].t.slice(1,-1):null;
+const clean=t=>t.replace(/\\[nrt]/g,' ').replace(/\\(["'\\])/g,'$1').trim();
+const quoted=t=>'"'+clean(t)+'"';
+const value=a=>{const s=literal(a);return s===null?expr(a):quoted(s)};
+function declarations(a){const k=declStart(a),raw=fmt(a.slice(0,k));
+const ty=({int:'integer',float:'real',double:'real',char:'character',bool:'Boolean',boolean:'Boolean',String:'string',string:'string'})[raw]||code(raw);
+return 'Declare '+ty+' variable'+(split(a.slice(k),',').length>1?'s ':' ')+list(split(a.slice(k),',').map(expr));}
+function formatted(args,s){const format=literal(args[0]);
+if(format===null) return 'Display the values '+list(args.slice(1).map(expr))+' using the format '+expr(args[0]);
+const parts=[],rx=/%(?:[-+ #0]*\d*(?:\.\d+)?(?:hh|ll|[hlLjzt])?[diuoxXfFeEgGaAcsp]|%)/g;let pos=0,i=1,m;
+while((m=rx.exec(format))){const before=clean(format.slice(pos,m.index));if(before)parts.push(quoted(before));
+if(m[0]=='%%')parts.push('"%"');else{if(m[0]=='%n'||!args[i])fail('Unsupported output format or argument count',s);parts.push(expr(args[i++]));}pos=rx.lastIndex;}
+const tail=clean(format.slice(pos));if(tail)parts.push(quoted(tail));
+if(i!=args.length||/%(?!%)/.test(format.replace(rx,'')))fail('Unsupported output format; algorithm output would be ambiguous',s);
+if(!parts.length)return format?'Display whitespace':'Display an empty string';
+const vals=args.slice(1),labels=clean(format.replace(rx,'')).replace(/[^\w]/g,'').toLowerCase();
+if(vals.length&&(!labels||labels==vals.map(fmt).join('').replace(/[^\w]/g,'').toLowerCase()))return 'Display the value'+(vals.length>1?'s':'')+' of '+list(vals.map(expr));
+return 'Display '+parts.join(' followed by ');}
+function output(s){const a=s.q||[],y=a.map(t=>t.t),base=y[0]=='std'&&y[1]=='::'?a.slice(2):a,ys=base.map(t=>t.t);
+if(s.pk=='prompt')return 'Display '+value(s.pa);
+if(s.pk=='print'){
+const parts=split(s.pa,',').filter(p=>p.length),opts=parts.filter(p=>topEq(p)>=0),vals=parts.filter(p=>topEq(p)<0);
+// Preserve custom separators, terminators and destinations instead of discarding them.
+return 'Display '+(vals.length?list(vals.map(value)):'a newline')+(opts.length?' with '+list(opts.map(expr)):'');}
+if(s.pk=='jout'){
+const args=split(s.pa,',').filter(p=>p.length);return (/^(printf|format)$/.test(s.pm)?formatted(args,s):'Display '+(args.length?list(args.map(value)):'a newline'))+(s.pe?' on the error stream':'');}
+if(/^(printf|puts|putchar|fprintf)$/.test(ys[0])&&ys[1]=='('&&mc(base,1)==base.length-1){let args=split(base.slice(2,-1),',');
+const stream=ys[0]=='fprintf'?' on stream '+expr(args.shift()):'';
+return (/^(printf|fprintf)$/.test(ys[0])?formatted(args,s):'Display '+list(args.map(value)))+stream;}
+if(/^(cout|cerr)$/.test(ys[0])&&ys[1]=='<<'){
+const vals=split(base.slice(2),'<<').filter(p=>p.length&&!/^(std::)?endl$/.test(fmt(p)));
+return 'Display '+(vals.length?list(vals.map(value)):'a newline')+(ys[0]=='cerr'?' on the error stream':'');}
+fail('This output expression is not supported by the algorithm writer',s);}
+function input(s){const a=s.q||[],ys=a.map(t=>t.t),base=ys[0]=='std'&&ys[1]=='::'?a.slice(2):a,y=base.map(t=>t.t);
+if(s.pk=='read')return 'Input the value of '+expr(s.pl)+(s.pc&&s.pc!='str'?' using '+code(s.pc+'()')+' conversion':'');
+if(s.pk=='jread'){
+const r=s.pr,plain=r.length==5&&r[1].t=='.'&&JIN.test(r[2].t)&&r[3].t=='('&&r[4].t==')';
+return 'Input the value of '+code(s.pn)+(plain?'':' using '+expr(r));}
+if(y[0]=='scanf'&&y[1]=='('&&mc(base,1)==base.length-1){const parts=split(base.slice(2,-1),',');
+if(literal(parts[0])===null)fail('Dynamic input formats are not supported in algorithms',s);
+const args=parts.slice(1).map(p=>p[0]&&p[0].t=='&'?p.slice(1):p);
+if(!args.length)fail('Input has no destination variable',s);
+return 'Input the value'+(args.length>1?'s':'')+' of '+list(args.map(expr));}
+if(y[0]=='cin'&&y[1]=='>>')return 'Input the value'+(split(base.slice(2),'>>').length>1?'s':'')+' of '+list(split(base.slice(2),'>>').map(expr));
+if(/^(gets|fgets|getline)$/.test(y[0])&&y[1]=='('){const args=split(base.slice(2,-1),',');
+return y[0]=='fgets'?'Input text into '+expr(args[0])+' with size limit '+expr(args[1])+' from '+expr(args[2]):y[0]=='getline'?'Input a line from '+expr(args[0])+' into '+expr(args[1]):'Input text into '+expr(args[0]);}
+fail('This input expression is not supported by the algorithm writer',s);}
+function statement(s){const a=s.q;
+if(s.k=='out')return [node(output(s))];
+if(s.k=='in'){
+const pre=s.pk=='jread'&&isDeclStmt(s.pl)?[node(declarations(s.pl))]:[];
+return pre.concat(node(input(s)));}
+if(!a||!a.length)fail('Missing statement tokens for algorithm generation',s);
+if(s.pk=='glob')return [node('Use '+(a[0].t=='global'?'global':'nonlocal')+' variables '+expr(a.slice(1)))];
+if(lang!='python'&&isDeclStmt(a))return [node(declarations(a))];
+if(lang!='python'&&split(a,',').length>1)return split(a,',').flatMap(q=>statement({...s,q}));
+const y=a.map(t=>t.t),inc=/^(\+\+|--)$/.test(y[0])?0:/^(\+\+|--)$/.test(y[y.length-1])?y.length-1:-1;
+if(inc>=0&&!a.some(t=>AOP[t.t])&&!a.filter((_,i)=>i!=inc).some(t=>/^(\+\+|--)$/.test(t.t)))return [node((y[inc]=='++'?'Increment ':'Decrement ')+expr(a.filter((_,i)=>i!=inc))+' by 1')];
+const k=topAssign(a);
+if(k>0&&k<a.length-1){const lhs=a.slice(0,k),rhs=a.slice(k+1),op=a[k].t;
+if(lhs.some(t=>/^(\+\+|--|\()$/.test(t.t)))fail('Unsupported assignment target',s);
+if(topAssign(rhs)>=0){if(lang=='python')fail('Chained assignment needs explicit separate statements in algorithms',s);
+const inner=statement({...s,q:rhs}),rk=topAssign(rhs);return inner.concat(node('Set '+expr(lhs)+' to '+expr(rhs.slice(0,rk))));}
+if(op=='+='||op=='-=')return [node((op=='+='?'Increment ':'Decrement ')+expr(lhs)+' by '+expr(rhs))];
+if(op!='=')return [node('Calculate '+expr(lhs)+' = '+expr(lhs)+' '+code(op.slice(0,-1))+' ('+expr(rhs)+')')];
+return [node((isCall(rhs)?'Set ':rhs.length==1?'Set ':'Calculate ')+expr(lhs)+' = '+expr(rhs))];}
+if(isCall(a))return [node('Call '+expr(a))];
+fail('Unsupported statement in algorithm: '+fmt(a),s);}
+// A canonical counted loop is safe only with a fixed direction and a bound
+// independent of the counter, and without writes/calls that can change it.
+function counted(s){if(!s.it||!s.ct||!s.stt)return null;
+let a=s.it;if(isDeclStmt(a))a=a.slice(declStart(a));const k=topEq(a);
+if(k!=1||!/^[A-Za-z_]\w*$/.test(a[0].t))return null;
+const v=a[0].t,start=a.slice(2),ct=s.ct,st=s.stt;
+if(!start.length||ct.length<3||ct[0].t!=v||! /^(<=|<|>=|>)$/.test(ct[1].t))return null;
+// Low-precedence operators belong to the whole condition, not its upper bound.
+const bound=ct.slice(2);if(bound.some(t=>t.t==v||t.t=='('||AOP[t.t]||/^(\+\+|--|&&|\|\||==|!=|<=|>=|<|>|\?|:|,|&|\||\^)$/.test(t.t)))return null;
+if(split(a,',').length!=1||topAssign(start)>=0)return null;
+let step=null;
+if(st.length==2&&(st[0].t==v||st[1].t==v)&&st.some(t=>t.t=='++'||t.t=='--'))step=st.some(t=>t.t=='++')?1:-1;
+if(st.length==3&&st[0].t==v&&/^(\+=|-=)$/.test(st[1].t)&&/^\d+$/.test(st[2].t))step=Number(st[2].t)*(st[1].t=='+='?1:-1);
+if(!step||((step>0)!=/^</.test(ct[1].t)))return null;
+const protectedNames=new Set([v,...bound.filter(t=>/^[A-Za-z_]\w*$/.test(t.t)).map(t=>t.t)]);let unsafe=false;
+walk(s.b,n=>{for(const q of [n.q,n.it,n.ct,n.stt].filter(Boolean)){
+if(q.some((t,i)=>t.t=='('&&i>0&&/^[A-Za-z_]\w*$/.test(q[i-1].t)&&! /^(if|while|for|switch|printf|puts|print)$/.test(q[i-1].t)))unsafe=true;
+const eq=topAssign(q);if(eq>=0&&q.slice(0,eq).some(t=>protectedNames.has(t.t)||/^(\*|->|\.|\[)$/.test(t.t)))unsafe=true;
+if(q.some(t=>t.t=='++'||t.t=='--')&&q.some(t=>protectedNames.has(t.t)))unsafe=true;
+if(n.k=='in')unsafe=true;
+}if(n.rf&&protectedNames.has(n.rf[0]))unsafe=true;});
+if(unsafe)return null;
+return 'Repeat for '+code(v+' = '+fmt(start))+' '+(step>0?'to ':'down to ')+expr(bound)+(ct[1].t.length==1?' (exclusive)':'')+(Math.abs(step)!=1?', in steps of '+Math.abs(step):'')+':';}
+const hasBranchExit=l=>l.some(s=>/^(ret|brk|cnt)$/.test(s.k)||(s.k=='if'&&hasBranchExit(s.y)&&s.e&&hasBranchExit(s.e)));
+function branches(s,cx){const out=[];let n=s,firstBranch=true;
+while(n){const ops=sequence(n.y,cx),label=(firstBranch?'If ':'Otherwise, if ')+expr(n.ct);
+out.push(ops.length==1&&!ops[0].children.length?node(label+', '+lower(ops[0].text)):node(label+':',ops.length?ops:[node('Take no action')]));
+firstBranch=false;
+if(n.e&&n.e.length==1&&n.e[0].k=='if')n=n.e[0];else{if(n.e){const ops=sequence(n.e,cx);out.push(ops.length==1&&!ops[0].children.length?node('Otherwise, '+lower(ops[0].text)):node('Otherwise:',ops.length?ops:[node('Take no action')]))}break;}}
+return out;}
+function sequence(body,cx={targets:[],loops:[],nested:false}){const out=[];
+for(let i=0;i<body.length;i++){const s=body[i],last=i==body.length-1;
+if(/^(p|call|in|out)$/.test(s.k)){
+// A plain prompt directly followed by input is part of the input instruction.
+if(s.k=='out'&&body[i+1]&&body[i+1].k=='in'){
+const text=output(s);
+const q=text.match(/^Display "([^"\n]+)"$/);
+if(q&&/^(?:enter|input|type|provide)\b.*[:?]\s*$/i.test(q[1])){
+out.push(...statement(body[++i]));continue;}}
+out.push(...statement(s));
+}else if(s.k=='if'){
+const b=branches(s,{...cx,nested:true});
+out.push(...(cx.nested?b:[node('Check the condition '+expr(s.ct)+':',b)]));
+}else if(/^(while|do|for)$/.test(s.k)){
+const loopCx={targets:cx.targets.concat('loop'),loops:cx.loops.concat(s),nested:true,compact:false};
+let children,heading;
+if(s.k=='for'&&s.rf){heading='Repeat for each '+(s.rft?expr(s.rft[0]):code(s.rf[0]))+' in '+(s.rft?expr(s.rft[1]):code(s.rf[1]))+':';children=sequence(s.b.slice(1),loopCx);}
+else if(s.k=='for'){
+const compact=counted(s);
+if(compact){heading=compact;children=sequence(s.b,{...loopCx,compact:true});}
+else{if(s.it&&s.it.length)out.push(...statement({k:'p',q:s.it,l:s.l}));
+heading='Repeat while '+(s.ct&&s.ct.length?expr(s.ct):code('true'))+':';children=sequence(s.b,loopCx);
+if(s.stt&&s.stt.length&&!hasBranchExit(s.b))children.push(...statement({k:'p',q:s.stt,l:s.l}));}}
+else{heading=s.k=='do'?'Perform the following at least once, repeating while '+expr(s.ct)+':':'Repeat while '+expr(s.ct)+':';children=sequence(s.b,loopCx);}
+out.push(node(heading,children.length?children:[node('Take no action')]));
+}else if(s.k=='sw'){
+const switchCx={...cx,targets:cx.targets.concat('switch'),nested:true},choices=[];
+s.cs.forEach((c,j)=>{
+const b=c.b.slice(),terminal=b[b.length-1];if(terminal&&terminal.k=='brk')b.pop();
+let actions=sequence(b,switchCx);
+// Retain fall-through as a control action, including conditional breaks.
+if(j<s.cs.length-1&&!hasBranchExit(c.b))actions.push(node('Continue with the actions of the next case'));
+const labs=split(lex(c.lab.replace(/^case /,'')),',').map(fmt),normal=labs.filter(t=>t!='default');
+const label=c.d?(normal.length?'If the value is '+list(normal.map(code),'or')+', or no case matches':'Otherwise'):'If the value is '+list(normal.map(code),'or');
+choices.push(actions.length==1&&!actions[0].children.length?node(label+', '+lower(actions[0].text)):node(label+':',actions.length?actions:[node('Take no action')]));});
+out.push(node('Check '+expr(s.ct)+' using a switch statement:',choices));
+}else if(s.k=='brk'){
+const target=cx.targets[cx.targets.length-1];if(!target)fail('break has no enclosing loop or switch',s);
+out.push(node('Exit the current '+target));
+}else if(s.k=='cnt'){
+const loop=cx.loops[cx.loops.length-1];if(!loop)fail('continue has no enclosing loop',s);
+if(loop.k=='for'&&!loop.rf&&!cx.compact&&loop.stt&&loop.stt.length)out.push(...statement({k:'p',q:loop.stt,l:s.l}));
+out.push(node(loop.k=='do'?'Proceed to the loop condition':'Continue with the next iteration'));
+}else if(s.k=='ret'){
+const q=s.q||[];
+if(entry&&last&&!cx.nested&&(!q.length||(q.length==1&&q[0].t=='0'))){}
+else if(entry)out.push(node('Stop the program'+(q.length&&fmt(q)!='0'?' with result '+expr(q):'')));
+else out.push(node(q.length?'Return '+expr(q):'Finish this function'));
+}else fail('Unsupported algorithm construct: '+s.k,s);
+if(/^(ret|brk|cnt)$/.test(s.k)||(s.k=='if'&&s.e&&hasBranchExit(s.y)&&hasBranchExit(s.e)))break;
+}
+return out;}
+// Scope and return context stay local to each function's algorithm.
+const globals=first?(program.globq||[]).flatMap(q=>statement({k:'p',q})):[];
+const steps=[node('Start')];
+if(!entry&&f.params)steps.push(node('Receive parameters '+code(f.params)));
+steps.push(...globals,...sequence(f.body),node('Stop'));
+const title='Algorithm: '+(entry?'Main Program':f.name.replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()));
+return {title,steps};
+}
+function renderAlgorithm(algorithm){
+const inline=t=>t.split(/(`[^`]*`)/g).map(p=>p.startsWith('`')?'<code>'+esc(p.slice(1,-1))+'</code>':esc(p)).join('');
+const line=t=>/[.!?:]$/.test(t)?t:t+'.';
+const items=(a,tag)=>'<'+tag+'>'+a.map(n=>'<li>'+inline(line(n.text))+(n.children.length?items(n.children,'ul'):'')+'</li>').join('')+'</'+tag+'>';
+const plain=(a,d)=>a.map((n,i)=>'  '.repeat(d)+(d?'- ':i+1+'. ')+line(n.text)+(n.children.length?'\n'+plain(n.children,d+1):'')).join('\n');
+return {html:'<div class="algorithm"><b>'+esc(algorithm.title)+'</b>'+items(algorithm.steps,'ol')+'</div>',text:algorithm.title+'\n\n'+plain(algorithm.steps,0)};
+}
+function explain(f,program,first){try{return renderAlgorithm(algorithmFor(f,program,first));}
+catch(e){return {html:'<div role="alert"><b>Algorithm unavailable'+(e.l?' at line '+e.l:'')+'.</b> '+esc(e.m||e.message||String(e))+' The flowchart and pseudocode remain available. Simplify this construct to generate a reliable algorithm.</div>',text:null};}}
+
+/* ---------- pseudocode ---------- */
+const TPS=/^((const|static|unsigned|signed|register|extern)\s+)*(int|float|double|char|long|short|bool|string|auto|size_t|vector\S*|struct \w+)\b/;
+const TYK=/^(int|float|double|char|long|short|const|unsigned|signed|static|bool|string|auto|size_t|register|extern)$/;
+const KWS=/^(return|delete|new|throw|goto|else|case|default|sizeof|typedef|using|do|assert|print|del|raise|pass|global|nonlocal|yield|await|import|from|extern)$/;
+const PM=Object.assign(Object.create(null),{'&&':'AND','||':'OR','!':'NOT','!=':'≠','<=':'≤','>=':'≥','%':'MOD','and':'AND','or':'OR','not':'NOT'});
+const AOP=Object.assign(Object.create(null),{'=':1,'+=':'+','-=':'-','*=':'*','/=':'/','%=':'MOD','&=':'&','|=':'|','^=':'^','<<=':'<<','>>=':'>>','//=':'//','**=':'**'});
+let PS={},LANG='c';const ind=d=>'    '.repeat(d);
+function jn(a){let o='',st=[],nn=false;a.forEach((x,i)=>{const t=PM[x.t]||x.t,p=i?a[i-1].t:'';if(x.t=='%')PS.mod=1;if(x.t=='/')PS.div=1;if(x.t=='//')PS.fdiv=1;
+const ns=!i||/^([,;)\].]|::|->|\+\+|--)$/.test(t)||/^([(\[.]|::|->)$/.test(p)||t=='['||(i>0&&isUn(a,i-1))||(t=='('&&/^[A-Za-z_]\w*$/.test(p)&&!/^(return|sizeof|in|is|if|elif|while|lambda|yield|await)$/.test(p)&&!PM[p])||(t=='>'&&p=='<')||(t=='('&&p=='>'&&i>1&&a[i-2].t=='<');
+let sp=!(ns||nn);nn=false;
+if(LANG=='python'){const top=st[st.length-1];if(x.t==':'){sp=false;if(top=='[')nn=true}else if(x.t=='}'||p=='{')sp=false}
+if(x.t.length==1){if('([{'.includes(x.t))st.push(x.t);else if(')]}'.includes(x.t))st.pop()}
+o+=(sp?' ':'')+t});return o}
+function topAssign(a){let dp=0;for(let i=0;i<a.length;i++){const t=a[i].t;if(t.length==1&&'([{'.includes(t))dp++;else if(t.length==1&&')]}'.includes(t))dp--;else if(!dp&&AOP[t])return i}return-1}
+function asg(a){const k=topAssign(a);if(k<1||k==a.length-1)return null;const lhs=a.slice(0,k),rhs=a.slice(k+1),op=a[k].t;
+if(lhs.some(t=>t.t=='++'||t.t=='--'||t.t=='('))return null;
+const L=jn(lhs),k2=topAssign(rhs);let pre=[],val;
+if(k2>0){const inn=asg(rhs);if(!inn)return null;pre=inn;val=jn(rhs.slice(0,k2))}else val=jn(rhs);
+const w=/^[\w.]+(\([^()]*\))?$/.test(val)?val:'('+val+')';
+return pre.concat(['SET '+L+' TO '+(op=='='?val:L+' '+AOP[op]+' '+w)])}
+function isCall(a){if(a[a.length-1].t!=')')return false;const k=a.findIndex(t=>t.t=='(');if(k<1)return false;
+if(!a.slice(0,k).every(t=>/^([A-Za-z_]\w*|\.|::|->)$/.test(t.t)))return false;let dp=0;
+for(let i=k;i<a.length;i++){if(a[i].t=='(')dp++;if(a[i].t==')'){dp--;if(!dp&&i<a.length-1)return false}}return true}
+function declStart(a){let k=0;while(k<a.length-1&&MODS.test(a[k].t))k++;const b=a[k]&&a[k].t;k++;
+if(/^(struct|enum|union)$/.test(b)&&a[k])k++;
+while(a[k]&&(a[k].t=='.'||a[k].t=='::')&&a[k+1])k+=2;
+while(a[k]&&TYK.test(a[k].t))k++;
+if(a[k]&&a[k].t=='<'){let dp=0;for(;k<a.length;k++){const t=a[k].t;if(t=='<')dp++;else if(t=='>')dp--;else if(t=='>>')dp-=2;if(dp<=0){k++;break}}}
+while(a[k]&&a[k].t=='['&&a[k+1]&&a[k+1].t==']')k+=2;return k}
+function isDeclStmt(a){const ft=fm(a),y0=a.map(t=>t.t);
+return TPS.test(ft)||TPS.test(ft.replace(/^std::/,''))||(/^[A-Za-z_]\w*$/.test(y0[0])&&/^[A-Za-z_]\w*$/.test(y0[1]||'')&&!KWS.test(y0[0]))||/^(?:(?:final|static|const)\s+)*[A-Za-z_][\w.:]*\s*<.*>\s*[A-Za-z_]\w*\s*(=|$|,)/.test(ft)||/^(?:(?:final|static|const)\s+)*[A-Za-z_][\w.]*\s*(\[\s*\]\s*)+[A-Za-z_]\w*/.test(ft)}
+function decl(a){const k=declStart(a);if(k<1||k>=a.length)return null;
+const ty=jn(a.slice(0,k)).replace(/ ?([<>]) ?/g,'$1');
+return split(a.slice(k),',').map(d=>{let e=-1,dp=0;d.forEach((x,i)=>{const t=x.t;if(t.length==1&&'([{'.includes(t))dp++;else if(t.length==1&&')]}'.includes(t))dp--;else if(t=='='&&!dp&&e<0)e=i});
+const nm=jn(e<0?d:d.slice(0,e)).replace(/^([*&]+)\s+/,'$1');return'DECLARE '+nm+' : '+ty+(e<0?'':' ← '+jn(d.slice(e+1)))})}
+function stm(s){if(s.pk&&PK[s.pk])return PK[s.pk](s);const a=s.q;if(!a||!a.length)return[s.t||''];const y0=a.map(t=>t.t),a2=y0[0]=='std'&&y0[1]=='::'?a.slice(2):a,y=a2.map(t=>t.t),last=y[y.length-1];
+if((y[0]=='scanf'||y[0]=='scanf_s')&&y[1]=='('&&last==')'){const j=a2.findIndex(t=>t.t[0]=='"');if(j>0){const r=split(a2.slice(j+2,-1),',').map(p=>jn(p).replace(/^&\s*/,''));if(r.length&&r.every(Boolean))return['READ '+r.join(', ')]}}
+if(y[0]=='cin'&&y[1]=='>>'){const r=split(a2.slice(1),'>>').filter(p=>p.length).map(jn);if(r.length)return['READ '+r.join(', ')]}
+if((y[0]=='cout'||y[0]=='cerr')&&y[1]=='<<'){const r=split(a2.slice(1),'<<').filter(p=>p.length).map(p=>{const t=jn(p);return/^(std::)?endl$/.test(t)?'NEWLINE':t});if(r.length)return[(y[0]=='cerr'?'PRINT TO ERROR STREAM ':'PRINT ')+r.join(', ')]}
+if(/^(printf|puts|putchar)$/.test(y[0])&&y[1]=='('&&last==')'){const v=jn(a2.slice(2,-1));if(v)return[{printf:'PRINT FORMATTED ',puts:'PRINT LINE ',putchar:'PRINT CHARACTER '}[y[0]]+v]}
+if(LANG!='python'&&isDeclStmt(a)){const dc=decl(a);if(dc)return dc}
+const parts=split(a,',');if(LANG!='python'&&parts.length>1&&parts.every(p=>p.length))return parts.flatMap(p=>stm({q:p}));
+const f=y0[y0.length-1],isI=t=>t=='++'||t=='--',hasA=a.some(t=>AOP[t.t]);
+if(a.length>1&&isI(f)&&!hasA&&!a.slice(0,-1).some(t=>isI(t.t)))return[(f=='++'?'INCREMENT ':'DECREMENT ')+jn(a.slice(0,-1))];
+if(a.length>1&&isI(y0[0])&&!hasA&&!a.slice(1).some(t=>isI(t.t)))return[(y0[0]=='++'?'INCREMENT ':'DECREMENT ')+jn(a.slice(1))];
+const as=asg(a);if(as)return as;
+if(isCall(a))return['CALL '+jn(a)];
+return['EXECUTE '+jn(a)]}
+const jumps=l=>{const x=l[l.length-1];return!!x&&(/^(brk|ret|cnt)$/.test(x.k)||(x.k=='if'&&!!x.e&&jumps(x.y)&&jumps(x.e)))};
+function pg(l,d,L,cx){if(!l.length){L.push(ind(d)+'// do nothing');return}const I=ind(d);
+l.forEach(s=>{switch(s.k){
+case'p':case'call':case'in':case'out':stm(s).forEach(x=>L.push(I+x));break;
+case'ret':L.push(I+'RETURN'+(s.q&&s.q.length?' '+jn(s.q):''));break;
+case'brk':L.push(I+'BREAK   // leaves the '+cx[cx.length-1]);break;
+case'cnt':L.push(I+'CONTINUE');break;
+case'if':{L.push(I+'IF '+jn(s.ct)+' THEN');pg(s.y,d+1,L,cx);let e=s.e;
+while(e&&e.length==1&&e[0].k=='if'){const n=e[0];L.push(I+'ELSE IF '+jn(n.ct)+' THEN');pg(n.y,d+1,L,cx);e=n.e}
+if(e&&e.length){L.push(I+'ELSE');pg(e,d+1,L,cx)}L.push(I+'END IF');break}
+case'while':L.push(I+'WHILE '+(jn(s.ct)||'true')+' DO');pg(s.b,d+1,L,cx.concat('loop'));L.push(I+'END WHILE');break;
+case'do':L.push(I+'DO');pg(s.b,d+1,L,cx.concat('loop'));L.push(I+'WHILE '+jn(s.ct)+'   // checked after each pass');break;
+case'for':{const hp=a=>a&&a.length?stm({q:a}).join(', '):'';
+if(s.rf){L.push(I+'FOR EACH '+s.rf[0]+' IN '+s.rf[1]+' DO');pg(s.b.slice(1),d+1,L,cx.concat('loop'))}
+else{L.push(I+'FOR ('+hp(s.it)+'; '+(jn(s.ct)||'true')+'; '+hp(s.stt)+') DO');pg(s.b,d+1,L,cx.concat('loop'))}
+L.push(I+'END FOR');break}
+case'sw':{L.push(I+'SWITCH '+jn(s.ct));s.cs.forEach((c,i)=>{L.push(I+'    '+c.lab.replace(/^case /,'CASE ').replace(/\bdefault\b/,'DEFAULT')+':');pg(c.b,d+2,L,cx.concat('switch'));
+if(i<s.cs.length-1&&!jumps(c.b))L.push(I+'        // no BREAK: continues into the next case')});L.push(I+'END SWITCH');break}
+default:L.push(I+'EXECUTE '+(s.t||s.k))}})}
+const PK={
+print:s=>{const a=s.pa,he=a.some((t,i)=>t.t=='end'&&a[i+1]&&a[i+1].t=='=');return['PRINT '+(he?'':'LINE ')+(a.length?jn(a):'')].map(x=>x.trim())},
+prompt:s=>['PRINT '+jn(s.pa)],
+glob:s=>[(s.q[0].t=='global'?'USE GLOBAL ':'USE NONLOCAL ')+jn(s.q.slice(1))],
+read:s=>['READ '+jn(s.pl)+(s.pc&&s.pc!='str'?'   // converted with '+s.pc+'()':'')],
+jout:s=>{const a=s.pa,e=s.pe?' TO ERROR STREAM':'';if(s.pm=='println')return['PRINT LINE'+e+(a.length?' '+jn(a):'')];if(s.pm=='print')return['PRINT'+e+' '+jn(a)];return['PRINT FORMATTED'+e+' '+jn(a)]},
+jread:s=>{const L=[];if(s.pl.length>=2&&s.pl[1].t!='.'&&!(s.pl[1].t=='['&&s.pl[2]&&s.pl[2].t!=']')){const d=decl(s.pl);if(d)L.push(...d)}
+const r=s.pr,plain=r.length==5&&r[1].t=='.'&&r[3].t=='('&&r[4].t==')';L.push('READ '+s.pn+(plain?'':'   // via '+jn(r)));return L}};
+function pseudo(Pr){PS={};LANG=Pr.lang||'c';const L=[];
+if(Pr.globq.length){L.push('// Global declarations');Pr.globq.forEach(q=>stm({q}).forEach(x=>L.push(x)));L.push('')}
+Pr.fns.forEach((f,i)=>{if(f.script){L.push('PROGRAM');pg(f.body,1,L,[]);L.push('END PROGRAM')}else{const rt=f.rt?(f.rt=='void'?' RETURNS nothing':' RETURNS '+f.rt):'';L.push('FUNCTION '+f.name+'('+f.params+')'+rt);pg(f.body,1,L,[]);L.push('END FUNCTION')}if(i<Pr.fns.length-1)L.push('')});
+const n=[];if(PS.mod)n.push(LANG=='python'?'MOD means remainder (the % operator; in Python the result takes the sign of the right-hand number).':'MOD means remainder (the % operator).');
+if(PS.div)n.push(LANG=='python'?'"/" is true division (the result can be a decimal).':LANG=='java'?'"/" works as in Java: integer division when both operands are integers.':'"/" works as in C: integer division when both operands are integers.');
+if(PS.fdiv)n.push('"//" is floor division (rounds down to a whole number).');
+if(n.length){L.push('');n.forEach(x=>L.push('// Note: '+x))}
+return L.join('\n')}
+/* ---------- app ---------- */
+const LN2={c:'C / C++',python:'Python',java:'Java'};
+function detect(src){const t=src.replace(/\/\*[\s\S]*?\*\//g,'');
+if(!/#include/.test(t)&&(/\bSystem\s*\.\s*(out|in|err)\b/.test(t)||/\b(public|private|protected)\s+(static\s+)?(final\s+)?(class|void|int|String|boolean)\b/.test(t)||/^\s*import\s+java\./m.test(t)||/\bclass\s+\w+[^{;\n]*\{/.test(t)))return'java';
+const L=t.split('\n').map(l=>l.replace(/#.*$/,'').trimEnd()).filter(Boolean);
+const semi=L.some(l=>/;$/.test(l)),cstyle=L.some(l=>/\)\s*\{$/.test(l)||/^\s*\}/.test(l)),hdr=L.some(l=>/^\s*(if|elif|while|for|def|class|try|except|finally|with)\b.*:$/.test(l)||/^\s*else\s*:$/.test(l)),py=L.some(l=>/^\s*(print\(|import\s+\w|from\s+\w+\s+import)/.test(l));
+if(!semi&&!cstyle&&(hdr||py))return'python';
+return'c'}
+const ta=$('ta'),g=$('g'),stage=$('stage');let charts=[],cur=0,V={k:1,x:0,y:0},vp=null;
+const toast=m=>{const t=$('toast');t.textContent=m;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1800)};
+function gut(el){g.innerHTML=ta.value.split('\n').map((_,i)=>`<div${i+1==el?' class="e"':''}>${i+1}</div>`).join('')}
+ta.oninput=()=>{gut();$('err').style.display='none'};ta.onscroll=()=>g.scrollTop=ta.scrollTop;
+ta.onkeydown=e=>{if(e.key=='Tab'){e.preventDefault();document.execCommand('insertText',false,'    ')}};
+function apply(){if(vp)vp.setAttribute('transform',`translate(${V.x} ${V.y}) scale(${V.k})`)}
+function fit(){const c=charts[cur];if(!c)return;const r=stage.getBoundingClientRect(),k=Math.min(r.width/c.b.w,r.height/c.b.h,1.3)*.94;V.k=k;V.x=(r.width-c.b.w*k)/2-c.b.x*k;V.y=(r.height-c.b.h*k)/2-c.b.y*k;apply()}
+function zoomAt(cx,cy,f){const r=stage.getBoundingClientRect(),px=cx-r.left,py=cy-r.top,nk=Math.min(4,Math.max(.1,V.k*f));V.x=px-(px-V.x)*nk/V.k;V.y=py-(py-V.y)*nk/V.k;V.k=nk;apply()}
+function show(i){cur=i;const c=charts[i];stage.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"><g id="vp"><rect width="${c.W}" height="${c.H}" fill="#fff" filter="url(#sh)"/>${c.inner}</g></svg>`;vp=$('vp');$('exb').innerHTML=c.ex;
+$('tabs').innerHTML=charts.map((c,j)=>`<button class="${j==i?'on':''}" data-i="${j}">${esc(c.disp)}</button>`).join('');fit()}
+$('tabs').onclick=e=>{const b=e.target.closest('button');if(b)show(+b.dataset.i)};
+function showErr(e,hint){const m=e&&e.m?e.m:'Unexpected error: '+(e&&e.message||e);$('err').style.display='block';$('err').innerHTML=(e&&e.l?`<b>Line ${e.l}:</b> `:'')+esc(m)+'<br><span style="opacity:.8">No flowchart was generated, to avoid showing an inaccurate diagram.</span>'+(hint?`<br><span style="opacity:.8">Detected language: ${LN2[hint]}. If that is wrong, pick the language from the dropdown above the code.</span>`:'');
+if(e&&e.l){gut(e.l);const ls=ta.value.split('\n');let p=0;for(let i=0;i<e.l-1;i++)p+=ls[i].length+1;ta.setSelectionRange(p,p+(ls[e.l-1]||'').length);ta.scrollTop=Math.max(0,(e.l-4)*20)}}
+function gen(){$('err').style.display='none';gut();$('ld').hidden=false;const lg=$('lang').value,LG=lg=='auto'?detect(ta.value):lg;setTimeout(()=>{try{
+const P=parse(ta.value,LG),names=P.fns.map(f=>f.name);charts=P.fns.map((f,i)=>build(f,i==0,P.glob,names,P));
+let cnt={in:0,out:0,dec:0,loop:0,call:0,ret:0};
+P.fns.forEach((f,i)=>{const re=new RegExp('\\b('+names.join('|')+')\\s*\\(');walk(f.body,s=>{if(s.k=='in')cnt.in++;if(s.k=='out')cnt.out++;if(s.k=='if'||s.k=='sw')cnt.dec++;if(/^(while|for|do)$/.test(s.k))cnt.loop++;if(s.k=='ret')cnt.ret++;if(s.k=='p'&&re.test(s.t))cnt.call++})});
+$('chips').innerHTML=[`Language: ${LN2[LG]}${lg=='auto'?' (auto-detected)':''}`,`Entry: ${P.fns[0].disp||P.fns[0].name+'()'}`,`Functions: ${P.fns.length}`,`Variables: ${P.vars.size}${P.vars.size?' ('+[...P.vars].slice(0,6).join(', ')+(P.vars.size>6?'…':'')+')':''}`,`Inputs: ${cnt.in}`,`Outputs: ${cnt.out}`,`Conditions: ${cnt.dec}`,`Loops: ${cnt.loop}`,`Calls: ${cnt.call}`,`Returns: ${cnt.ret}`].map(t=>`<span class="chip">${esc(t)}</span>`).join('');
+try{$('psb').textContent=pseudo(P)}catch(e){$('psb').textContent='// Pseudocode could not be generated for this code.'}show(0)}catch(e){showErr(e,lg=='auto'?LG:null)}$('ld').hidden=true},450)}
+$('go').onclick=gen;
+$('rs').onclick=()=>{ta.value='';gut();charts=[];stage.innerHTML='<div class="empty">Your flowchart will appear here</div>';$('tabs').innerHTML='';$('chips').innerHTML='';$('err').style.display='none';$('exb').innerHTML='';$('psb').textContent=''};
+$('exs').onchange=e=>{if(e.target.value!==''){ta.value=EX[e.target.value];$('lang').value='auto';gut();gen();e.target.value=''}};
+$('zi').onclick=()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.25)};
+$('zo').onclick=()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,.8)};$('fit').onclick=fit;
+$('fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():$('pane').requestFullscreen&&$('pane').requestFullscreen();
+document.addEventListener('fullscreenchange',()=>setTimeout(fit,100));window.addEventListener('resize',fit);
+function pnl(id,btn){const e=$(id),o=e.style.display=='block';['exp','ps'].forEach(x=>$(x).style.display='none');['xp','pcb'].forEach(x=>$(x).classList.remove('on'));if(!o){e.style.display='block';$(btn).classList.add('on')}setTimeout(fit,50)}
+$('xp').onclick=()=>pnl('exp','xp');$('pcb').onclick=()=>pnl('ps','pcb');
+function cpt(t,msg){const ok=()=>toast(msg);(navigator.clipboard?navigator.clipboard.writeText(t):Promise.reject()).then(ok,()=>{const a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{document.execCommand('copy')?ok():toast('Copy not permitted here')}catch(e){toast('Copy not permitted here')}a.remove()})}
+$('cpp').onclick=()=>{const t=$('psb').textContent;if(!t)return toast('Generate a flowchart first');cpt(t,'Pseudocode copied')};
+stage.addEventListener('wheel',e=>{e.preventDefault();zoomAt(e.clientX,e.clientY,e.deltaY<0?1.12:.89)},{passive:false});
+const pts=new Map();
+stage.onpointerdown=e=>{stage.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY])};
+stage.onpointermove=e=>{const o=pts.get(e.pointerId);if(!o)return;
+if(pts.size==1){V.x+=e.clientX-o[0];V.y+=e.clientY-o[1];apply()}
+else if(pts.size==2){const ot=[...pts].find(([id])=>id!=e.pointerId)[1],d0=Math.hypot(o[0]-ot[0],o[1]-ot[1]),d1=Math.hypot(e.clientX-ot[0],e.clientY-ot[1]);zoomAt((e.clientX+ot[0])/2,(e.clientY+ot[1])/2,d1/d0)}
+pts.set(e.pointerId,[e.clientX,e.clientY])};
+stage.onpointerup=stage.onpointercancel=e=>pts.delete(e.pointerId);
+/* ---------- export ---------- */
+function svgStr(sc){const c=charts[cur];return`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${c.W} ${c.H}" width="${c.W*sc}" height="${c.H*sc}" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"><rect width="${c.W}" height="${c.H}" fill="#ffffff"/>${c.inner}</svg>`}
+function canvas(cb){if(!charts[cur])return toast('Generate a flowchart first');const sc=2,im=new Image();
+im.onload=()=>{const c=document.createElement('canvas');c.width=im.width;c.height=im.height;c.getContext('2d').drawImage(im,0,0);cb(c)};im.onerror=()=>toast('Export failed');im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(svgStr(sc))}
+let DLC=null;try{window.claude&&claude.use('downloads').then(d=>DLC=d,()=>{})}catch(e){}
+async function dl(data,name){if(DLC){try{await DLC.save({filename:name,data});toast('Saved '+name)}catch(e){if(e.code!='declined')toast('Download failed: '+(e.message||e.code))}return}
+const u=URL.createObjectURL(data),a=document.createElement('a');a.href=u;a.download=name;a.click()}
+const fn=()=>(charts[cur]?charts[cur].fname:'flowchart')+'-flowchart';
+$('ePng').onclick=()=>canvas(c=>c.toBlob(b=>dl(b,fn()+'.png'),'image/png'));
+$('eSvg').onclick=()=>{if(!charts[cur])return toast('Generate a flowchart first');dl(new Blob([svgStr(1)],{type:'image/svg+xml'}),fn()+'.svg')};
+$('ePdf').onclick=()=>canvas(c=>{if(!window.jspdf)return toast('PDF library failed to load');const L=c.width>c.height,p=new jspdf.jsPDF({orientation:L?'l':'p',unit:'mm',format:'a4'});p.addImage(c.toDataURL('image/png'),'PNG',0,0,L?297:210,L?210:297);dl(p.output('blob'),fn()+'.pdf')});
+const copyTxt=()=>navigator.clipboard.writeText(svgStr(1)).then(()=>toast('Image copy unavailable — SVG code copied'),()=>toast('Copy not permitted here'));
+$('cp').onclick=()=>canvas(c=>c.toBlob(b=>{try{navigator.clipboard.write([new ClipboardItem({'image/png':b})]).then(()=>toast('Flowchart copied'),copyTxt)}catch(e){copyTxt()}}));
+$('sh').onclick=()=>canvas(c=>c.toBlob(b=>{const f=new File([b],fn()+'.png',{type:'image/png'});if(navigator.canShare&&navigator.canShare({files:[f]}))navigator.share({files:[f],title:'Flowchart'}).catch(()=>{});else $('cp').click()}));
+function setTh(d){document.documentElement.dataset.theme=d?'dark':'light';$('th').textContent=d?'☀ Light':'🌙 Dark';try{localStorage.setItem('th',d?'d':'l')}catch(e){}}
+let sv=null;try{sv=localStorage.getItem('th')}catch(e){}setTh(sv=='d');
+$('th').onclick=()=>setTh(document.documentElement.dataset.theme!='dark');
+$('cpa').onclick=()=>{const c=charts[cur];if(!c)return toast('Generate a flowchart first');if(!c.algText)return toast('Algorithm unavailable for this syntax');cpt(c.algText,'Algorithm copied')};
+if(/^G-[A-Z0-9]+$/.test(SITE.ga)){const gs=document.createElement('script');gs.async=1;gs.src='https://www.googletagmanager.com/gtag/js?id='+SITE.ga;document.head.appendChild(gs);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config',SITE.ga)}
+if(SITE.ns){let seen=null;try{seen=sessionStorage.getItem('vc')}catch(e){}
+fetch(`https://abacus.jasoncameron.dev/${seen?'get':'hit'}/${encodeURIComponent(SITE.ns)}/${encodeURIComponent(SITE.key)}`).then(r=>r.json()).then(d=>{if(d&&d.value!=null){$('vc').hidden=false;$('vc').textContent='📈 '+Number(d.value).toLocaleString()+' visits';try{sessionStorage.setItem('vc','1')}catch(e){}}}).catch(()=>{})}
+const mn=$('mn');$('exm').onclick=e=>{e.stopPropagation();mn.classList.toggle('open')};mn.onclick=()=>mn.classList.remove('open');
+document.addEventListener('click',()=>mn.classList.remove('open'));document.addEventListener('keydown',e=>{if(e.key=='Escape')mn.classList.remove('open')});
+ta.value=EX[0];gut();gen();
+</script></body></html>

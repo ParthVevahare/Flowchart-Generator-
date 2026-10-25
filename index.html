@@ -59,7 +59,12 @@ footer{text-align:center;font-size:12px;color:var(--mu);padding:0 8px 2px}footer
 #psb{margin:0;font:12.5px/1.6 ui-monospace,Menlo,Consolas,monospace;white-space:pre;overflow:auto}
 [data-theme=dark] #ps{background:#0f1429}
 
-.practice-launch{font-weight:600;white-space:nowrap}
+#practice-open{font-weight:700;white-space:nowrap;background:#dc2626;color:#fff;border-color:#b91c1c}
+#practice-open:hover{background:#b91c1c}
+#practice-open:focus-visible{outline:3px solid #fca5a5;outline-offset:3px}
+#practice-open.qb-attention{animation:qb-button-blink 1.5s steps(1,end) infinite}
+@keyframes qb-button-blink{0%,100%{opacity:1}50%{opacity:0}}
+@media(prefers-reduced-motion:reduce){#practice-open.qb-attention{animation:none}}
 body:has(#practice-room[open]){overflow:hidden}
 #practice-room{--pr-bg:#fff;--pr-surface:#f8f9fb;--pr-ink:#202631;--pr-muted:#666e7b;--pr-line:#dce0e6;--pr-blue:#4f46b8;--pr-soft:#eeedf8;--pr-code:#f4f5f7;width:min(1200px,calc(100vw - 32px));max-width:none;height:calc(100dvh - 32px);max-height:none;border:1px solid #bfc5cf;border-radius:5px;padding:0;color:var(--pr-ink);background:var(--pr-bg);overflow:hidden;font:13px/1.6 system-ui,-apple-system,Segoe UI,sans-serif}
 #practice-room:not([open]){display:none}
@@ -916,9 +921,19 @@ const PracticeBank = (() => {
     }
     if(code!==null)html.push(codeBlock(code));flush();return html.join('');
   }
+  function sessionAttention(button,getStorage=()=>sessionStorage) {
+    const key='spm-question-bank-opened';let storage,opened=false;
+    try {storage=getStorage();opened=storage.getItem(key)==='1';} catch {}
+    button.classList.toggle('qb-attention',!opened);
+    return ()=>{
+      button.classList.remove('qb-attention');
+      try {storage?.setItem(key,'1');} catch {}
+    };
+  }
   function mount() {
     const $=id=>document.getElementById(id),dialog=$('practice-room');
     if(!dialog)return;
+    const stopAttention=sessionAttention($('practice-open'));
     const data=JSON.parse($('practice-data').textContent);
     let state=defaults(),saved=new Set(),reviewed=new Set(),loaded=false,returnFocus=null;
     const validIds=new Set([...data.practice,...data.pyq].map(q=>q.id));
@@ -983,6 +998,7 @@ const PracticeBank = (() => {
       if(scroll)dialog.querySelector('.pr-content').scrollTop=0;
     }
     $('practice-open').addEventListener('click',()=>{
+      stopAttention();
       returnFocus=document.activeElement;
       if(!loaded){render();loaded=true;}
       dialog.showModal();
@@ -1012,7 +1028,7 @@ const PracticeBank = (() => {
     dialog.addEventListener('keydown',e=>{if(e.key==='/'&&!/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)&&!document.activeElement.isContentEditable){e.preventDefault();$('pr-search').focus();}});
     // Keep public-site counts accurate before the first open without rendering the bank.
   }
-  return {query,defaults,markdown,inline,mathText,PAGE_SIZE,mount};
+  return {query,defaults,markdown,inline,mathText,sessionAttention,PAGE_SIZE,mount};
 })();
 PracticeBank.mount();
 

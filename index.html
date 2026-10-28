@@ -56,7 +56,7 @@ const VisitCounter = (() => {
   return {start, mount};
 })();
 
-VisitCounter.start({"ns":"parthvevahare-flowchart","key":"visits","fallbackTotal":930});
+VisitCounter.start({"ns": "parthvevahare-flowchart", "key": "visits", "fallbackTotal": 930});
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
@@ -135,37 +135,30 @@ body:has(#practice-room[open]){overflow:hidden}
 #practice-room button:disabled{opacity:.4;cursor:not-allowed}
 .pr-shell{height:100%;display:flex;flex-direction:column;overflow:hidden}
 .pr-topbar{flex:none;display:flex;align-items:center;justify-content:space-between;gap:15px;padding:12px 22px;border-bottom:1px solid var(--pr-line)}
-.pr-brand{display:flex;align-items:center;gap:20px;min-width:0}.pr-brand h2{font-size:17px;font-weight:650;line-height:1.3;margin:0}.pr-brand p{font-size:11px;color:var(--pr-muted);margin:2px 0 0}.pr-scope{font-size:11px;color:var(--pr-muted);white-space:nowrap}
+.pr-topbar h2{font-size:17px;font-weight:650;margin:0}
 #practice-room .pr-close{display:flex;gap:7px;align-items:center;border:0;font-size:12px;white-space:nowrap}.pr-escape{font-size:10px;border:1px solid var(--pr-line);border-radius:3px;padding:0 4px;margin-left:5px}
-.pr-layout{flex:1;min-height:0;display:grid;grid-template-columns:265px minmax(0,1fr)}
+.pr-layout{flex:1;min-height:0;display:grid;grid-template-columns:250px minmax(0,1fr)}
 .pr-sidebar{padding:12px 12px 0;display:flex;flex-direction:column;min-height:0;border-right:1px solid var(--pr-line);background:var(--pr-surface)}
 .pr-sources{display:flex;gap:4px;flex:none;padding-bottom:10px;border-bottom:1px solid var(--pr-line)}
 #practice-room .pr-sources button{display:flex;gap:9px;align-items:center;justify-content:center;flex:1;border-color:transparent;background:transparent;padding:7px}
 #practice-room .pr-sources button[aria-pressed=true]{background:var(--pr-bg);border-color:var(--pr-line);font-weight:650;color:var(--pr-blue)}.pr-sources b{font-size:11px;font-weight:500;color:var(--pr-muted)}
-.pr-side-label{display:block;font-size:11px;font-weight:600;color:var(--pr-muted);margin:12px 8px 5px}
-.pr-modules{display:grid;gap:1px;flex:none}
-#practice-room .pr-modules button{width:100%;display:flex;align-items:center;gap:7px;text-align:left;border:0;background:transparent;padding:6px 8px;font-size:12px}
-#practice-room .pr-modules button[aria-pressed=true]{font-weight:650;background:var(--pr-soft);color:var(--pr-blue)}
-.pr-module-no{font-size:10px;color:var(--pr-muted);min-width:17px}.pr-module-text{flex:1;min-width:0}.pr-module-text strong{font-weight:inherit}.pr-module-count{font-size:10px;color:var(--pr-muted)}.pr-module-mobile{display:none}
-#pr-year{display:block;margin:0 8px 8px;width:calc(100% - 16px);font-size:12px;border:1px solid var(--pr-line);border-radius:3px;background:var(--pr-bg);padding:5px;color:var(--pr-ink)}
+.pr-module-picker{display:grid;gap:5px;margin:14px 4px 4px;font-size:11px;color:var(--pr-muted)}.pr-module-picker select{width:100%;min-width:0;border:1px solid var(--pr-line);border-radius:4px;background:var(--pr-bg);padding:7px;font-size:12px;color:var(--pr-ink)}
 .pr-index-heading{font-size:11px;color:var(--pr-muted);display:flex;justify-content:space-between;margin:14px 8px 8px;padding-top:12px;border-top:1px solid var(--pr-line);flex:none}
 .pr-index{overflow:auto;min-height:0;padding-bottom:12px;scrollbar-width:thin}
-#practice-room .pr-index button{display:flex;width:100%;gap:8px;text-align:left;align-items:flex-start;padding:9px 8px;border:0;border-radius:3px;background:transparent;font-size:12px;line-height:1.4}
+#practice-room .pr-index button{display:flex;width:100%;gap:8px;text-align:left;align-items:flex-start;padding:10px 8px;border:0;border-radius:3px;background:transparent;font-size:13px;line-height:1.5;min-height:40px}
 #practice-room .pr-index button[aria-current=true]{background:var(--pr-soft);color:var(--pr-blue);font-weight:650;box-shadow:inset 2px 0 var(--pr-blue)}
 .pr-index-number{flex:none;width:23px;padding-top:1px;font-size:10px;color:var(--pr-muted);font-weight:400}
-.pr-index small{display:block;color:var(--pr-muted);font-size:10px;font-weight:400;margin-top:3px}
 .pr-content{overflow:auto;overscroll-behavior:contain;padding:20px 32px 0;background:var(--pr-bg);min-width:0;scrollbar-width:thin}
-.pr-section-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.pr-section-head h3{font-size:16px;line-height:1.4;font-weight:600;margin:0}.pr-view-flags{display:flex;align-items:center;gap:6px;white-space:nowrap}
-#practice-room .pr-view-flags button{font-size:11px;padding:3px 7px;color:var(--pr-muted)}#practice-room .pr-view-flags button[aria-pressed=true]{color:var(--pr-blue);border-color:var(--pr-blue);background:var(--pr-soft)}
-.pr-progress{margin:0 0 12px}.pr-progress-top{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:10px;color:var(--pr-muted)}.pr-progress-top b{font-weight:500;color:var(--pr-ink)}.pr-progress progress{display:block;appearance:none;width:100%;height:4px;border:0;overflow:hidden;background:var(--pr-line);margin:4px 0 0}.pr-progress progress::-webkit-progress-bar{background:var(--pr-line)}.pr-progress progress::-webkit-progress-value{background:var(--pr-blue)}.pr-progress progress::-moz-progress-bar{background:var(--pr-blue)}
-.pr-search input{display:block;width:100%;border:1px solid var(--pr-line);border-radius:4px;padding:8px 11px;background:var(--pr-bg);font-size:12px}.pr-search input::placeholder{color:var(--pr-muted)}
-.pr-filter-stack{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:10px 0}.pr-filter-stack label{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--pr-muted)}.pr-filter-stack select{font-size:11px;border:1px solid var(--pr-line);border-radius:3px;background:var(--pr-bg);padding:5px;color:var(--pr-ink);max-width:180px}.pr-sort-label{margin-left:auto}
+.pr-progress{margin:0 0 12px}.pr-progress-top{display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:11px;color:var(--pr-muted)}.pr-progress-top>span:last-child{color:var(--pr-ink)}.pr-progress progress{display:block;appearance:none;width:100%;height:4px;border:0;overflow:hidden;background:var(--pr-line);margin:4px 0 0}.pr-progress progress::-webkit-progress-bar{background:var(--pr-line)}.pr-progress progress::-webkit-progress-value{background:var(--pr-blue)}.pr-progress progress::-moz-progress-bar{background:var(--pr-blue)}
+.pr-search-row{display:flex;align-items:center;gap:8px;margin:16px 0 12px}.pr-search{flex:1;min-width:0}.pr-search input{display:block;width:100%;border:1px solid var(--pr-line);border-radius:4px;padding:9px 11px;background:var(--pr-bg);font-size:13px}.pr-search input::placeholder{color:var(--pr-muted)}
+#practice-room #pr-filter-toggle{font-size:12px;padding:9px 12px;white-space:nowrap}#practice-room #pr-filter-toggle[aria-expanded=true]{border-color:var(--pr-blue);color:var(--pr-blue)}
+.pr-filter-panel{background:var(--pr-surface);padding:14px;margin:0 0 12px;border:1px solid var(--pr-line);border-radius:4px}.pr-filter-stack{display:flex;gap:12px;flex-wrap:wrap}.pr-filter-stack label{display:grid;gap:4px;font-size:11px;color:var(--pr-muted);flex:1;min-width:110px}.pr-filter-stack select{width:100%;border:1px solid var(--pr-line);border-radius:3px;background:var(--pr-bg);padding:6px;font-size:12px;color:var(--pr-ink)}
+.pr-filter-options{display:flex;gap:8px;margin-top:12px}#practice-room .pr-filter-options button{font-size:11px;padding:5px 8px}#practice-room .pr-filter-options button[aria-pressed=true]{background:var(--pr-soft);border-color:var(--pr-blue);color:var(--pr-blue)}
 .pr-results-meta{display:flex;justify-content:space-between;align-items:center;gap:10px;border-bottom:1px solid var(--pr-line);padding:0 0 10px}.pr-results-meta p{font-size:11px;color:var(--pr-muted);margin:0}.pr-results-meta strong{font-weight:600;color:var(--pr-ink)}#practice-room #pr-reset{padding:2px 0;border:0;background:transparent;color:var(--pr-muted);font-size:11px}.pr-pyq-note{font-size:10px;color:var(--pr-muted);margin:8px 0 0}
 .pr-jump-wrap{display:none}
-.pr-question{padding:24px 0 20px;background:transparent;box-shadow:none;border-radius:0;min-height:240px}.pr-question-top{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;line-height:1.5;color:var(--pr-muted)}.pr-question-actions{margin-left:auto}
-.pr-badge::before{content:'·';padding-right:8px}.pr-badge.year{font-weight:650;color:var(--pr-ink)}
+.pr-question{padding:24px 0 20px;background:transparent;box-shadow:none;border-radius:0;min-height:240px}.pr-question-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:10px;font-size:11px;line-height:1.5;color:var(--pr-muted)}.pr-question-actions{margin-left:auto}
 #practice-room .pr-save{border:0;background:transparent;font-size:11px;padding:0;color:var(--pr-muted)}#practice-room .pr-save[aria-pressed=true]{color:var(--pr-blue);text-decoration:underline}
-.pr-topic{display:none}.pr-question-title{font-size:22px;font-weight:650;line-height:1.35;margin:0 0 16px;letter-spacing:-.3px;outline:none}.pr-question-body{font-size:14px;line-height:1.85;overflow-wrap:anywhere}.pr-question-body p{margin:10px 0}.pr-question-body>:first-child{margin-top:0}.pr-question-body ul{padding-left:22px}
+.pr-question-title{font-size:22px;font-weight:650;line-height:1.35;margin:0 0 16px;letter-spacing:-.3px;outline:none}.pr-question-body{font-size:14px;line-height:1.85;overflow-wrap:anywhere}.pr-question-body p{margin:10px 0}.pr-question-body>:first-child{margin-top:0}.pr-question-body ul{padding-left:22px}
 #practice-room code{font-family:ui-monospace,SFMono-Regular,Consolas,monospace;font-size:12px}.pr-question-body code,.pr-answer-text code{padding:2px 4px;background:var(--pr-code);border-radius:2px;overflow-wrap:anywhere}
 #practice-room pre{background:var(--pr-code);border:1px solid var(--pr-line);padding:14px 16px;border-radius:4px;overflow:auto;font:12px/1.75 ui-monospace,SFMono-Regular,Consolas,monospace;margin:10px 0 16px;tab-size:4;max-width:100%}
 #practice-room pre code{padding:0;background:transparent;white-space:pre;overflow-wrap:normal;display:block}
@@ -184,8 +177,16 @@ body:has(#practice-room[open]){overflow:hidden}
 .pr-empty{padding:35px 0;text-align:center}.pr-empty h4{font-weight:500;font-size:14px}.pr-table-wrap{overflow:auto;margin:12px 0}.pr-table-wrap table{border-collapse:collapse;font-size:12px;min-width:100%;text-align:left}.pr-table-wrap th,.pr-table-wrap td{padding:6px 9px;border:1px solid var(--pr-line)}.pr-table-wrap th{background:var(--pr-code)}
 .pr-sr-only{position:absolute;height:1px;width:1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}
 [data-theme=dark] #practice-room{--pr-bg:#151b27;--pr-surface:#111722;--pr-ink:#e0e4eb;--pr-muted:#a0a9bb;--pr-line:#343c4d;--pr-blue:#a9b9ff;--pr-soft:#242e48;--pr-code:#101722;border-color:#485166}
-@media(max-width:1000px){.pr-layout{grid-template-columns:230px minmax(0,1fr)}.pr-content{padding:18px 22px 0}.pr-filter-stack{gap:8px}.pr-filter-stack label{flex-direction:column;align-items:flex-start;gap:3px}.pr-filter-stack select{max-width:150px}.pr-sort-label{margin-left:0}}
-@media(max-width:720px){#practice-room{width:100vw;height:100dvh;margin:0;border:0;border-radius:0}.pr-topbar{padding:10px 14px;gap:8px}.pr-brand h2{font-size:16px}.pr-brand p,.pr-scope,.pr-escape{display:none}#practice-room .pr-close{font-size:11px;padding:3px}.pr-layout{display:flex;flex-direction:column}.pr-sidebar{flex:none;display:block;padding:8px 14px 10px;border-right:0;border-bottom:1px solid var(--pr-line)}.pr-sources{padding-bottom:7px;margin-bottom:7px;gap:8px}.pr-side-label.pr-module-label,.pr-modules,.pr-index,.pr-index-heading{display:none}.pr-module-mobile{display:flex;align-items:center;gap:10px;font-size:11px;color:var(--pr-muted)}.pr-module-mobile select{flex:1;min-width:0;border:1px solid var(--pr-line);border-radius:3px;background:var(--pr-bg);padding:5px;font-size:12px;color:var(--pr-ink)}#pr-years-wrap{display:flex;gap:10px;align-items:center;margin-top:7px}#pr-years-wrap label{font-size:11px;font-weight:400;margin:0;min-width:37px}#pr-year{flex:1;width:auto;margin:0;padding:4px}.pr-content{padding:14px 16px 0;flex:1;min-height:0}.pr-section-head h3{font-size:14px}.pr-section-head{gap:6px}.pr-view-flags{gap:4px}#practice-room .pr-view-flags button{font-size:10px;padding:3px 5px}.pr-progress{margin-bottom:10px}.pr-filter-stack{flex-wrap:nowrap;justify-content:space-between;gap:6px}.pr-filter-stack label{font-size:10px;min-width:0}.pr-filter-stack select{font-size:10px;padding:5px;max-width:135px;min-width:0;width:100%}.pr-filter-stack label:nth-child(2){flex:1}.pr-results-meta{padding-bottom:8px}.pr-results-meta p,#practice-room #pr-reset{font-size:10px}.pr-jump-wrap{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--pr-muted);margin:12px 0 0}.pr-jump-wrap select{flex:1;width:0;padding:5px;background:var(--pr-bg);border:1px solid var(--pr-line);border-radius:3px;font-size:11px}.pr-question{padding:18px 0}.pr-question-title{font-size:19px;margin-bottom:12px}.pr-question-body{font-size:13px}.pr-question-top{font-size:10px;gap:6px}.pr-badge::before{padding-right:6px}.pr-question-bottom{margin-top:20px}.pr-answer{font-size:12px}#practice-room pre{padding:10px;font-size:11px}#practice-room code{font-size:11px}.pr-example-grid{grid-template-columns:1fr;gap:0}.pr-pagination{padding:10px 4px}.pr-pagination span{font-size:10px}#practice-room .pr-pagination button{font-size:11px;min-width:75px}.pr-question-source{max-width:65%}}
+@media(max-width:1000px){.pr-layout{grid-template-columns:225px minmax(0,1fr)}.pr-content{padding:18px 22px 0}}
+@media(max-width:720px){
+#practice-room{width:100vw;height:100dvh;margin:0;border:0;border-radius:0}
+.pr-topbar{padding:11px 14px;gap:8px}.pr-topbar h2{font-size:16px}#practice-room .pr-close{font-size:11px;padding:3px}
+.pr-layout{display:flex;flex-direction:column}.pr-sidebar{flex:none;display:block;padding:8px 14px 10px;border-right:0;border-bottom:1px solid var(--pr-line)}.pr-sources{padding-bottom:7px;gap:8px}.pr-module-picker{display:flex;align-items:center;gap:10px;margin:8px 0 0}.pr-module-picker select{flex:1;width:0;padding:6px}.pr-index,.pr-index-heading{display:none}
+.pr-content{padding:14px 16px 0;flex:1;min-height:0}.pr-progress{margin-bottom:0}.pr-search-row{margin:12px 0}.pr-search input{padding:8px;font-size:12px}#practice-room #pr-filter-toggle{font-size:11px;padding:8px 10px}
+.pr-filter-panel{padding:10px}.pr-filter-stack{display:grid;grid-template-columns:1fr 1fr;gap:10px}.pr-filter-stack label{min-width:0}.pr-filter-stack select{font-size:11px}.pr-filter-options{flex-wrap:wrap}.pr-results-meta{padding-bottom:8px}.pr-results-meta p,#practice-room #pr-reset{font-size:10px}
+.pr-jump-wrap{display:flex;align-items:center;gap:8px;font-size:10px;color:var(--pr-muted);margin:12px 0 0}.pr-jump-wrap select{flex:1;width:0;padding:6px;background:var(--pr-bg);border:1px solid var(--pr-line);border-radius:3px;font-size:11px}
+.pr-question{padding:18px 0}.pr-question-title{font-size:20px;margin-bottom:12px}.pr-question-body{font-size:13px}.pr-question-top{font-size:11px}.pr-question-bottom{margin-top:20px}.pr-answer{font-size:12px}#practice-room pre{padding:10px;font-size:11px}#practice-room code{font-size:11px}.pr-example-grid{grid-template-columns:1fr;gap:0}.pr-pagination{padding:10px 4px}.pr-pagination span{font-size:11px}#practice-room .pr-pagination button{font-size:12px;min-width:85px}.pr-question-source{max-width:65%}
+}
 
 .pr-flowchart{margin:16px 0}.pr-flowchart summary{cursor:pointer;color:var(--pr-blue);font-size:12px;font-weight:600}.pr-flowchart svg{display:block;width:100%;max-width:650px;height:auto;margin:12px auto;background:var(--pr-bg)}.pr-flowchart svg rect,.pr-flowchart svg path{fill:var(--pr-surface);stroke:var(--pr-muted);stroke-width:1.4}.pr-flowchart svg .pr-flow-line{fill:none;stroke:var(--pr-muted);stroke-width:1.4}.pr-flowchart svg marker path{fill:var(--pr-muted);stroke:none}.pr-flowchart svg text{fill:var(--pr-ink);font:14px system-ui,sans-serif;text-anchor:middle}.pr-flowchart svg .pr-flow-label{font-size:12px;fill:var(--pr-muted)}
 
@@ -909,30 +910,34 @@ if(/^G-[A-Z0-9]+$/.test(SITE.ga)){const gs=document.createElement('script');gs.a
 const mn=$('mn');$('exm').onclick=e=>{e.stopPropagation();mn.classList.toggle('open')};mn.onclick=()=>mn.classList.remove('open');
 document.addEventListener('click',()=>mn.classList.remove('open'));document.addEventListener('keydown',e=>{if(e.key=='Escape')mn.classList.remove('open')});
 ta.value=EX[0];gut();gen();
-</script><dialog id="practice-room" aria-labelledby="pr-title" aria-describedby="pr-description">
+</script><dialog id="practice-room" aria-labelledby="pr-title">
   <div class="pr-shell">
     <header class="pr-topbar">
-      <div class="pr-brand"><div><h2 id="pr-title">Question Bank</h2><p id="pr-description">Structured Programming Methodology</p></div><span class="pr-scope">Modules 1–3</span></div>
-      <button id="practice-close" class="pr-close" aria-label="Close Question Bank and return to generator"><span aria-hidden="true">←</span> <span>Back to generator</span><span class="pr-escape">Esc</span></button>
+      <h2 id="pr-title">Question Bank</h2>
+      <button id="practice-close" class="pr-close" aria-label="Close Question Bank and return to generator">← Back to generator</button>
     </header>
     <div class="pr-layout">
       <aside class="pr-sidebar" aria-label="Question navigation">
-        <nav class="pr-sources" aria-label="Question category"><button data-category="practice" aria-pressed="true"><span>Practice</span><b id="pr-nav-practice">90</b></button><button data-category="pyq" aria-pressed="false"><span>PYQs</span><b id="pr-nav-pyq">34</b></button></nav>
-        <div class="pr-side-label pr-module-label">Modules</div>
-        <nav id="pr-modules" class="pr-modules" aria-label="Filter by module"></nav>
-        <label class="pr-module-mobile">Module <select id="pr-module-select" aria-label="Filter questions by module"></select></label>
-        <div id="pr-years-wrap" hidden><label class="pr-side-label" for="pr-year">Year</label><select id="pr-year"><option value="all">All years</option></select></div>
+        <nav class="pr-sources" aria-label="Question category"><button data-category="practice" aria-pressed="true">Practice <span id="pr-nav-practice" class="pr-sr-only">90</span></button><button data-category="pyq" aria-pressed="false">PYQs <span id="pr-nav-pyq" class="pr-sr-only">34</span></button></nav>
+        <label class="pr-module-picker">Module <select id="pr-module-select" aria-label="Filter questions by module"></select></label>
         <div class="pr-index-heading">Questions <span id="pr-index-count">90</span></div>
         <nav id="pr-index" class="pr-index" aria-label="Question index"></nav>
       </aside>
       <section class="pr-content" aria-labelledby="pr-section-title">
-        <div class="pr-section-head"><h3 id="pr-section-title">All modules</h3><div class="pr-view-flags"><button id="pr-saved" aria-pressed="false" aria-label="Show saved questions">Saved (<span id="pr-saved-count">0</span>)</button><button id="pr-unreviewed" aria-pressed="false">Unreviewed</button></div></div>
-        <div class="pr-progress"><div class="pr-progress-top"><span id="pr-progress-label">Practice progress</span><b><span id="pr-progress-count">0 / 90</span> · <span id="pr-progress-percent">0%</span></b></div><progress id="pr-progress-bar" value="0" max="90" aria-label="Reviewed questions"></progress></div>
-        <div class="pr-search-row"><label class="pr-search"><input id="pr-search" type="search" placeholder="Search questions…" aria-label="Search questions" autocomplete="off"></label></div>
-        <div class="pr-filter-stack"><label>Difficulty <select id="pr-difficulty" aria-label="Question difficulty"><option value="all">All</option><option value="easy">Easy</option><option value="hard">Hard</option></select></label><label>Type <select id="pr-type" aria-label="Question type"></select></label><label class="pr-sort-label">Order <select id="pr-sort" aria-label="Sort questions"><option value="source">Question order</option><option value="easy">Easy first</option><option value="hard">Hard first</option><option value="newest">Newest year</option><option value="oldest">Oldest year</option></select></label></div>
-        <div class="pr-results-meta"><p id="pr-result-count" role="status" aria-live="polite"></p><button id="pr-reset">Reset filters <span aria-hidden="true">↺</span></button></div>
-        <p id="pr-pyq-note" class="pr-pyq-note" hidden>Difficulty tags are estimated.</p>
-        <label id="pr-jump-wrap" class="pr-jump-wrap">Question <select id="pr-jump" aria-label="Jump to question"></select><span id="pr-mobile-position"></span></label>
+        <h3 id="pr-section-title" class="pr-sr-only">All modules</h3>
+        <div class="pr-progress"><div class="pr-progress-top"><span id="pr-progress-label">Progress</span><span><span id="pr-progress-count">0 / 90</span> · <span id="pr-progress-percent">0%</span></span></div><progress id="pr-progress-bar" value="0" max="90" aria-label="Reviewed questions"></progress></div>
+        <div class="pr-search-row"><label class="pr-search"><input id="pr-search" type="search" placeholder="Search questions…" aria-label="Search questions" autocomplete="off"></label><button id="pr-filter-toggle" aria-expanded="false" aria-controls="pr-filter-panel">Filters</button></div>
+        <div id="pr-filter-panel" class="pr-filter-panel" hidden>
+          <div class="pr-filter-stack">
+            <label>Level <select id="pr-difficulty" aria-label="Question difficulty"><option value="all">All levels</option><option value="easy">Easy</option><option value="hard">Hard</option></select></label>
+            <label>Type <select id="pr-type" aria-label="Question type"></select></label>
+            <label id="pr-years-wrap" hidden>Year <select id="pr-year"><option value="all">All years</option></select></label>
+            <label>Order <select id="pr-sort" aria-label="Sort questions"><option value="source">Question order</option><option value="easy">Easy first</option><option value="hard">Hard first</option><option value="newest">Newest year</option><option value="oldest">Oldest year</option></select></label>
+          </div>
+          <div class="pr-filter-options"><button id="pr-saved" aria-pressed="false" aria-label="Show saved questions">Saved only (<span id="pr-saved-count">0</span>)</button><button id="pr-unreviewed" aria-pressed="false">Not reviewed</button></div>
+        </div>
+        <div class="pr-results-meta"><p id="pr-result-count" role="status" aria-live="polite"></p><button id="pr-reset" hidden>Clear filters</button></div>
+        <label id="pr-jump-wrap" class="pr-jump-wrap">Question <select id="pr-jump" aria-label="Jump to question"></select></label>
         <div id="pr-results" class="pr-results"></div>
         <nav id="pr-pagination" class="pr-pagination" aria-label="Previous or next question"><button id="pr-prev">← Previous</button><span id="pr-page-label"></span><button id="pr-next">Next →</button></nav>
       </section>
@@ -1058,9 +1063,8 @@ const PracticeBank = (() => {
     const pressed=(element,on)=>element.setAttribute('aria-pressed',String(on));
     function renderModules() {
       const source=data[state.category];
-      const rows=[['all','All modules','Choose your own starting point',source.length],...[1,2,3].map(m=>[m,MODULES[m].name,MODULES[m].detail,source.filter(q=>q.module===m).length])];
-      $('pr-modules').innerHTML=rows.map(([m,name,detail,n])=>'<button data-module="'+m+'" aria-pressed="'+(String(m)===String(state.module))+'" aria-label="'+escape(m==='all'?'All modules':'Module '+m+' · '+name)+'"><span class="pr-module-no">'+(m==='all'?'':'0'+m)+'</span><span class="pr-module-text"><strong>'+escape(name)+'</strong></span><span class="pr-module-count">'+n+'</span></button>').join('');
-      $('pr-module-select').innerHTML=rows.map(([m,name])=>'<option value="'+m+'">'+(m==='all'?'All modules':'Module '+m+' · '+escape(name))+'</option>').join('');
+      const rows=[['all','All modules'],...[1,2,3].filter(m=>source.some(q=>q.module===m)).map(m=>[m,'Module '+m+' · '+MODULES[m].name])];
+      $('pr-module-select').innerHTML=rows.map(([m,name])=>'<option value="'+m+'">'+escape(name)+'</option>').join('');
       $('pr-module-select').value=state.module;
     }
     function renderControls() {
@@ -1069,7 +1073,7 @@ const PracticeBank = (() => {
       $('pr-nav-pyq').textContent=data.pyq.length;
       dialog.querySelectorAll('[data-category]').forEach(b=>pressed(b,b.dataset.category===state.category));
       renderModules();
-      $('pr-years-wrap').hidden=!pyq;$('pr-pyq-note').hidden=!pyq;
+      $('pr-years-wrap').hidden=!pyq;
       const years=[...new Set(data.pyq.map(q=>String(q.year)))].sort((a,b)=>parseInt(b)-parseInt(a)||b.localeCompare(a));
       $('pr-year').innerHTML='<option value="all">All years</option>'+years.map(y=>'<option value="'+escape(y)+'">'+escape(y)+(y.length>4?' (academic year)':'')+'</option>').join('');
       $('pr-year').value=state.year;
@@ -1085,35 +1089,38 @@ const PracticeBank = (() => {
       $('pr-progress-count').textContent=done+' / '+source.length;
       const percent=source.length?Math.round(done/source.length*100):0;
       $('pr-progress-percent').textContent=percent+'%';
-      $('pr-progress-label').textContent=pyq?'PYQ progress':'Practice progress';
+      $('pr-progress-label').textContent='Progress';
       $('pr-progress-bar').max=source.length||1;$('pr-progress-bar').value=done;
       $('pr-progress-bar').setAttribute('aria-valuetext',done+' of '+source.length+' questions reviewed, '+percent+' percent');
+      const activeFilters=(state.difficulty!=='all')+(state.type!=='all')+(state.year!=='all')+Number(state.saved)+Number(state.unreviewed)+Number(state.sort!==(pyq?'newest':'source'));
+      $('pr-filter-toggle').textContent=activeFilters?'Filters ('+activeFilters+')':'Filters';
+      $('pr-reset').hidden=!activeFilters&&!state.search;
       $('pr-section-title').textContent=state.module==='all'?(pyq?'Previous year questions':'All modules'):'Module '+state.module+' · '+MODULES[state.module].name;
     }
-    function card(q,index) {
+    function card(q) {
       const pyq=q.category==='pyq',isSaved=saved.has(q.id),isReviewed=reviewed.has(q.id);
-      const ref=pyq?(q.questionRef||'Q'+q.number):'M'+q.module+' · '+(q.difficulty==='easy'?'E':'H')+String(q.number).padStart(2,'0');
-      const source=pyq?'<details class="pr-question-source"><summary>'+escape(q.exam||'Paper')+' '+escape(q.year)+' · '+escape(q.set||q.questionRef||'Source')+'</summary><p><strong>Source:</strong> '+escape(q.source)+(q.academicYear?'<br><strong>Academic year:</strong> '+escape(q.academicYear):'')+(q.sources?.length>1?'<br><strong>Also in:</strong> '+q.sources.slice(1).map(escape).join('; '):'')+(q.notes?'<br><strong>Source note:</strong> '+escape(q.notes):'')+'</p></details>':'<span class="pr-question-source">Module '+q.module+' · '+escape(q.questionRef.split(' · ').slice(1).join(' · '))+'</span>';
-      const sourceWarning=q.notes&&/missing|absent|inconsisten|no samples|no filled|no calendar|switch.case with string|including its third row|no employee.level|no employee.*input/i.test(q.notes)?'<p class="pr-source-note">'+escape(q.notes)+'</p>':'';
-      return '<article class="pr-question'+(isReviewed?' reviewed':'')+'" aria-label="'+escape(ref+' · '+q.title)+'"><div class="pr-question-top"><span class="pr-question-id">'+escape(ref)+'</span>'+(pyq?'<span class="pr-badge year">'+escape(q.year)+(String(q.year).length>4?' · AY':'')+'</span>':'')+'<span class="pr-badge '+q.difficulty+'">'+(q.difficulty==='easy'?'Easy':'Hard')+'</span>'+q.types.map(type=>'<span class="pr-badge type">'+escape(TYPES[type]||type)+'</span>').join('')+'<div class="pr-question-actions"><button class="pr-save" data-save="'+escape(q.id)+'" aria-pressed="'+isSaved+'" aria-label="'+(isSaved?'Unsave':'Save')+' question '+escape(ref)+'">'+(isSaved?'Saved':'Save')+'</button></div></div><p class="pr-topic">'+escape(pyq?'Module '+q.module+' · '+q.title:q.topic)+'</p><h3 class="pr-question-title" tabindex="-1">'+escape(q.displayTitle||q.title)+'</h3><div class="pr-question-body">'+markdown(q.body)+'</div>'+sourceWarning+(q.ocr?'<p class="pr-ocr">Scanned text: OCR errors possible.</p>':'')+'<div class="pr-answer-action"><button class="pr-answer-toggle" data-answer="'+escape(q.id)+'" aria-expanded="'+openAnswers.has(q.id)+'" aria-controls="answer-'+escape(q.id)+'">'+(openAnswers.has(q.id)?'Hide answer':'Answer')+'</button></div><section id="answer-'+escape(q.id)+'" class="pr-answer" aria-label="Answer"'+(openAnswers.has(q.id)?'':' hidden')+'>'+ (openAnswers.has(q.id)?answerHTML(q):'')+'</section><div class="pr-question-bottom">'+source+'<button class="pr-review" data-review="'+escape(q.id)+'" aria-pressed="'+isReviewed+'"><span aria-hidden="true">'+(isReviewed?'☑':'☐')+'</span> Reviewed</button></div></article>';
+      const ref=q.questionRef||'Q'+q.number;
+      const meta='Question '+state.page+' · '+(pyq?q.year:q.difficulty==='easy'?'Easy':'Hard');
+      const details='<details class="pr-question-source"><summary>Details</summary><p>Module '+q.module+' · '+escape(q.difficulty==='easy'?'Easy':'Hard')+' · '+escape(q.types.map(type=>TYPES[type]||type).join(', '))+'<br><strong>Reference:</strong> '+escape(ref)+(pyq?'<br><strong>Paper:</strong> '+escape(q.exam||'Paper')+' '+escape(q.year)+(q.set?' · '+escape(q.set):''):'')+'<br><strong>Source:</strong> '+escape(q.source)+(q.academicYear?'<br><strong>Academic year:</strong> '+escape(q.academicYear):'')+(q.sources?.length>1?'<br><strong>Also in:</strong> '+q.sources.slice(1).map(escape).join('; '):'')+(q.notes?'<br><strong>Source note:</strong> '+escape(q.notes):'')+(q.ocr?'<br>Scanned text: OCR errors possible.':'')+'</p></details>';
+      const warning=q.notes&&!q.notes.startsWith('Grouped under')&&/missing|absent|inconsisten|no samples|no filled|no calendar|switch.case with string|including its third row|no employee.level|no employee.*input/i.test(q.notes)?'<p class="pr-source-note">'+escape(q.notes)+'</p>':'';
+      return '<article class="pr-question'+(isReviewed?' reviewed':'')+'" aria-label="'+escape(meta+' · '+q.displayTitle)+'"><div class="pr-question-top"><span class="pr-question-meta">'+escape(meta)+'</span><button class="pr-save" data-save="'+escape(q.id)+'" aria-pressed="'+isSaved+'" aria-label="'+(isSaved?'Unsave':'Save')+' question '+escape(ref)+'">'+(isSaved?'Saved':'Save')+'</button></div><h3 class="pr-question-title" tabindex="-1">'+escape(q.displayTitle||q.title)+'</h3><div class="pr-question-body">'+markdown(q.body)+'</div>'+warning+'<div class="pr-answer-action"><button class="pr-answer-toggle" data-answer="'+escape(q.id)+'" aria-expanded="'+openAnswers.has(q.id)+'" aria-controls="answer-'+escape(q.id)+'">'+(openAnswers.has(q.id)?'Hide answer':'Answer')+'</button></div><section id="answer-'+escape(q.id)+'" class="pr-answer" aria-label="Answer"'+(openAnswers.has(q.id)?'':' hidden')+'>'+ (openAnswers.has(q.id)?answerHTML(q):'')+'</section><div class="pr-question-bottom">'+details+'<button class="pr-review" data-review="'+escape(q.id)+'" aria-pressed="'+isReviewed+'"><span aria-hidden="true">'+(isReviewed?'☑':'☐')+'</span> Reviewed</button></div></article>';
     }
     function renderResults() {
       const result=query(data,state,saved,reviewed),pages=Math.max(1,Math.ceil(result.length/PAGE_SIZE));
       state.page=Math.min(Math.max(1,state.page),pages);
       const start=(state.page-1)*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,result.length);
-      $('pr-result-count').innerHTML=result.length?'<strong>'+result.length+' question'+(result.length===1?'':'s')+'</strong><span> · '+(start+1)+' of '+result.length+'</span>':'<strong>0 questions</strong> · No matches for these filters';
+      $('pr-result-count').innerHTML=result.length?'<strong>'+result.length+' question'+(result.length===1?'':'s')+'</strong>':'<strong>0 questions</strong> · No matches for these filters';
       $('pr-results').innerHTML=result.length?result.slice(start,end).map(card).join(''):'<div class="pr-empty"><h4>No questions match.</h4><button data-clear>Clear filters</button></div>';
       $('pr-pagination').hidden=!result.length;
-      $('pr-page-label').textContent='Question '+state.page+' of '+pages;
+      $('pr-page-label').textContent=state.page+' / '+pages;
       const indexScroll=$('pr-index').scrollTop;
-      $('pr-index').innerHTML=result.map((q,i)=>'<button data-question="'+escape(q.id)+'"'+(i===start?' aria-current="true"':'')+'><span class="pr-index-number">'+(reviewed.has(q.id)?'✓':i+1)+'</span><span>'+escape(q.displayTitle||q.title)+'<small>M'+q.module+' · '+(q.difficulty==='easy'?'Easy':'Hard')+(q.category==='pyq'?' · '+escape(q.year):'')+'</small></span></button>').join('');
+      $('pr-index').innerHTML=result.map((q,i)=>'<button data-question="'+escape(q.id)+'"'+(i===start?' aria-current="true"':'')+'><span class="pr-index-number">'+(reviewed.has(q.id)?'✓':i+1)+'</span><span>'+escape(q.displayTitle||q.title)+'</span></button>').join('');
       $('pr-index').scrollTop=indexScroll;
       $('pr-index').querySelector('[aria-current=true]')?.scrollIntoView({block:'nearest'});
       $('pr-index-count').textContent=result.length;
       $('pr-jump').innerHTML=result.map((q,i)=>'<option value="'+(i+1)+'">'+(i+1)+'. '+escape(q.displayTitle||q.title)+'</option>').join('');
       $('pr-jump').value=state.page;
       $('pr-jump-wrap').hidden=!result.length;
-      $('pr-mobile-position').textContent=result.length?state.page+' / '+result.length:'0 / 0';
       $('pr-prev').disabled=state.page===1;$('pr-next').disabled=state.page===pages;
     }
     function render() {renderControls();renderResults();}
@@ -1152,12 +1159,16 @@ const PracticeBank = (() => {
         return;
       }
       if(button.dataset.category){state=defaults(button.dataset.category);render();dialog.querySelector('.pr-content').scrollTop=0;return;}
-      if(button.dataset.module){update({module:button.dataset.module});dialog.querySelector('[data-module="'+state.module+'"]').focus();return;}
       if(button.hasAttribute('data-clear')){update(defaults(state.category));$('pr-search').focus();return;}
       const action=button.dataset.save?'save':button.dataset.review?'review':null;
       if(action){const oldResult=query(data,state,saved,reviewed),currentId=oldResult[state.page-1]?.id;const id=button.dataset[action],set=action==='save'?saved:reviewed;set.has(id)?set.delete(id):set.add(id);persist();const nextResult=query(data,state,saved,reviewed),same=nextResult.findIndex(q=>q.id===currentId);if(same>=0)state.page=same+1;render();const replacement=dialog.querySelector('[data-'+action+'="'+id+'"]');if(replacement)replacement.focus();else $('pr-unreviewed').focus();announce(action==='save'?(saved.has(id)?'Question saved.':'Question removed from saved.'):(reviewed.has(id)?'Question marked reviewed.':'Question marked unreviewed.'));}
     });
-    $('pr-search').addEventListener('input',e=>{state.search=e.target.value;state.page=1;renderResults();});
+    $('pr-search').addEventListener('input',e=>{state.search=e.target.value;state.page=1;renderResults();$('pr-reset').hidden=!state.search&&$('pr-filter-toggle').textContent==='Filters';});
+    $('pr-filter-toggle').addEventListener('click',()=>{
+      const open=$('pr-filter-panel').hidden;
+      $('pr-filter-panel').hidden=!open;
+      $('pr-filter-toggle').setAttribute('aria-expanded',String(open));
+    });
     $('pr-jump').addEventListener('change',e=>update({page:Number(e.target.value)},true));
     $('pr-year').addEventListener('change',e=>update({year:e.target.value}));
     $('pr-module-select').addEventListener('change',e=>update({module:e.target.value}));

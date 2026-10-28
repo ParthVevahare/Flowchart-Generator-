@@ -5,7 +5,7 @@
 <script id="visit-counter">
 /* Start in the head; mount as soon as the header is parsed. */
 const VisitCounter = (() => {
-  let target = null, value = null, pending = true, started = false, refreshed = false;
+  let target = null, value = null, pending = true, started = false, refreshed = false, slow = false;
   const count = raw => {
     if (typeof raw !== 'number' && !(typeof raw === 'string' && /^\d+$/.test(raw))) return null;
     const n = Number(raw);
@@ -17,10 +17,10 @@ const VisitCounter = (() => {
     target.setAttribute('aria-busy', String(pending));
     if (value !== null) {
       target.textContent = '📈 ' + value.toLocaleString() + ' visits';
-      target.title = pending ? 'Last available total. Updating…' : refreshed ? 'Total website visits' : 'Last available total. The counter service is unavailable';
+      target.title = pending ? (slow ? 'Last available total. The counter service is slow; still updating…' : 'Last available total. Updating…') : refreshed ? 'Total website visits' : 'Last available total. The counter service is unavailable';
     } else {
       target.textContent = pending ? '📈 Visits: …' : '📈 Visits unavailable';
-      target.title = pending ? 'Loading the visit total' : 'The counter service is unavailable';
+      target.title = pending ? (slow ? 'The counter service is slow; still loading the visit total' : 'Loading the visit total') : 'The counter service is unavailable';
     }
   }
   function start(settings) {
@@ -29,14 +29,14 @@ const VisitCounter = (() => {
     const cacheKey = 'flowchart-visits:' + settings.ns + '/' + settings.key;
     let seen = false;
     try { value = count(localStorage.getItem(cacheKey)); } catch {}
+    if (value === null) value = count(settings.fallbackTotal);
     try { seen = sessionStorage.getItem('vc') === '1'; } catch {}
     render();
-    const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 8000);
+    const timeout = setTimeout(() => { slow = true; render(); }, 8000);
     // A hit increments the counter; never retry it automatically.
     Promise.resolve().then(() => fetch('https://abacus.jasoncameron.dev/' + (seen ? 'get' : 'hit') + '/' +
       encodeURIComponent(settings.ns) + '/' + encodeURIComponent(settings.key),
-      {signal: controller.signal, cache: 'no-store'}))
+      {cache: 'no-store'}))
       .then(response => {
         if (!response.ok) throw new Error('Counter unavailable');
         return response.json();
@@ -56,7 +56,7 @@ const VisitCounter = (() => {
   return {start, mount};
 })();
 
-VisitCounter.start({"ns": "parthvevahare-flowchart", "key": "visits"});
+VisitCounter.start({"ns":"parthvevahare-flowchart","key":"visits","fallbackTotal":930});
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>

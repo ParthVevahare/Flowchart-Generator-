@@ -1,6 +1,63 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><title>Code → Flowchart</title>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<link rel="preconnect" href="https://abacus.jasoncameron.dev" crossorigin>
+<script id="visit-counter">
+/* Start in the head; mount as soon as the header is parsed. */
+const VisitCounter = (() => {
+  let target = null, value = null, pending = true, started = false, refreshed = false;
+  const count = raw => {
+    if (typeof raw !== 'number' && !(typeof raw === 'string' && /^\d+$/.test(raw))) return null;
+    const n = Number(raw);
+    return Number.isSafeInteger(n) && n >= 0 ? n : null;
+  };
+  function render() {
+    if (!target || !started) return;
+    target.hidden = false;
+    target.setAttribute('aria-busy', String(pending));
+    if (value !== null) {
+      target.textContent = '📈 ' + value.toLocaleString() + ' visits';
+      target.title = pending ? 'Last available total. Updating…' : refreshed ? 'Total website visits' : 'Last available total. The counter service is unavailable';
+    } else {
+      target.textContent = pending ? '📈 Visits: …' : '📈 Visits unavailable';
+      target.title = pending ? 'Loading the visit total' : 'The counter service is unavailable';
+    }
+  }
+  function start(settings) {
+    if (started || !settings.ns) return;
+    started = true;
+    const cacheKey = 'flowchart-visits:' + settings.ns + '/' + settings.key;
+    let seen = false;
+    try { value = count(localStorage.getItem(cacheKey)); } catch {}
+    try { seen = sessionStorage.getItem('vc') === '1'; } catch {}
+    render();
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    // A hit increments the counter; never retry it automatically.
+    Promise.resolve().then(() => fetch('https://abacus.jasoncameron.dev/' + (seen ? 'get' : 'hit') + '/' +
+      encodeURIComponent(settings.ns) + '/' + encodeURIComponent(settings.key),
+      {signal: controller.signal, cache: 'no-store'}))
+      .then(response => {
+        if (!response.ok) throw new Error('Counter unavailable');
+        return response.json();
+      })
+      .then(data => {
+        const fresh = count(data && data.value);
+        if (fresh === null) throw new Error('Invalid counter response');
+        value = fresh;
+        refreshed = true;
+        try { localStorage.setItem(cacheKey, String(value)); } catch {}
+        try { sessionStorage.setItem('vc', '1'); } catch {}
+      })
+      .catch(() => {})
+      .finally(() => { clearTimeout(timeout); pending = false; render(); });
+  }
+  function mount(element) { target = element; render(); }
+  return {start, mount};
+})();
+
+VisitCounter.start({"ns": "parthvevahare-flowchart", "key": "visits"});
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 :root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);--ac:#6366f1;--bd:#e2e8f0;--tx:#0f172a;--mu:#64748b}
@@ -134,7 +191,7 @@ body:has(#practice-room[open]){overflow:hidden}
 
 </style></head><body>
 <header><div><h1>Code <span>→</span> Flowchart</h1><div class="by">Made by Parth V</div><div style="display:inline-block;margin:8px 0 0 8px;padding:4px 12px;border-radius:99px;background:#10b981;color:#fff;font-size:12.5px;font-weight:600"> Now with better algorithms :)</div><span id="vc" class="vc" hidden></span></div>
-<span style="display:flex;gap:6px;align-items:center"><button id="practice-open" class="practice-launch" aria-haspopup="dialog" aria-controls="practice-room">Question Bank</button><button id="th">🌙 Dark</button><select id="exs"><option value="">Load example…</option><option value="0">C · loop + if/else + switch</option><option value="1">C++ · positive / negative</option><option value="2">C · while / do-while / break</option><option value="3">Python · loops + if/elif</option><option value="4">Python · functions</option><option value="5">Java · loop + switch</option></select></span></header>
+<span style="display:flex;gap:6px;align-items:center"><button id="practice-open" class="practice-launch" aria-haspopup="dialog" aria-controls="practice-room">Question Bank</button><button id="th">🌙 Dark</button><select id="exs"><option value="">Load example…</option><option value="0">C · loop + if/else + switch</option><option value="1">C++ · positive / negative</option><option value="2">C · while / do-while / break</option><option value="3">Python · loops + if/elif</option><option value="4">Python · functions</option><option value="5">Java · loop + switch</option></select></span></header><script id="visit-counter-mount">VisitCounter.mount(document.getElementById("vc"));</script>
 <main>
 <section class="card"><div class="bar"><button class="pri" id="go">▶ Generate Flowchart</button><button id="rs">Reset</button><span style="flex:1"></span><select id="lang" title="Language of your code"><option value="auto">Auto-detect language</option><option value="c">C / C++</option><option value="python">Python</option><option value="java">Java</option></select></div>
 <div id="err"></div><div class="ed"><div id="g"></div><textarea id="ta" spellcheck="false" wrap="off" placeholder="Paste C, C++, Python or Java code here…"></textarea></div><div id="chips"></div></section>
@@ -848,8 +905,7 @@ let sv=null;try{sv=localStorage.getItem('th')}catch(e){}setTh(sv=='d');
 $('th').onclick=()=>setTh(document.documentElement.dataset.theme!='dark');
 $('cpa').onclick=()=>{const c=charts[cur];if(!c)return toast('Generate a flowchart first');if(!c.algText)return toast('Algorithm unavailable for this syntax');cpt(c.algText,'Algorithm copied')};
 if(/^G-[A-Z0-9]+$/.test(SITE.ga)){const gs=document.createElement('script');gs.async=1;gs.src='https://www.googletagmanager.com/gtag/js?id='+SITE.ga;document.head.appendChild(gs);window.dataLayer=window.dataLayer||[];window.gtag=function(){dataLayer.push(arguments)};gtag('js',new Date());gtag('config',SITE.ga)}
-if(SITE.ns){let seen=null;try{seen=sessionStorage.getItem('vc')}catch(e){}
-fetch(`https://abacus.jasoncameron.dev/${seen?'get':'hit'}/${encodeURIComponent(SITE.ns)}/${encodeURIComponent(SITE.key)}`).then(r=>r.json()).then(d=>{if(d&&d.value!=null){$('vc').hidden=false;$('vc').textContent='📈 '+Number(d.value).toLocaleString()+' visits';try{sessionStorage.setItem('vc','1')}catch(e){}}}).catch(()=>{})}
+
 const mn=$('mn');$('exm').onclick=e=>{e.stopPropagation();mn.classList.toggle('open')};mn.onclick=()=>mn.classList.remove('open');
 document.addEventListener('click',()=>mn.classList.remove('open'));document.addEventListener('keydown',e=>{if(e.key=='Escape')mn.classList.remove('open')});
 ta.value=EX[0];gut();gen();

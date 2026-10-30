@@ -1092,13 +1092,6 @@ const PracticeBank = (() => {
       $('pr-sort').querySelectorAll('option').forEach(o=>{o.hidden=!pyq&&['newest','oldest'].includes(o.value);});
       pressed($('pr-saved'),state.saved);pressed($('pr-unreviewed'),state.unreviewed);
       $('pr-saved-count').textContent=source.filter(q=>saved.has(q.id)).length;
-      const done=source.filter(q=>reviewed.has(q.id)).length;
-      $('pr-progress-count').textContent=done+' / '+source.length;
-      const percent=source.length?Math.round(done/source.length*100):0;
-      $('pr-progress-percent').textContent=percent+'%';
-      $('pr-progress-label').textContent='Progress';
-      $('pr-progress-bar').max=source.length||1;$('pr-progress-bar').value=done;
-      $('pr-progress-bar').setAttribute('aria-valuetext',done+' of '+source.length+' questions reviewed, '+percent+' percent');
       const activeFilters=(state.difficulty!=='all')+(state.type!=='all')+(state.year!=='all')+(state.exam!=='all')+Number(state.saved)+Number(state.unreviewed)+Number(state.sort!==(pyq?'newest':'source'));
       $('pr-filter-toggle').textContent=activeFilters?'Filters ('+activeFilters+')':'Filters';
       $('pr-reset').hidden=!activeFilters&&!state.search;
@@ -1114,6 +1107,13 @@ const PracticeBank = (() => {
     }
     function renderResults() {
       const result=query(data,state,saved,reviewed),pages=Math.max(1,Math.ceil(result.length/PAGE_SIZE));
+      const done=result.filter(q=>reviewed.has(q.id)).length;
+      $('pr-progress-count').textContent=done+' / '+result.length;
+      const percent=result.length?Math.round(done/result.length*100):0;
+      $('pr-progress-percent').textContent=percent+'%';
+      $('pr-progress-label').textContent='Progress';
+      $('pr-progress-bar').max=result.length||1;$('pr-progress-bar').value=done;
+      $('pr-progress-bar').setAttribute('aria-valuetext',done+' of '+result.length+' questions reviewed, '+percent+' percent');
       state.page=Math.min(Math.max(1,state.page),pages);
       const start=(state.page-1)*PAGE_SIZE,end=Math.min(start+PAGE_SIZE,result.length);
       $('pr-result-count').innerHTML=result.length?'<strong>'+result.length+' question'+(result.length===1?'':'s')+'</strong>':'<strong>0 questions</strong> · No matches for these filters';

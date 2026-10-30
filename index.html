@@ -192,6 +192,8 @@ body:has(#practice-room[open]){overflow:hidden}
 
 .pr-algorithm-steps{padding-left:24px;margin:8px 0 18px}.pr-algorithm-steps li{padding-left:3px;margin:6px 0;overflow-wrap:anywhere}
 
+.pr-index-number.pr-pyq-number{width:35px}
+
 </style></head><body>
 <header><div><h1>Code <span>→</span> Flowchart</h1><div class="by">Made by Parth V</div><div style="display:inline-block;margin:8px 0 0 8px;padding:4px 12px;border-radius:99px;background:#10b981;color:#fff;font-size:12.5px;font-weight:600"> Now with better algorithms :)</div><span id="vc" class="vc" hidden></span></div>
 <span style="display:flex;gap:6px;align-items:center"><button id="practice-open" class="practice-launch" aria-haspopup="dialog" aria-controls="practice-room">Question Bank</button><button id="th">🌙 Dark</button><select id="exs"><option value="">Load example…</option><option value="0">C · loop + if/else + switch</option><option value="1">C++ · positive / negative</option><option value="2">C · while / do-while / break</option><option value="3">Python · loops + if/elif</option><option value="4">Python · functions</option><option value="5">Java · loop + switch</option></select></span></header><script id="visit-counter-mount">VisitCounter.mount(document.getElementById("vc"));</script>
@@ -972,7 +974,7 @@ const PracticeBank = (() => {
       (state.category!=='pyq'||state.year==='all'||String(q.year)===String(state.year)) &&
       (state.category!=='pyq'||!state.exam||state.exam==='all'||q.exam===state.exam) &&
       (!state.saved||saved.has(q.id)) && (!state.unreviewed||!reviewed.has(q.id)) &&
-      (!normalize(state.search)||normalize([q.body,q.displayTitle,q.title,q.topic,q.questionRef,q.source,q.year,q.exam].join(' ')).includes(normalize(state.search))));
+      (!normalize(state.search)||normalize([q.body,q.displayTitle,q.title,q.topic,q.questionRef,q.source,q.year,q.exam,q.category==='pyq'?'P'+q.number:''].join(' ')).includes(normalize(state.search))));
     const indexed=new Map((data[state.category]||[]).map((q,i)=>[q.id,i]));
     result.sort((a,b)=>{
       let n=0;
@@ -1100,7 +1102,7 @@ const PracticeBank = (() => {
     function card(q) {
       const pyq=q.category==='pyq',isSaved=saved.has(q.id),isReviewed=reviewed.has(q.id);
       const ref=q.questionRef||'Q'+q.number;
-      const meta=pyq?'Q.'+state.page+' ('+(q.exam==='Debugging'?'DEBUG':q.exam||'Paper')+'-'+q.year+')':'Question '+state.page+' · '+(q.difficulty==='easy'?'Easy':'Hard');
+      const meta=pyq?'P'+q.number+' ('+(q.exam==='Debugging'?'DEBUG':q.exam||'Paper')+'-'+q.year+')':'Question '+state.page+' · '+(q.difficulty==='easy'?'Easy':'Hard');
       const details='<details class="pr-question-source"><summary>Details</summary><p>Module '+q.module+' · '+escape(q.difficulty==='easy'?'Easy':'Hard')+' · '+escape(q.types.map(type=>TYPES[type]||type).join(', '))+'<br><strong>Reference:</strong> '+escape(ref)+(pyq?'<br><strong>Paper:</strong> '+escape(q.exam||'Paper')+' '+escape(q.year)+(q.set?' · '+escape(q.set):''):'')+'<br><strong>Source:</strong> '+escape(q.source)+(q.academicYear?'<br><strong>Academic year:</strong> '+escape(q.academicYear):'')+(q.sources?.length>1?'<br><strong>Also in:</strong> '+q.sources.slice(1).map(escape).join('; '):'')+(q.notes?'<br><strong>Source note:</strong> '+escape(q.notes):'')+(q.ocr?'<br>Scanned text: OCR errors possible.':'')+'</p></details>';
       const warning=q.notes&&!q.notes.startsWith('Grouped under')&&/missing|absent|inconsisten|no samples|no filled|no calendar|switch.case with string|including its third row|no employee.level|no employee.*input/i.test(q.notes)?'<p class="pr-source-note">'+escape(q.notes)+'</p>':'';
       return '<article class="pr-question'+(isReviewed?' reviewed':'')+'" aria-label="'+escape(meta+' · '+q.displayTitle)+'"><div class="pr-question-top"><span class="pr-question-meta">'+escape(meta)+'</span><button class="pr-save" data-save="'+escape(q.id)+'" aria-pressed="'+isSaved+'" aria-label="'+(isSaved?'Unsave':'Save')+' question '+escape(ref)+'">'+(isSaved?'Saved':'Save')+'</button></div><h3 class="pr-question-title" tabindex="-1">'+escape(q.displayTitle||q.title)+'</h3><div class="pr-question-body">'+markdown(q.body)+'</div>'+warning+'<div class="pr-answer-action"><button class="pr-answer-toggle" data-answer="'+escape(q.id)+'" aria-expanded="'+openAnswers.has(q.id)+'" aria-controls="answer-'+escape(q.id)+'">'+(openAnswers.has(q.id)?'Hide answer':'Answer')+'</button></div><section id="answer-'+escape(q.id)+'" class="pr-answer" aria-label="Answer"'+(openAnswers.has(q.id)?'':' hidden')+'>'+ (openAnswers.has(q.id)?answerHTML(q):'')+'</section><div class="pr-question-bottom">'+details+'<button class="pr-review" data-review="'+escape(q.id)+'" aria-pressed="'+isReviewed+'"><span aria-hidden="true">'+(isReviewed?'☑':'☐')+'</span> Reviewed</button></div></article>';
@@ -1121,11 +1123,11 @@ const PracticeBank = (() => {
       $('pr-pagination').hidden=!result.length;
       $('pr-page-label').textContent=state.page+' / '+pages;
       const indexScroll=$('pr-index').scrollTop;
-      $('pr-index').innerHTML=result.map((q,i)=>'<button data-question="'+escape(q.id)+'"'+(i===start?' aria-current="true"':'')+'><span class="pr-index-number">'+(reviewed.has(q.id)?'✓':i+1)+'</span><span>'+escape(q.displayTitle||q.title)+'</span></button>').join('');
+      $('pr-index').innerHTML=result.map((q,i)=>'<button data-question="'+escape(q.id)+'"'+(i===start?' aria-current="true"':'')+'><span class="pr-index-number'+(q.category==='pyq'?' pr-pyq-number':'')+'">'+(q.category==='pyq'?'P'+q.number+(reviewed.has(q.id)?' ✓':''):(reviewed.has(q.id)?'✓':i+1))+'</span><span>'+escape(q.displayTitle||q.title)+'</span></button>').join('');
       $('pr-index').scrollTop=indexScroll;
       $('pr-index').querySelector('[aria-current=true]')?.scrollIntoView({block:'nearest'});
       $('pr-index-count').textContent=result.length;
-      $('pr-jump').innerHTML=result.map((q,i)=>'<option value="'+(i+1)+'">'+(i+1)+'. '+escape(q.displayTitle||q.title)+'</option>').join('');
+      $('pr-jump').innerHTML=result.map((q,i)=>'<option value="'+(i+1)+'">'+(q.category==='pyq'?'P'+q.number:i+1)+'. '+escape(q.displayTitle||q.title)+'</option>').join('');
       $('pr-jump').value=state.page;
       $('pr-jump-wrap').hidden=!result.length;
       $('pr-prev').disabled=state.page===1;$('pr-next').disabled=state.page===pages;

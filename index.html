@@ -931,6 +931,7 @@ ta.value=EX[0];gut();gen();
           <div class="pr-filter-stack">
             <label>Level <select id="pr-difficulty" aria-label="Question difficulty"><option value="all">All levels</option><option value="easy">Easy</option><option value="hard">Hard</option></select></label>
             <label>Type <select id="pr-type" aria-label="Question type"></select></label>
+            <label id="pr-exams-wrap" hidden>Exam <select id="pr-exam" aria-label="Filter PYQs by exam"><option value="all">All exams</option></select></label>
             <label id="pr-years-wrap" hidden>Year <select id="pr-year"><option value="all">All years</option></select></label>
             <label>Order <select id="pr-sort" aria-label="Sort questions"><option value="source">Question order</option><option value="easy">Easy first</option><option value="hard">Hard first</option><option value="newest">Newest year</option><option value="oldest">Oldest year</option></select></label>
           </div>
@@ -957,7 +958,7 @@ const PracticeBank = (() => {
   };
   const TYPES = {coding:'Coding',algorithm:'Algorithm & flowchart',theory:'Theory & code reading',debugging:'Debugging'};
   const PAGE_SIZE = 1;
-  const defaults = category => ({category:category||'practice',module:'all',difficulty:'all',type:'all',year:'all',search:'',saved:false,unreviewed:false,sort:category==='pyq'?'newest':'source',page:1});
+  const defaults = category => ({category:category||'practice',module:'all',difficulty:'all',type:'all',year:'all',exam:'all',search:'',saved:false,unreviewed:false,sort:category==='pyq'?'newest':'source',page:1});
   const escape = s => String(s??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   const normalize = s => String(s??'').normalize('NFKC').toLowerCase().replace(/\s+/g,' ').trim();
   const yearValue = q => Number((String(q.year||'').match(/\d{4}/)||['0'])[0]);
@@ -967,8 +968,9 @@ const PracticeBank = (() => {
       (state.difficulty==='all'||q.difficulty===state.difficulty) &&
       (state.type==='all'||q.types.includes(state.type)) &&
       (state.category!=='pyq'||state.year==='all'||String(q.year)===String(state.year)) &&
+      (state.category!=='pyq'||!state.exam||state.exam==='all'||q.exam===state.exam) &&
       (!state.saved||saved.has(q.id)) && (!state.unreviewed||!reviewed.has(q.id)) &&
-      (!normalize(state.search)||normalize([q.body,q.displayTitle,q.title,q.topic,q.questionRef,q.source,q.year].join(' ')).includes(normalize(state.search))));
+      (!normalize(state.search)||normalize([q.body,q.displayTitle,q.title,q.topic,q.questionRef,q.source,q.year,q.exam].join(' ')).includes(normalize(state.search))));
     const indexed=new Map((data[state.category]||[]).map((q,i)=>[q.id,i]));
     result.sort((a,b)=>{
       let n=0;
@@ -1073,7 +1075,10 @@ const PracticeBank = (() => {
       $('pr-nav-pyq').textContent=data.pyq.length;
       dialog.querySelectorAll('[data-category]').forEach(b=>pressed(b,b.dataset.category===state.category));
       renderModules();
-      $('pr-years-wrap').hidden=!pyq;
+      $('pr-years-wrap').hidden=!pyq;$('pr-exams-wrap').hidden=!pyq;
+      const exams=[...new Set(data.pyq.map(q=>q.exam).filter(Boolean))].sort();
+      $('pr-exam').innerHTML='<option value="all">All exams</option>'+exams.map(exam=>'<option value="'+escape(exam)+'">'+escape(exam==='Debugging'?'Debug test':exam)+'</option>').join('');
+      $('pr-exam').value=state.exam;
       const years=[...new Set(data.pyq.map(q=>String(q.year)))].sort((a,b)=>parseInt(b)-parseInt(a)||b.localeCompare(a));
       $('pr-year').innerHTML='<option value="all">All years</option>'+years.map(y=>'<option value="'+escape(y)+'">'+escape(y)+(y.length>4?' (academic year)':'')+'</option>').join('');
       $('pr-year').value=state.year;
@@ -1092,7 +1097,7 @@ const PracticeBank = (() => {
       $('pr-progress-label').textContent='Progress';
       $('pr-progress-bar').max=source.length||1;$('pr-progress-bar').value=done;
       $('pr-progress-bar').setAttribute('aria-valuetext',done+' of '+source.length+' questions reviewed, '+percent+' percent');
-      const activeFilters=(state.difficulty!=='all')+(state.type!=='all')+(state.year!=='all')+Number(state.saved)+Number(state.unreviewed)+Number(state.sort!==(pyq?'newest':'source'));
+      const activeFilters=(state.difficulty!=='all')+(state.type!=='all')+(state.year!=='all')+(state.exam!=='all')+Number(state.saved)+Number(state.unreviewed)+Number(state.sort!==(pyq?'newest':'source'));
       $('pr-filter-toggle').textContent=activeFilters?'Filters ('+activeFilters+')':'Filters';
       $('pr-reset').hidden=!activeFilters&&!state.search;
       $('pr-section-title').textContent=state.module==='all'?(pyq?'Previous year questions':'All modules'):'Module '+state.module+' · '+MODULES[state.module].name;
@@ -1100,7 +1105,7 @@ const PracticeBank = (() => {
     function card(q) {
       const pyq=q.category==='pyq',isSaved=saved.has(q.id),isReviewed=reviewed.has(q.id);
       const ref=q.questionRef||'Q'+q.number;
-      const meta='Question '+state.page+' · '+(pyq?q.year:q.difficulty==='easy'?'Easy':'Hard');
+      const meta=pyq?'Q.'+state.page+' ('+(q.exam==='Debugging'?'DEBUG':q.exam||'Paper')+'-'+q.year+')':'Question '+state.page+' · '+(q.difficulty==='easy'?'Easy':'Hard');
       const details='<details class="pr-question-source"><summary>Details</summary><p>Module '+q.module+' · '+escape(q.difficulty==='easy'?'Easy':'Hard')+' · '+escape(q.types.map(type=>TYPES[type]||type).join(', '))+'<br><strong>Reference:</strong> '+escape(ref)+(pyq?'<br><strong>Paper:</strong> '+escape(q.exam||'Paper')+' '+escape(q.year)+(q.set?' · '+escape(q.set):''):'')+'<br><strong>Source:</strong> '+escape(q.source)+(q.academicYear?'<br><strong>Academic year:</strong> '+escape(q.academicYear):'')+(q.sources?.length>1?'<br><strong>Also in:</strong> '+q.sources.slice(1).map(escape).join('; '):'')+(q.notes?'<br><strong>Source note:</strong> '+escape(q.notes):'')+(q.ocr?'<br>Scanned text: OCR errors possible.':'')+'</p></details>';
       const warning=q.notes&&!q.notes.startsWith('Grouped under')&&/missing|absent|inconsisten|no samples|no filled|no calendar|switch.case with string|including its third row|no employee.level|no employee.*input/i.test(q.notes)?'<p class="pr-source-note">'+escape(q.notes)+'</p>':'';
       return '<article class="pr-question'+(isReviewed?' reviewed':'')+'" aria-label="'+escape(meta+' · '+q.displayTitle)+'"><div class="pr-question-top"><span class="pr-question-meta">'+escape(meta)+'</span><button class="pr-save" data-save="'+escape(q.id)+'" aria-pressed="'+isSaved+'" aria-label="'+(isSaved?'Unsave':'Save')+' question '+escape(ref)+'">'+(isSaved?'Saved':'Save')+'</button></div><h3 class="pr-question-title" tabindex="-1">'+escape(q.displayTitle||q.title)+'</h3><div class="pr-question-body">'+markdown(q.body)+'</div>'+warning+'<div class="pr-answer-action"><button class="pr-answer-toggle" data-answer="'+escape(q.id)+'" aria-expanded="'+openAnswers.has(q.id)+'" aria-controls="answer-'+escape(q.id)+'">'+(openAnswers.has(q.id)?'Hide answer':'Answer')+'</button></div><section id="answer-'+escape(q.id)+'" class="pr-answer" aria-label="Answer"'+(openAnswers.has(q.id)?'':' hidden')+'>'+ (openAnswers.has(q.id)?answerHTML(q):'')+'</section><div class="pr-question-bottom">'+details+'<button class="pr-review" data-review="'+escape(q.id)+'" aria-pressed="'+isReviewed+'"><span aria-hidden="true">'+(isReviewed?'☑':'☐')+'</span> Reviewed</button></div></article>';
@@ -1130,7 +1135,7 @@ const PracticeBank = (() => {
     }
     $('practice-open').addEventListener('click',()=>{
       stopAttention();
-      returnFocus=document.activeElement;
+      returnFocus=$('practice-open');
       if(!loaded){render();loaded=true;}
       dialog.showModal();
       $('practice-close').focus();
@@ -1171,6 +1176,7 @@ const PracticeBank = (() => {
     });
     $('pr-jump').addEventListener('change',e=>update({page:Number(e.target.value)},true));
     $('pr-year').addEventListener('change',e=>update({year:e.target.value}));
+    $('pr-exam').addEventListener('change',e=>update({exam:e.target.value}));
     $('pr-module-select').addEventListener('change',e=>update({module:e.target.value}));
     $('pr-difficulty').addEventListener('change',e=>update({difficulty:e.target.value}));
     $('pr-type').addEventListener('change',e=>update({type:e.target.value}));
@@ -1181,7 +1187,7 @@ const PracticeBank = (() => {
     $('pr-prev').addEventListener('click',()=>update({page:state.page-1},true));
     $('pr-next').addEventListener('click',()=>update({page:state.page+1},true));
     dialog.addEventListener('keydown',e=>{if(e.key==='/'&&!/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName)&&!document.activeElement.isContentEditable){e.preventDefault();$('pr-search').focus();}});
-    // Keep public-site counts accurate before the first open without rendering the bank.
+    $('practice-open').click();
   }
   return {query,defaults,markdown,inline,mathText,answerHTML,sessionAttention,PAGE_SIZE,mount};
 })();

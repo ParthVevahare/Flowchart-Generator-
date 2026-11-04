@@ -37,4 +37,16 @@ node --test tests/core.test.cjs
 
 The suite covers all built-in examples, valid and invalid syntax, language detection, control-flow context, combined function charts, recursive calls, and renderer isolation from the parsed program.
 
-The page uses the existing jsPDF CDN dependency for PDF export and existing visit-counter/analytics services. Custom interface icons are inline SVG with no external icon library.
+The browser interaction suite additionally requires Playwright and Chromium:
+
+```sh
+npm install --no-save playwright
+npx playwright install chromium
+node --test tests/ui.test.cjs
+```
+
+It checks keyboard navigation, contrast in both themes, short-window errors, long-file error positioning, Reset recovery, PDF loading/retry, stale-export protection, and mobile control sizing. External services are intercepted during these checks.
+
+Tab and Shift+Tab move between controls; Ctrl/Command + ] inserts four spaces in the editor. Reset exposes a Restore action, and Ctrl/Command + Z also recovers the cleared source until the next edit or example selection.
+
+The page loads its existing jsPDF CDN dependency only when PDF export is requested, with retry feedback if loading fails. Visit-counter/analytics services remain unchanged. Custom interface icons are inline SVG with no external icon library.

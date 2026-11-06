@@ -1,0 +1,8 @@
+{
+  "indexes": [],
+  "fieldOverrides": [
+    {"collectionGroup": "content", "fieldPath": "sourceCode", "indexes": []},
+    {"collectionGroup": "codes", "fieldPath": "description", "indexes": []},
+    {"collectionGroup": "codes", "fieldPath": "tags", "indexes": []}
+  ]
+}

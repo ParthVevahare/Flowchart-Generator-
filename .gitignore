@@ -1,0 +1,7 @@
+node_modules/
+*-debug.log
+test-*.log
+.firebase/
+.cache/
+test-results/
+mailing-list.csv

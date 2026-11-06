@@ -2,6 +2,14 @@
 
 A static, browser-based flowchart generator for structured C/C++, Python, and Java programs. Serve this directory with any static web server; no build step is required.
 
+## Personal cloud library
+
+**My Codes** adds Google Sign-In, private libraries with 300+ programs and no count cap, automatic saving, search/filter/sort, favorites, duplication, source download/copy and recoverable Trash. It reuses the existing editor and generator. Guest editing continues without Firebase.
+
+Cloud features require the owner to finish [Firebase setup](FIREBASE_SETUP.md), populate `firebase-config.js`, and deploy the supplied Firestore rules/index settings. Email-update preferences are stored in Firebase; no mailing service is connected and no emails are sent.
+
+Run `npm ci`, `npm test`, `npm run test:ui` (after `npx playwright install chromium`) and `npm run test:rules` (Java 21+) for the full regression, browser and isolated Firestore suites. The latter verifies 301 programs and account isolation without production data.
+
 ## Workspace
 
 - Paste code or choose an example, select its language, and choose **Generate Flowchart** (Ctrl/Cmd + Enter).

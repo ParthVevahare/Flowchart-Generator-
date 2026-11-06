@@ -1,0 +1,64 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function owner(uid) { return request.auth != null && request.auth.uid == uid; }
+    function tagAt(tags, i) { return tags.size() <= i || (tags[i] is string && tags[i].size() > 0 && tags[i].size() <= 40); }
+    function validMeta(d) {
+      return d.keys().hasAll(['title','language','description','tags','favorite','deleted','revision','mutationId','createdAt','updatedAt'])
+        && d.keys().hasOnly(['title','language','description','tags','favorite','deleted','revision','mutationId','createdAt','updatedAt'])
+        && d.title is string && d.title.size() > 0 && d.title.size() <= 120
+        && d.language in ['auto','c','python','java']
+        && d.description is string && d.description.size() <= 2000
+        && d.tags is list && d.tags.size() <= 10
+        && tagAt(d.tags,0) && tagAt(d.tags,1) && tagAt(d.tags,2) && tagAt(d.tags,3) && tagAt(d.tags,4)
+        && tagAt(d.tags,5) && tagAt(d.tags,6) && tagAt(d.tags,7) && tagAt(d.tags,8) && tagAt(d.tags,9)
+        && d.favorite is bool && d.deleted is bool
+        && d.revision is int && d.revision > 0
+        && d.mutationId is string && d.mutationId.size() > 0 && d.mutationId.size() <= 100
+        && d.createdAt is timestamp && d.updatedAt == request.time;
+    }
+    function pairedSource(uid,id,d) {
+      let b = getAfter(/databases/$(database)/documents/users/$(uid)/codes/$(id)/content/source).data;
+      return b.revision == d.revision && b.mutationId == d.mutationId && b.updatedAt == request.time;
+    }
+    match /users/{uid} {
+      allow read: if owner(uid);
+      function validProfile(d) {
+        return d.keys().hasAll(['email','displayName','emailUpdates','createdAt','updatedAt','consentUpdatedAt'])
+          && d.keys().hasOnly(['email','displayName','emailUpdates','createdAt','updatedAt','consentUpdatedAt'])
+          && d.email is string && d.email == request.auth.token.email && request.auth.token.email_verified == true
+          && d.displayName is string && d.displayName.size() <= 120
+          && d.emailUpdates is bool && d.createdAt is timestamp
+          && d.updatedAt == request.time && d.consentUpdatedAt == request.time;
+      }
+      allow create: if owner(uid) && validProfile(request.resource.data) && request.resource.data.createdAt == request.time;
+      allow update: if owner(uid) && validProfile(request.resource.data) && request.resource.data.createdAt == resource.data.createdAt;
+      match /codes/{id} {
+        allow read: if owner(uid);
+        allow create: if owner(uid) && validMeta(request.resource.data)
+          && request.resource.data.revision == 1 && request.resource.data.createdAt == request.time
+          && pairedSource(uid,id,request.resource.data);
+        allow update: if owner(uid) && validMeta(request.resource.data)
+          && request.resource.data.revision == resource.data.revision + 1
+          && request.resource.data.createdAt == resource.data.createdAt
+          && pairedSource(uid,id,request.resource.data);
+        // Programs are recoverable in Trash; clients cannot hard-delete records.
+        match /content/{contentId} {
+          allow read: if owner(uid);
+          function validSource(d) {
+            let m = getAfter(/databases/$(database)/documents/users/$(uid)/codes/$(id)).data;
+            return contentId == 'source'
+              && d.keys().hasAll(['sourceCode','revision','mutationId','updatedAt'])
+              && d.keys().hasOnly(['sourceCode','revision','mutationId','updatedAt'])
+              && d.sourceCode is string && d.sourceCode.size() <= 180000
+              && d.revision == m.revision && d.mutationId == m.mutationId
+              && d.updatedAt == request.time && m.updatedAt == request.time;
+          }
+          allow create: if owner(uid) && validSource(request.resource.data) && request.resource.data.revision == 1;
+          allow update: if owner(uid) && validSource(request.resource.data) && request.resource.data.revision == resource.data.revision + 1;
+        }
+      }
+    }
+    // Everything else is denied. Merge with any unrelated deployed rules before deployment.
+  }
+}

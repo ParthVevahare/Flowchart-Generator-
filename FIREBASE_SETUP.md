@@ -4,6 +4,8 @@ The site remains a static HTML/CSS/JavaScript flowchart generator. **My Codes** 
 
 ## Finish the Firebase Console setup
 
+The owner-supplied public web configuration for `flowcharts-d5f51` is now included in `firebase-config.js`. The Console steps below still need verification. Firebase initializes once through `firebase-client.mjs`; the supplied Analytics measurement ID is retained in configuration, but the site's existing Analytics integration is preserved without adding a second tracker.
+
 1. In your Firebase project, register a **Web app** under Project settings. Copy its public `firebaseConfig` values into `firebase-config.js`, including `apiKey`, `authDomain`, `projectId` and `appId`. Never put a service-account key in website files. See [Firebase web setup](https://firebase.google.com/docs/web/setup).
 2. Under Authentication → Sign-in method, enable **Google**, select your support email and save. Add the website hostname (for example `parthvevahare.github.io`, without a path) to Authentication → Settings → Authorized domains. Add a custom hostname if used, and `localhost` explicitly for local testing. Configure the Google consent screen/support details if the Console requests them. See [Google authentication setup](https://firebase.google.com/docs/auth/web/google-signin).
 3. Create the **default Cloud Firestore database**, Standard edition, in production mode, and select its permanent region. This implementation uses Firestore, not Realtime Database.

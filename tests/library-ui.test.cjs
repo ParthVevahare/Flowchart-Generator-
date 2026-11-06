@@ -13,6 +13,7 @@ after(async()=>{await browser?.close();await new Promise(r=>server?.close(r));})
 async function open(t,{configured=true,width=1440}={}){
   const context=await browser.newContext({viewport:{width,height:960}});t.after(()=>context.close());
   await context.route('https://**/*',r=>r.fulfill({body:r.request().url().includes('abacus')?'{"value":1588}':''}));
+  if(!configured)await context.route('**/firebase-config.js',r=>r.fulfill({contentType:'text/javascript',body:'window.FLOWCHART_FIREBASE_CONFIG={};'}));
   if(configured){
     await context.route('**/firebase-config.js',r=>r.fulfill({contentType:'text/javascript',body:'window.FLOWCHART_FIREBASE_CONFIG={apiKey:"test",authDomain:"test",projectId:"test",appId:"test"};'}));
     await context.addInitScript(()=>{

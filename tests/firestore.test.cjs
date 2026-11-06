@@ -62,7 +62,9 @@ test('rules reject malformed, oversized, mismatched and non-atomic writes, and h
 });
 test('signup preference is recorded once, can be disabled and is preserved on later login',async()=>{
   const user={uid:'alice',email:'alice@example.test',displayName:'Alice'};
+  assert.equal(await store.readProfile('alice'),null);
   let profile=await store.profile(user,true);assert.equal(profile.emailUpdates,true);
+  assert.equal((await store.readProfile('alice')).emailUpdates,true);
   await store.preference(user,false);
   profile=await store.profile(user,true);assert.equal(profile.emailUpdates,false);
   await assertFails(sdk.updateDoc(sdk.doc(alice,'users/alice'),{email:'someone@example.test'}));

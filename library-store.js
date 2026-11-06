@@ -32,6 +32,10 @@
           return {revision,createdAt:previous?.createdAt||Date.now(),updatedAt:Date.now()};
         });
       },
+      async readProfile(uid){
+        const snap=await s.getDocFromServer(s.doc(db,'users',uid));
+        return snap.exists()?snap.data():null;
+      },
       async profile(user,emailUpdates){
         return s.runTransaction(db,async tx=>{
           const target=s.doc(db,'users',user.uid),snap=await tx.get(target);

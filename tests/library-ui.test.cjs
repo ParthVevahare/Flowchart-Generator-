@@ -27,6 +27,7 @@ async function open(t,{configured=true,width=1440}={}){
           open:async(uid,id)=>{if(window.fixture.offline)throw Error('Offline');if(window.fixture.delay)await new Promise(r=>setTimeout(r,window.fixture.delay));return structuredClone(records[uid].find(p=>p.id===id));},
           save:async(uid,id,d,revision,mutationId)=>{if(window.fixture.offline)throw Error('Offline');if(window.fixture.conflict)throw Object.assign(Error('Changed on another device'),{code:'conflict'});const rows=records[uid]||(records[uid]=[]),i=rows.findIndex(p=>p.id===id);if(i>=0&&rows[i].revision!==revision)throw Object.assign(Error('Conflict'),{code:'conflict'});const p={...d,id,revision:revision+1,mutationId,createdAt:i>=0?rows[i].createdAt:Date.now(),updatedAt:Date.now()};if(i<0)rows.push(p);else rows[i]=p;persist();return p;},
           profile:async(user,choice)=>{const k='preference-'+user.uid;let v=localStorage.getItem(k);if(v===null){v=String(choice);localStorage.setItem(k,v);}window.fixture.preference=v==='true';return {emailUpdates:v==='true'};},
+          readProfile:async uid=>{const v=localStorage.getItem('preference-'+uid);if(v===null)return null;window.fixture.preference=v==='true';return {emailUpdates:v==='true'};},
           preference:async(user,value)=>{window.fixture.preference=value;localStorage.setItem('preference-'+user.uid,String(value));}
         },
         watch:fn=>{callback=fn;const uid=localStorage.getItem('fixture-user');queueMicrotask(()=>fn(uid?{uid,email:uid+'@example.test'}:null));},
@@ -39,7 +40,16 @@ async function open(t,{configured=true,width=1440}={}){
   }
   const page=await context.newPage();await page.goto(url);await page.locator('#library-toggle').click();return page;
 }
-async function login(p){await p.locator('#cloud-signin').click();await p.waitForFunction(()=>document.getElementById('library-count').textContent.includes('301 programs'));}
+async function login(p,updates=true){
+  await p.locator('#cloud-signin').click();
+  await p.waitForFunction(()=>document.getElementById('library-panel').getAttribute('aria-busy')==='false');
+  if(await p.locator('#cloud-signup').isVisible()){
+    assert.equal(await p.locator('#signup-updates').isChecked(),true);
+    assert.equal(await p.evaluate(()=>localStorage.getItem('preference-alice')),null);
+    await p.locator('#signup-updates').setChecked(updates);await p.locator('#cloud-create').click();
+  }
+  await p.waitForFunction(()=>document.getElementById('library-count').textContent.includes('301 programs'));
+}
 test('unconfigured Firebase leaves the generator usable and explains setup',async t=>{
   const p=await open(t,{configured:false});assert.match(await p.locator('#library-message').textContent(),/setup/i);
   assert.equal(await p.locator('#cloud-signin').isDisabled(),true);
@@ -47,15 +57,15 @@ test('unconfigured Firebase leaves the generator usable and explains setup',asyn
   await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
 });
 test('301 programs, search, open, autosave, duplicate, trash and restore preserve the generator',async t=>{
-  const p=await open(t);assert.equal(await p.locator('#signup-updates').isChecked(),true);
-  await p.locator('#signup-updates').uncheck();await login(p);assert.equal(await p.evaluate(()=>fixture.preference),false);
+  const p=await open(t);assert.equal(await p.locator('#signup-updates').isVisible(),false);
+  await login(p,false);assert.equal(await p.evaluate(()=>fixture.preference),false);
   await p.locator('#library-search').fill('Program 300');await p.getByRole('button',{name:'Open Program 300',exact:true}).click();
   await p.waitForFunction(()=>document.getElementById('program-title').value==='Program 300');
   await p.locator('#ta').fill('int main(){return 300;}');await p.waitForFunction(()=>document.getElementById('cloud-status').textContent==='Saved to cloud');
   await p.locator('#program-copy').click();await p.waitForFunction(()=>document.getElementById('program-title').value.includes('copy'));
   await p.locator('#library-toggle').click();await p.locator('#library-search').fill('copy');
   p.once('dialog',d=>d.accept());await p.getByRole('button',{name:'Move Program 300 (copy) to Trash',exact:true}).click();
-  await p.locator('#library-trash').check();await p.getByRole('button',{name:'Restore Program 300 (copy)',exact:true}).click();
+  await p.locator('#library-filter-toggle').click();await p.locator('#library-trash').check();await p.getByRole('button',{name:'Restore Program 300 (copy)',exact:true}).click();
   await p.locator('#library-trash').uncheck();assert.equal(await p.getByRole('button',{name:'Open Program 300 (copy)',exact:true}).count(),1);
 });
 test('offline edits recover after reload and account changes never expose the previous account',async t=>{
@@ -78,6 +88,8 @@ test('mobile library fits, exposes meaningful actions and defaults remain keyboa
   }
   await p.screenshot({path:'test-results/library-mobile.png',fullPage:true});
   await p.setViewportSize({width:1440,height:960});await p.screenshot({path:'test-results/library-desktop.png',fullPage:true});
+  await p.locator('#th').click();await p.screenshot({path:'test-results/library-dark.png',fullPage:true});
+  await p.locator('#library-filter-toggle').click();await p.screenshot({path:'test-results/library-filters.png',fullPage:true});
 });
 test('offline draft survives refresh and two tabs retain independent recovery copies',async t=>{
   const p=await open(t);await login(p);await p.locator('#library-search').fill('Program 300');await p.getByRole('button',{name:'Open Program 300',exact:true}).click();
@@ -130,8 +142,39 @@ test('rapid program switching saves the previous editor and locks typing during 
   await p.setViewportSize({width:390,height:844});await p.screenshot({path:'test-results/editor-mobile.png',fullPage:true});
 });
 test('sign out clears the private editor; signing back in preserves the mailing preference',async t=>{
-  const p=await open(t);await p.locator('#signup-updates').uncheck();await login(p);
+  const p=await open(t);await login(p,false);
   await p.locator('#cloud-signout').click();await p.locator('#cloud-signin').waitFor({state:'visible'});
-  await p.locator('#signup-updates').check();await login(p);
-  assert.equal(await p.locator('#account-updates').isChecked(),false);
+  await login(p);
+  assert.equal(await p.locator('#signup-updates').isVisible(),false);
+  assert.equal(await p.locator('#account-updates').count(),0);
+  assert.equal(await p.evaluate(()=>fixture.preference),false);
+});
+test('library keeps secondary controls tucked away and icon actions have names',async t=>{
+  const p=await open(t);await login(p);
+  assert.equal(await p.locator('#library-language').isVisible(),false);
+  assert.equal(await p.locator('#library-sort').isVisible(),false);
+  assert.equal(await p.locator('#library-list .library-row-actions button svg').count(),50);
+  for(const b of await p.locator('#library-list .library-row-actions button').all())assert.ok(await b.getAttribute('aria-label'));
+  await p.locator('#library-filter-toggle').click();await p.locator('#library-language').selectOption('python');
+  assert.match(await p.locator('#library-empty').textContent(),/No programs/);
+  await p.locator('#library-language').selectOption('');
+  await p.locator('#library-search').fill('Program 300');await p.getByRole('button',{name:'Open Program 300',exact:true}).click();
+  await p.locator('#program-save').waitFor({state:'visible'});
+  assert.equal(await p.locator('.save-actions #program-save').count(),1);
+  assert.equal(await p.locator('.save-actions #program-copy').count(),1);
+  assert.equal(await p.locator('#program-download svg').count(),1);
+});
+test('account creation records the choice only on submission and can retry a failed save',async t=>{
+  const p=await open(t,{width:390});await p.locator('#cloud-signin').click();
+  await p.locator('#cloud-signup').waitFor({state:'visible'});
+  assert.equal(await p.locator('#signup-updates').isChecked(),true);
+  assert.equal(await p.locator('#library-controls').isVisible(),false);
+  assert.equal(await p.evaluate(()=>localStorage.getItem('preference-alice')),null);
+  await p.screenshot({path:'test-results/signup-mobile.png',fullPage:true});
+  await p.evaluate(()=>{const original=fixtureClient.store.profile;fixtureClient.store.profile=async(...args)=>{fixtureClient.store.profile=original;throw Error('Please retry');};});
+  await p.locator('#signup-updates').uncheck();await p.locator('#cloud-create').click();
+  await p.waitForFunction(()=>document.getElementById('library-message').textContent.includes('Please retry'));
+  assert.equal(await p.locator('#signup-updates').isChecked(),false);
+  await p.locator('#cloud-create').click();await p.locator('#cloud-signup').waitFor({state:'hidden'});
+  assert.equal(await p.evaluate(()=>localStorage.getItem('preference-alice')),'false');
 });

@@ -55,7 +55,7 @@ Each program is independent. Duplicate titles are allowed; unique Firestore IDs 
 
 ## Email-update preferences and later export
 
-The signup label is **Receive updates on your email**, checked initially and freely editable. Returning users keep their stored choice, and can change it in My Codes. `consentUpdatedAt` records the latest preference change. No email is sent and no external mailing service receives data.
+The signup label is **Receive updates on your email**, checked initially and freely editable. It appears only when a Google user first creates their library account. Returning users keep their stored choice and do not see the checkbox. `consentUpdatedAt` records the latest preference change. No email is sent and no external mailing service receives data.
 
 When a mailing provider is chosen, export only profiles where `emailUpdates == true` using a trusted administrative environment. The optional `scripts/export-mailing-list.cjs` utility writes `email,displayName,consentUpdatedAt` CSV, excluding source code. Install `firebase-admin` in that trusted environment, use Application Default Credentials for the intended project, and run:
 
@@ -78,7 +78,7 @@ Typical usage with this implementation:
 | Create or save a changed program | 1 transaction read and 2 writes |
 | Favorite, rename, trash or restore via a row action | Reads the program, then performs the same transactional save |
 | Signup | Profile read + one creation write |
-| Change email preference | 1 write |
+| Returning sign-in profile check | 1 read |
 
 Rules using `getAfter` can add billed reads; transaction retries add operations. Idle typing pauses are debounced, but continuous editing sessions still consume writes. Three hundred 10 KB sources occupy roughly 3 MB before metadata, indexes and overhead; 1,000 occupy roughly 10 MB. Many users or large files can exhaust the project's free quota. Trash also consumes storage. Monitor Firestore Usage, set billing alerts if billing is enabled, and choose paid capacity when necessary; the UI will report failures rather than deleting records to fit a quota.
 

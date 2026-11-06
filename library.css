@@ -19,16 +19,23 @@
 .account-line{justify-content:space-between;overflow-wrap:anywhere}
 #account-email{min-width:0;flex:1}
 #cloud-account{border-bottom:1px solid var(--bd);padding-bottom:8px;margin-bottom:16px}
-.library-search{margin:18px 0 12px}
+.library-search-row{display:flex;align-items:flex-end;gap:8px;margin:18px 0 12px}
+.library-search{flex:1;min-width:0}
+.library-search-row>button{height:38px;flex:none}
 .library-filters{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .library-filters select{width:100%}
 .library-checks{justify-content:space-between}
-.library-row{padding:14px 0;border-top:1px solid var(--bd);display:grid;grid-template-columns:minmax(0,1fr) auto;gap:7px 10px}
+.library-row{padding:12px 0;border-top:1px solid var(--bd);display:grid;grid-template-columns:minmax(0,1fr) auto auto;gap:2px 4px;align-items:center}
 .library-open{justify-content:flex-start;text-align:left;white-space:normal;overflow-wrap:anywhere;border:0;background:transparent;padding:0;font-size:14px;font-weight:600;line-height:1.4;min-width:0}
 .library-open:hover{background:transparent;color:var(--ac)}
-.library-row small{grid-column:1/-1;color:var(--mu);line-height:1.5}
-.library-row-actions{grid-column:1/-1;display:flex;gap:7px;flex-wrap:wrap}
+.library-row small{grid-column:1/-1;grid-row:2;color:var(--mu);line-height:1.5;overflow-wrap:anywhere}
+.library-row-actions{grid-column:3;grid-row:1;display:flex;gap:2px}
+.library-row>.favorite-button{grid-column:2;grid-row:1}
+.library-row .icon-only{border-color:transparent;background:transparent;width:34px;height:34px;padding:7px;color:var(--mu)}
+.library-row .icon-only:hover{background:var(--soft);color:var(--tx)}
+.library-open{min-height:34px}
 .favorite-button[aria-pressed=true]{background:var(--accent-soft);color:var(--ac)}
+.favorite-button[aria-pressed=true] svg{fill:var(--ac);color:var(--ac)}
 .library-pagination{justify-content:space-between;padding-top:16px;border-top:1px solid var(--bd)}
 #library-recovery:empty{display:none}
 #library-recovery{padding:12px 0;border-bottom:1px solid var(--bd)}
@@ -38,9 +45,31 @@
 .cloud-title{display:flex;align-items:center;gap:10px;white-space:nowrap}
 .cloud-title input{flex:1}
 .cloud-toolbar{gap:6px;margin:8px 0}
+.save-actions,.code-actions{display:flex;align-items:center;gap:0}
+.save-actions button{border-radius:0}
+.save-actions button:first-child{border-radius:6px 0 0 6px}
+.save-actions button:last-child{border-radius:0 6px 6px 0;margin-left:-1px}
+.save-actions button:focus-visible{position:relative;z-index:1}
+.code-actions{margin-left:auto;gap:4px}
+.cloud-toolbar .icon-only{width:32px;padding:6px}
 .cloud-toolbar button{min-height:30px;padding:5px 8px;font-size:11px}
 #cloud-status{flex:1 0 100%;line-height:1.45;color:var(--mu);overflow-wrap:anywhere}
 .cloud-editor summary{cursor:pointer;color:var(--mu);padding:4px 0}
 .program-details{display:grid;gap:8px;margin-top:8px}
 .program-details textarea{resize:vertical;min-height:64px}
+#library-message:empty{display:none}
+#cloud-account{margin:8px 0 16px;padding-bottom:12px;color:var(--mu);font-size:12px}
+#cloud-signup h3{font-size:16px;margin:20px 0 6px}
+#cloud-create{margin-top:12px}
+.library-actions{gap:6px}
+
+#library-refine{margin:0 0 14px}
+#library-filter-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;list-style:none;color:var(--mu);min-height:36px;font-size:12px}
+#library-filter-toggle::-webkit-details-marker{display:none}
+#library-filter-toggle .icon:last-child{margin-left:auto;width:14px}
+#library-refine[open] #library-filter-toggle .icon:last-child{transform:rotate(180deg)}
+#library-refine[open] .library-filters{margin-top:10px}
+#library-filter-toggle:focus-visible{outline:2px solid var(--ac);outline-offset:2px;border-radius:4px}
+#library-prev svg{transform:rotate(180deg)}
 @media(max-width:760px){.library-panel{top:10px;bottom:10px;right:10px;width:calc(100vw - 20px);padding:16px}.library-panel button,.library-panel select,.library-panel input:not([type=checkbox]),.cloud-editor button{min-height:44px}.cloud-editor{padding:0 14px 12px;max-height:none}.header-actions{flex-wrap:wrap}#library-toggle{min-height:44px}.cloud-title{display:grid;gap:4px}.library-actions{gap:6px}.library-filters{gap:8px}}
+@media(max-width:760px){.library-row .icon-only,.cloud-toolbar .icon-only{width:44px;height:44px}.library-row{gap:2px}.library-actions button{font-size:12px;padding:8px}#library-filter-toggle{min-height:44px}.library-panel .check-label{min-height:44px}.cloud-toolbar{gap:8px}.save-actions button{padding:6px 9px}}

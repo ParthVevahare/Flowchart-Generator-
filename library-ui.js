@@ -26,7 +26,7 @@
     busy=value;$('ta').readOnly=value;
     for(const id of ['lang','exs','rs','program-title','program-description','program-tags','program-favorite'])$(id).disabled=value;
     for(const el of document.querySelectorAll('[data-busy-control]'))el.disabled=value||el.dataset.unavailable==='true';
-    $('account-updates').disabled=value;
+    $('signup-updates').disabled=value;
     $('library-panel').setAttribute('aria-busy',String(value));
   }
   async function action(fn){
@@ -64,12 +64,16 @@
     if(token!==epoch)return;
     updateRow(row);attach(row);message(cleanupFailed?'Program saved. The older local recovery draft could not be removed.':'Program saved.');
   }
-  function button(text,label,fn,cls=''){
-    const b=document.createElement('button');b.textContent=text;b.setAttribute('aria-label',label);b.className=cls;b.dataset.busyControl='';b.disabled=busy;b.onclick=()=>action(fn);return b;
+  function button(text,label,fn,cls='',symbol=''){
+    const b=document.createElement('button');b.textContent=text;b.setAttribute('aria-label',label);b.title=label;b.className=cls;b.dataset.busyControl='';b.disabled=busy;b.onclick=()=>action(fn);
+    if(symbol){const svg=document.createElementNS('http://www.w3.org/2000/svg','svg'),use=document.createElementNS('http://www.w3.org/2000/svg','use');svg.setAttribute('class','icon');svg.setAttribute('viewBox','0 0 24 24');svg.setAttribute('aria-hidden','true');use.setAttribute('href','#icon-'+symbol);svg.append(use);b.replaceChildren(svg);b.classList.add('icon-only');}
+    return b;
   }
   function render(){
     $('library-list').replaceChildren();
-    if(!user){$('library-count').textContent='Your personal code library';$('library-pagination').hidden=true;$('library-empty').hidden=true;return;}
+    if(!ready){$('library-count').textContent='Your personal code library';$('library-pagination').hidden=true;$('library-empty').hidden=true;return;}
+    const filterCount=Number(!!$('library-language').value)+Number($('library-favorites').checked)+Number($('library-trash').checked)+Number($('library-sort').value!=='updated-desc');
+    $('library-filter-label').textContent='Filters & sort'+(filterCount?' · '+filterCount+' active':'');
     const visible=core.selectPrograms(rows,{search:$('library-search').value,language:$('library-language').value,favorites:$('library-favorites').checked,trash:$('library-trash').checked,sort:$('library-sort').value});
     const count=rows.filter(r=>!r.deleted).length,trash=rows.length-count;
     $('library-count').textContent=count+' programs'+(trash?' · '+trash+' in Trash':'')+(loading?' · loading…':'');
@@ -79,14 +83,14 @@
     for(const d of visible.slice(page*25,page*25+25)){
       const row=document.createElement('div');row.className='library-row';
       const title=button(d.title,(d.deleted?'View ':'Open ')+d.title,token=>openProgram(d.id,token),'library-open');title.dataset.unavailable=String(d.deleted);title.disabled=busy||d.deleted;row.append(title);
-      const favorite=button(d.favorite?'Favorited':'Favorite','Toggle favorite for '+d.title,token=>mutate(d,{favorite:!d.favorite},token),'favorite-button');favorite.setAttribute('aria-pressed',String(d.favorite));row.append(favorite);
+      const favorite=button('','Toggle favorite for '+d.title,token=>mutate(d,{favorite:!d.favorite},token),'favorite-button','star');favorite.setAttribute('aria-pressed',String(d.favorite));row.append(favorite);
       const info=document.createElement('small');const stamp=typeof d.updatedAt?.toMillis==='function'?d.updatedAt.toMillis():Number(d.updatedAt);
       info.textContent=(names[d.language]||d.language)+' · '+(stamp?new Date(stamp).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}):'Just saved')+(d.tags?.length?' · '+d.tags.join(', '):'');row.append(info);
       const actions=document.createElement('div');actions.className='library-row-actions';
-      if(d.deleted)actions.append(button('Restore','Restore '+d.title,token=>mutate(d,{deleted:false},token)));
+      if(d.deleted)actions.append(button('','Restore '+d.title,token=>mutate(d,{deleted:false},token),'','reset'));
       else{
-        actions.append(button('Duplicate','Duplicate '+d.title,async token=>{await flush();if(token!==epoch)return;const source=await client.store.open(user.uid,d.id);if(token===epoch)await createProgram({...source,title:source.title.slice(0,113)+' (copy)'},token);}));
-        actions.append(button('Move to Trash','Move '+d.title+' to Trash',async token=>{if(confirm('Move “'+d.title+'” to Trash? You can restore it later.'))await mutate(d,{deleted:true},token);}));
+        actions.append(button('','Duplicate '+d.title,async token=>{await flush();if(token!==epoch)return;const source=await client.store.open(user.uid,d.id);if(token===epoch)await createProgram({...source,title:source.title.slice(0,113)+' (copy)'},token);},'','copy'));
+        actions.append(button('','Move '+d.title+' to Trash',async token=>{if(confirm('Move “'+d.title+'” to Trash? You can restore it later.'))await mutate(d,{deleted:true},token);},'','trash'));
       }
       row.append(actions);$('library-list').append(row);
     }
@@ -117,18 +121,19 @@
         const chunk=await client.store.listPage(user.uid,cursor);if(token!==epoch)return;
         fetched.push(...chunk.rows);rows=[...fetched];cursor=chunk.cursor;render();
       }while(cursor);
-      message('Private to your Google account. No program-count limit.');
+      message('');
     }finally{if(token===epoch){loading=false;render();await renderRecovery(token);}}
   }
   async function authChanged(next){
     const clearPrivate=!!user||!!session,token=++epoch;session?.close();session=null;user=next;ready=false;rows=[];loading=false;lock(false);
     $('cloud-editor').hidden=true;$('library-recovery').replaceChildren();$('library-list').replaceChildren();if(clearPrivate)setEditor(guest);
-    $('cloud-login').hidden=!!user;$('cloud-account').hidden=!user;$('library-controls').hidden=true;render();
-    if(!user){message('Sign in to save programs to your private library.');return;}
+    $('cloud-login').hidden=!!user;$('cloud-account').hidden=!user;$('cloud-signup').hidden=true;$('library-controls').hidden=true;render();
+    if(!user){message('');return;}
     $('account-email').textContent=user.email||'Signed in';showPanel(true);message('Loading your account…');lock(true);
     try{
-      const profile=await client.store.profile(user,$('signup-updates').checked);if(token!==epoch)return;
-      $('account-updates').checked=profile.emailUpdates;ready=true;$('library-controls').hidden=false;await refresh(token);
+      const profile=await client.store.readProfile(user.uid);if(token!==epoch)return;
+      if(!profile){$('signup-updates').checked=true;$('cloud-signup').hidden=false;message('');return;}
+      ready=true;$('library-controls').hidden=false;await refresh(token);
     }catch(e){if(token===epoch)message('Could not load your account. '+e.message+' Sign out and try again.',true);}
     finally{if(token===epoch)lock(false);}
   }
@@ -141,7 +146,11 @@
   document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('library-panel').hidden){showPanel(false);$('library-toggle').focus();}});
   $('cloud-signin').onclick=()=>action(async()=>{await guestWrites;await client.signIn();});
   $('cloud-signout').onclick=()=>action(async token=>{await flush();if(token===epoch)await client.signOut();});
-  $('account-updates').onchange=()=>action(async token=>{const value=$('account-updates').checked;try{await client.store.preference(user,value);if(token===epoch)message('Email preference saved.');}catch(e){if(token===epoch)$('account-updates').checked=!value;throw e;}});
+  $('cloud-create').onclick=()=>action(async token=>{
+    if(!user)return;
+    await client.store.profile(user,$('signup-updates').checked);if(token!==epoch)return;
+    $('cloud-signup').hidden=true;ready=true;$('library-controls').hidden=false;await refresh(token);
+  });
   $('program-new').onclick=()=>action(token=>createProgram({title:'Untitled program',language:$('lang').value,sourceCode:'',description:'',tags:[],favorite:false,deleted:false},token));
   $('program-import').onclick=()=>action(token=>createProgram(session?{...editorData(),title:editorData().title.slice(0,113)+' (copy)'}:guest,token));
   $('program-copy').onclick=()=>action(token=>createProgram({...editorData(),title:$('program-title').value.slice(0,113)+' (copy)'},token,true));

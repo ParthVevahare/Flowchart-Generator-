@@ -82,7 +82,7 @@ Rules using `getAfter` can add billed reads; transaction retries add operations.
 
 ## Automated and manual checks
 
-Use Node.js 22+ and Java 21+ for the Firestore emulator. No real Firebase login is required for the demo-project tests.
+Use Node.js 24.12+ and Java 21+ for the Firestore emulator. No real Firebase login is required for the demo-project tests. CI pins Ubuntu 24.04 for compatibility with the pinned Playwright browser build.
 
 ```sh
 npm ci

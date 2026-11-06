@@ -8,7 +8,7 @@ A static, browser-based flowchart generator for structured C/C++, Python, and Ja
 
 Cloud features require the owner to finish [Firebase setup](FIREBASE_SETUP.md), populate `firebase-config.js`, and deploy the supplied Firestore rules/index settings. Email-update preferences are stored in Firebase; no mailing service is connected and no emails are sent.
 
-Run `npm ci`, `npm test`, `npm run test:ui` (after `npx playwright install chromium`) and `npm run test:rules` (Java 21+) for the full regression, browser and isolated Firestore suites. The latter verifies 301 programs and account isolation without production data.
+Use Node.js 24.12+ for the full suite. Run `npm ci`, `npm test`, `npm run test:ui` (after `npx playwright install chromium`) and `npm run test:rules` (Java 21+) for the full regression, browser and isolated Firestore suites. The latter verifies 301 programs and account isolation without production data.
 
 ## Workspace
 

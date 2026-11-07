@@ -15,9 +15,10 @@ Use Node.js 24.12+ for the full suite. Run `npm ci`, `npm test`, `npm run test:u
 ## Workspace
 
 - Paste code or choose an example, select its language, and choose **Generate Flowchart** (Ctrl/Cmd + Enter).
-- The complete program appears on one canvas. Its entry point and helper functions each have a labeled section. Dashed links connect call sites to their function definitions; `RETURN` resumes at the calling step. Recursive functions are drawn once.
+- The complete program appears on one A4 canvas. Its entry point and helper functions each have a labeled section. Calls to known helpers use subprocess shapes; hover over a node for its call references. `RETURN` resumes at the calling step. Recursive functions are drawn once, and helper references are not drawn as execution paths between functions.
 - Zoom, fit, pan, or enter fullscreen. When the canvas has keyboard focus, use `+`/`-` to zoom, `0` to fit, and arrow keys to pan.
-- Algorithm and pseudocode panels cover all functions. Export the complete chart as SVG, PNG, or PDF.
+- Algorithm and pseudocode panels cover all functions. Export the complete chart as SVG, PNG, or PDF, or choose **Copy SVG** to copy the vector markup directly.
+- Exports use A4 portrait proportions and 10 mm margins without stretching shapes. SVG is resolution independent; PNG is 2480 × 3508 with 300-DPI print metadata; PDF places that high-resolution page on A4. Very large programs fit on one page with smaller text; SVG remains sharp when enlarged.
 - Editing or resetting code invalidates the previous result and disables export until the next successful generation.
 
 ## Supported syntax
@@ -33,7 +34,7 @@ Malformed tokens, expressions, declarations, parameters, indentation, and invali
 
 This is syntax and control-flow validation, not a compiler or interpreter. It does not execute code, resolve types or undefined names, evaluate preprocessor macros, or prove runtime behavior. Classes with inheritance/constructors, C/C++ aggregate definitions, typedefs, exceptions, `goto`, Python comprehensions/generators, and other unsupported constructs need simplification before generating a chart. Function overloading is rejected because call resolution requires type information. Indirect/function-pointer calls are not expanded into helper links.
 
-To keep diagrams responsive, inputs are limited to 50,000 characters, 12,000 tokens, 20 functions, 500 flowchart steps, and 100 helper call links. Excessive nesting is rejected with a diagnostic.
+To keep diagrams responsive, inputs are limited to 50,000 characters, 12,000 tokens, 20 functions and 500 flowchart steps. Excessive nesting is rejected with a diagnostic.
 
 If Python contains only function definitions, the chart labels its first function as a function root with no entry point; it does not imply that defining a function executes it.
 
@@ -45,7 +46,13 @@ Requires Node.js 22 or later for the dependency-free regression suite:
 node --test tests/core.test.cjs
 ```
 
-The suite covers all built-in examples, valid and invalid syntax, language detection, control-flow context, combined function charts, recursive calls, and renderer isolation from the parsed program.
+Run `npm test` for the full core, graph and library checks. The suite covers all built-in examples, valid and invalid syntax, language detection, control-flow context, combined function charts, recursive calls, renderer isolation from the parsed program, branch joins, nested transfers, switch fallthrough, graph/source execution comparisons and layout geometry.
+
+## Generation pipeline
+
+`syntax.js` and the existing parsers produce validated statement structures. `flowchart.js` builds a separate graph with explicit successors: branches share continuations, loops have dedicated condition/update targets, and abrupt transfers have no fallthrough. Consecutive assignments/declarations are grouped up to three statements, keeping calls and input/output separate. Unreachable nodes are removed; graph validation checks successor counts, branch labels, terminal exits and edge destinations.
+
+The locally bundled ELK.js 0.11.0 engine calculates node positions, orthogonal connector routes and edge-label positions. Layout-only reversal of loop feedback edges keeps the entry above the body; arrows are restored to their original direction before rendering. Function sections are packed for A4 and scaled uniformly. `diagram-export.js` supplies shared page dimensions and PNG density metadata. Layout does not change semantic graph edges or execute user code. Graph validation checks structural control flow, rather than proving satisfiability of arbitrary runtime predicates.
 
 The browser interaction suite additionally requires Playwright and Chromium:
 

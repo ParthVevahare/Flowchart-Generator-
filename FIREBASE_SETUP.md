@@ -107,3 +107,11 @@ npm run test:rules
 `test:rules` uses only `demo-flowchart-library` on 127.0.0.1:8080. It creates 301 independent programs, pages through all of them, edits number 300, duplicates/trashes/restores, checks revision conflicts/idempotence, profile preferences, unauthorized reads/writes and malformed writes. Browser tests intercept Firebase authentication/storage with an isolated fixture to exercise UI, draft persistence, account changes and offline recovery; these complement the real SDK/Firestore emulator tests rather than replacing them. The original parser and UI regression suites remain included. GitHub Actions runs all three suites.
 
 Before a production release, finish the real-project setup above and manually check Google popup sign-in on desktop/mobile, two real accounts, a second device, a real network interruption, and deployed rules. The automated tests do not certify your Console settings or hosting configuration.
+
+## Keeping private credentials out of Git
+
+Keep server API secrets in a local `.env` file and administrative credentials outside the website directory, preferably through Application Default Credentials. The repository ignores local environment files, credential directories, service-account/Admin SDK JSON, OAuth client secrets, and private-key bundles. Only sanitized environment templates may be committed. Never put actual key values in `.gitignore`.
+
+`firebase-config.js` remains tracked because this static website needs the public Firebase browser configuration for Google Sign-In. Firebase API keys identify the project; they do not authorize access to private Firestore data. Verify that this key is restricted to the Firebase APIs the app uses and keep authorization enforced by Firestore rules. Do not reuse it for unrelated Google Cloud APIs. See [Firebase API key guidance](https://firebase.google.com/docs/projects/api-keys).
+
+Ignore rules apply only to untracked files. If a private credential was committed, revoke or rotate it with its provider, remove it from the current tree, and assess history cleanup separately. Do not assume that adding an ignore rule removes an existing exposure.

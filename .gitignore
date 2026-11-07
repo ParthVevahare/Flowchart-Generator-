@@ -5,3 +5,51 @@ test-*.log
 .cache/
 test-results/
 mailing-list.csv
+
+# Local environment secrets (commit only sanitized templates).
+.env
+.env.*
+.envrc
+!.env.example
+!.env.sample
+!.env.template
+!.env.*.example
+
+# Private credentials and local authentication state.
+.secrets/
+secrets/
+credentials/
+.aws/
+.gcloud/
+.config/gcloud/
+application_default_credentials.json
+service-account*.json
+service_account*.json
+serviceAccount*.json
+*-firebase-adminsdk-*.json
+client_secret*.json
+client-secret*.json
+credentials.json
+credentials.local.*
+secrets.json
+secrets.local.*
+api-keys.json
+api_keys.json
+firebase-config.local.js
+.npmrc
+.netrc
+
+# Private keys and credential bundles.
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+id_rsa
+id_dsa
+id_ecdsa
+id_ed25519
+
+# firebase-config.js is public Firebase browser configuration.
+# Never put service-account credentials or server API secrets in browser code.

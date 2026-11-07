@@ -95,31 +95,53 @@ test('mobile controls are readable, touch sized, and fit without overflow',async
   const p=await open(t,{width:390,height:844});
   for(const width of [390,320]){
     await p.setViewportSize({width,height:844});
-    const result=await p.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,controls:['zi','zo','fit','fs','xp','pcb','exm','go','rs','th','lang','exs'].map(id=>{const e=document.getElementById(id),b=e.getBoundingClientRect();return{id,width:b.width,height:b.height,font:parseFloat(getComputedStyle(e).fontSize)};})}));
+    const result=await p.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,controls:['zi','zo','fit','fs','xp','pcb','exm','go','rs','th','editor-options'].map(id=>{const e=document.getElementById(id),b=e.getBoundingClientRect();return{id,width:b.width,height:b.height,font:parseFloat(getComputedStyle(e).fontSize)};})}));
     assert.equal(result.overflow,false);
     for(const b of result.controls){assert.ok(b.width>=44&&b.height>=44,`${width}: ${b.id} ${b.width}×${b.height}`);assert.ok(b.font>=12,`${b.id} ${b.font}px`);}
   }
 });
 
-test('PNG is a 300-DPI A4 page and SVG copy contains scalable vector markup',async t=>{
+test('PNG is a 300-DPI A4 page and SVG download contains scalable vector markup',async t=>{
   const p=await open(t);
   const dimensions=await p.evaluate(()=>new Promise(resolve=>canvas(c=>resolve([c.width,c.height]))));
   assert.deepEqual(dimensions,[2480,3508]);
-  await p.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.copiedSvg=text;}}}));
-  await p.locator('#exm').click();await p.getByRole('button',{name:'Copy SVG',exact:true}).click();
+  await p.evaluate(()=>{dl=async blob=>window.downloadedSvg=await blob.text();});
+  await p.locator('#exm').click();await p.locator('#eSvg').click();
+  await p.waitForFunction(()=>!!window.downloadedSvg);
   const svg=await p.evaluate(()=>{
-    const d=new DOMParser().parseFromString(window.copiedSvg,'image/svg+xml');
+    const d=new DOMParser().parseFromString(window.downloadedSvg,'image/svg+xml');
     return{error:!!d.querySelector('parsererror'),width:d.documentElement.getAttribute('width'),height:d.documentElement.getAttribute('height'),viewBox:d.documentElement.getAttribute('viewBox'),nodes:d.querySelectorAll('[data-node]').length,images:d.querySelectorAll('image').length};
   });
   assert.equal(svg.error,false);assert.equal(svg.width,'210mm');assert.equal(svg.height,'297mm');
   assert.equal(svg.viewBox,'0 0 794 1123');assert.ok(svg.nodes>3);assert.equal(svg.images,0);
-  assert.match(await p.locator('#toast').textContent(),/SVG copied/);
   const density=await p.evaluate(()=>new Promise(resolve=>canvas(async c=>{
     const b=new Uint8Array(await (await DiagramExport.png(c)).arrayBuffer()),v=new DataView(b.buffer);
     for(let o=8;o<b.length;o+=v.getUint32(o)+12){if(String.fromCharCode(...b.slice(o+4,o+8))==='pHYs')return resolve([v.getUint32(o+8),v.getUint32(o+12),b[o+16]]);}
     resolve(null);
   })));
   assert.deepEqual(density,[11811,11811,1],'PNG print density is 300 DPI');
+});
+
+test('editor options stay tucked away, escape cleanly, and preserve language/example actions',async t=>{
+ const p=await open(t),ta=p.locator('#ta'),source=await ta.inputValue(),options=p.getByRole('button',{name:'Language and examples',exact:true});
+ assert.equal(await p.locator('#lang').isVisible(),false);assert.equal(await p.locator('#exs').isVisible(),false);
+ assert.ok((await ta.boundingBox()).height>550,'collapsed options leave more room for source');
+ await options.click();assert.equal(await options.getAttribute('aria-expanded'),'true');
+ assert.ok(await p.getByRole('combobox',{name:'Source language'}).isVisible());
+ await p.keyboard.press('Escape');assert.equal(await p.locator('#lang').isVisible(),false);
+ assert.equal(await p.evaluate(()=>document.activeElement.id),'editor-options');assert.equal(await ta.inputValue(),source);
+ await options.click();await p.locator('#lang').focus();await p.keyboard.press('ArrowDown');await p.keyboard.press('ArrowDown');
+ assert.equal(await p.locator('#lang').inputValue(),'python');assert.ok(await p.locator('#lang').isVisible(),'keyboard selection keeps native options reachable');
+ await p.locator('#exs').selectOption('3');await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+ assert.notEqual(await ta.inputValue(),source);assert.equal(await p.locator('#lang').inputValue(),'auto');assert.equal(await p.locator('#exs').isVisible(),false);
+ await p.locator('#exm').click();assert.equal(await p.getByRole('button',{name:'Copy SVG',exact:true}).count(),0);assert.ok(await p.locator('#eSvg').isVisible());
+ assert.equal(await p.locator('.site-footer a').filter({hasText:'Flowchart Generator'}).count(),0);
+ for(const width of [390,320]){
+  await p.setViewportSize({width,height:844});assert.ok((await ta.boundingBox()).height>=360,'mobile source uses the freed space');await options.click();
+  const b=await p.locator('#editor-settings').boundingBox();assert.ok(b.x>=8&&b.x+b.width<=width-8);
+  for(const id of ['lang','exs'])assert.ok((await p.locator('#'+id).boundingBox()).height>=44);
+  await ta.click();assert.equal(await p.locator('#lang').isVisible(),false);
+ }
 });
 
 test('an old automatic layout cannot overwrite a newer generation',async t=>{

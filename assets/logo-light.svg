@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 128 128" role="img" aria-labelledby="title">
+  <title id="title">Code to Flowchart</title>
+  <rect x="3" y="3" width="122" height="122" rx="24" fill="#fff" stroke="#5b56d6" stroke-width="3"/>
+  <g fill="#5b56d6" color="#5b56d6">
+  <path d="M64 23 85 44 64 65 43 44Z"/>
+  <path d="M64 60v16M36 90V76h56v14" fill="none" stroke="currentColor" stroke-width="6"/>
+  <rect x="25" y="86" width="22" height="22" rx="5"/>
+  <rect x="81" y="86" width="22" height="22" rx="5"/>
+  </g>
+</svg>

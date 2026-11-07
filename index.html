@@ -1,9 +1,59 @@
 <!DOCTYPE html>
-<html lang="en"><head><meta charset="utf-8"><title>Code → Flowchart</title>
+<html lang="en"><head><meta charset="utf-8"><title>Free Online Flowchart Generator | Convert Code to Flowcharts</title>
+<meta name="description" content="Generate flowcharts from C/C++, Python and Java code online for free. Visualize programming logic, explore algorithms and export diagrams without signing in.">
+<link rel="canonical" href="https://parthvevahare.github.io/Flowchart-Generator-/">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Flowchart Generator">
+<meta property="og:title" content="Free Online Flowchart Generator | Convert Code to Flowcharts">
+<meta property="og:description" content="Generate flowcharts from C/C++, Python and Java code online for free. Visualize programming logic, explore algorithms and export diagrams without signing in.">
+<meta property="og:url" content="https://parthvevahare.github.io/Flowchart-Generator-/">
+<meta property="og:image" content="https://parthvevahare.github.io/Flowchart-Generator-/assets/logo-light.png">
+<meta property="og:image:width" content="1024">
+<meta property="og:image:height" content="1024">
+<meta property="og:image:alt" content="Flowchart Generator decision diamond logo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Free Online Flowchart Generator | Convert Code to Flowcharts">
+<meta name="twitter:description" content="Generate flowcharts from C/C++, Python and Java code online for free. Visualize programming logic, explore algorithms and export diagrams without signing in.">
+<meta name="twitter:image" content="https://parthvevahare.github.io/Flowchart-Generator-/assets/logo-light.png">
+<meta name="twitter:image:alt" content="Flowchart Generator decision diamond logo">
 <link id="app-favicon" rel="icon" type="image/svg+xml" href="assets/logo-light.svg">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="preconnect" href="https://abacus.jasoncameron.dev" crossorigin>
-<script src="syntax.js"></script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebSite",
+      "@id": "https://parthvevahare.github.io/Flowchart-Generator-/#website",
+      "url": "https://parthvevahare.github.io/Flowchart-Generator-/",
+      "name": "Flowchart Generator",
+      "alternateName": "Code to Flowchart",
+      "inLanguage": "en"
+    },
+    {
+      "@type": "WebApplication",
+      "@id": "https://parthvevahare.github.io/Flowchart-Generator-/#application",
+      "url": "https://parthvevahare.github.io/Flowchart-Generator-/",
+      "name": "Flowchart Generator",
+      "description": "Generate flowcharts from C/C++, Python and Java code online for free. Visualize programming logic, explore algorithms and export diagrams without signing in.",
+      "applicationCategory": "DeveloperApplication",
+      "operatingSystem": "Any",
+      "browserRequirements": "Requires a modern browser with JavaScript enabled.",
+      "isAccessibleForFree": true,
+      "inLanguage": "en",
+      "image": "https://parthvevahare.github.io/Flowchart-Generator-/assets/logo-light.png",
+      "featureList": [
+        "Flowcharts for a structured subset of C/C++, Python and Java",
+        "Algorithm and pseudocode views",
+        "SVG, PNG and PDF export",
+        "Optional private cloud code library"
+      ]
+    }
+  ]
+}
+</script>
 <link rel="stylesheet" href="library.css">
 <script id="interface-icons">
 // Local, hand-drawn line icons shared by static controls and live status updates.
@@ -102,14 +152,27 @@ button,#th,#exm,.field select{min-height:44px;font-size:12px}#th{min-width:44px;
 .brand-mark .brand-logo-dark{display:none}
 html[data-theme=dark] .brand-logo-light{display:none}
 html[data-theme=dark] .brand-logo-dark{display:block}
+
+/* Static guide uses the existing palette and leaves the editor workspace intact. */
+@media(min-width:861px){main{flex:0 0 auto;height:calc(100dvh - 120px)}}
+.brand-caption a,.tool-guide a,.site-footer a{color:var(--ac);text-underline-offset:3px}
+.brand-caption a:focus-visible,.tool-guide a:focus-visible,.site-footer a:focus-visible{outline:2px solid var(--ac);outline-offset:3px}
+.tool-guide{flex:none;width:100%;max-width:1000px;margin:12px auto 0;padding:30px 0;border-top:1px solid var(--bd);line-height:1.75;scroll-margin-top:20px}
+.tool-guide h2{font-size:22px;line-height:1.35;margin:0 0 16px;letter-spacing:-.4px}
+.tool-guide h3{font-size:17px;margin:26px 0 10px;line-height:1.4}
+.tool-guide p,.tool-guide ol,.tool-guide ul{margin:0 0 16px;max-width:78ch}
+.tool-guide li{margin:6px 0}.tool-guide nav,.site-footer nav{display:flex;flex-wrap:wrap;gap:8px 24px}
+.tool-guide nav a,.site-footer a{display:inline-flex;align-items:center;min-height:44px}
+.site-footer{flex:none;width:100%;max-width:1000px;margin:0 auto;padding:12px 0 24px;border-top:1px solid var(--bd)}
+@media(max-width:480px){.tool-guide{padding:24px 4px;font-size:14px}.tool-guide h2{font-size:20px}.site-footer{padding-left:4px}}
 </style></head><body>
 <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs><symbol id="icon-activity" viewBox="0 0 24 24"><path d="M3 17V11m6 6V7m6 10V4m6 13V9"/></symbol><symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 14.2A8.5 8.5 0 0 1 9.8 4a8.5 8.5 0 1 0 10.2 10.2Z"/></symbol><symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></symbol><symbol id="icon-flow" viewBox="0 0 24 24"><rect x="8" y="2.5" width="8" height="5" rx="1.5"/><path d="M12 7.5v4m-7 4v-4h14v4"/><rect x="1.5" y="15.5" width="7" height="6" rx="1.5"/><rect x="15.5" y="15.5" width="7" height="6" rx="1.5"/></symbol><symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1.8 7.2M4 4v6h6"/></symbol><symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><symbol id="icon-plus" viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></symbol><symbol id="icon-fit" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><rect x="7.5" y="7.5" width="9" height="9" rx="1"/></symbol><symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol><symbol id="icon-algorithm" viewBox="0 0 24 24"><path d="M9 5h12M9 12h12M9 19h12M3 4h1v3M3 11h2l-2 3h2M3 18h2v3H3"/></symbol><symbol id="icon-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6M14 3l-4 18"/></symbol><symbol id="icon-export" viewBox="0 0 24 24"><path d="M12 15V2m-4 4 4-4 4 4M4 13v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/></symbol><symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol><symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol><symbol id="icon-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/></symbol><symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M3 12h18m-6-6 6 6-6 6"/></symbol><symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol><symbol id="icon-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></symbol><symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol><symbol id="icon-signout" viewBox="0 0 24 24"><path d="M9 4H4v16h5m0-8h12m-4-4 4 4-4 4"/></symbol><symbol id="icon-filter" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M9 4v6m6 4v6"/></symbol><symbol id="icon-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3Zm3 0v6h10V3M7 21v-8h10v8"/></symbol></defs></svg>
 <header class="app-header">
-  <div class="brand"><div class="brand-mark" aria-hidden="true"><img class="brand-logo-light" src="assets/logo-light.svg" width="38" height="38" alt=""><img class="brand-logo-dark" src="assets/logo-dark.svg" width="38" height="38" alt=""></div><div><h1>Code to Flowchart</h1><div class="brand-caption">by Parth V</div></div></div>
+  <div class="brand"><div class="brand-mark" aria-hidden="true"><img class="brand-logo-light" src="assets/logo-light.svg" width="38" height="38" alt=""><img class="brand-logo-dark" src="assets/logo-dark.svg" width="38" height="38" alt=""></div><div><h1>Flowchart Generator</h1><div class="brand-caption">by Parth V · <a href="#about">How to use</a></div></div></div>
   <div class="header-actions"><span id="vc" class="vc" hidden></span><button id="library-toggle" aria-expanded="false" aria-controls="library-panel"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-code"/></svg><span>My Codes</span></button><button id="th"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-moon"/></svg><span>Dark</span></button></div>
 </header>
 <script id="visit-counter-mount">VisitCounter.mount(document.getElementById("vc"));</script>
-<main>
+<main id="generator" aria-label="Code to flowchart workspace">
   <section class="card" id="editor" aria-labelledby="source-title">
     <div class="panel-heading"><div><div class="panel-title"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-code"/></svg><h2 id="source-title">Source code</h2></div><p class="panel-description">Write or paste your program.</p></div><button id="rs" class="quiet"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-reset"/></svg><span>Reset</span></button></div>
     <div id="cloud-editor" class="cloud-editor" hidden>
@@ -119,19 +182,47 @@ html[data-theme=dark] .brand-logo-dark{display:block}
     </div>
     <div class="editor-settings"><label class="field">LANGUAGE<select id="lang" aria-label="Source language"><option value="auto">Auto-detect language</option><option value="c">C / C++</option><option value="python">Python</option><option value="java">Java</option></select></label><label class="field">EXAMPLES<select id="exs" aria-label="Load a code example"><option value="">Load example…</option><option value="0">C · loop + if/else + switch</option><option value="1">C++ · positive / negative</option><option value="2">C · while / do-while / break</option><option value="3">Python · loops + if/elif</option><option value="4">Python · functions</option><option value="5">Java · loop + switch</option></select></label></div>
     <div id="err" role="alert"></div>
-    <div class="ed"><div id="g" aria-hidden="true"></div><textarea id="ta" aria-label="Source code" aria-describedby="editor-help" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="off" placeholder="Paste your program here..."></textarea></div>
+    <div class="ed"><div id="g" aria-hidden="true"></div><textarea id="ta" aria-label="Source code" aria-describedby="editor-help" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="soft" placeholder="Paste your program here..."></textarea></div>
     <div class="editor-bottom"><div class="editor-action"><button class="pri" id="go"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><span>Generate Flowchart</span></button><span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span></div><details class="support-note"><summary>Supported syntax</summary><p id="editor-help">Tab and Shift+Tab move between controls. Ctrl/Command + ] inserts four spaces. Functions, assignments, input/output, conditions, loops, and C/Java switch statements. Unsupported syntax gets a line-specific error. Syntax checks do not execute your program or check variable types.</p></details></div>
   </section>
   <section class="card" id="pane" aria-labelledby="diagram-title">
-    <div class="panel-heading"><div><div class="panel-title"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><h2 id="diagram-title">Program flowchart</h2></div></div><div class="dd"><button id="exm" aria-expanded="false" aria-controls="mn"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-export"/></svg><span>Export</span><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-chevron"/></svg></button><div class="menu" id="mn" aria-label="Export options"><button id="ePng"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download PNG</span></button><button id="eSvg"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download SVG</span></button><button id="ePdf"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download PDF</span></button><button id="cp"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg><span>Copy image</span></button><button id="sh"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-share"/></svg><span>Share</span></button></div></div></div>
-    <div class="diagram-toolbar" role="toolbar" aria-label="Flowchart tools"><div class="toolbar-group" aria-label="Explanation panels"><button id="xp" aria-expanded="false" aria-controls="exp"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-algorithm"/></svg><span>Algorithm</span></button><button id="pcb" aria-expanded="false" aria-controls="ps"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-code"/></svg><span>Pseudocode</span></button></div><div class="toolbar-group view-controls" aria-label="Canvas view"><button id="zo" class="icon-only" aria-label="Zoom out" title="Zoom out"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-minus"/></svg></button><output id="zoom-level" aria-label="Zoom level">100%</output><button id="zi" class="icon-only" aria-label="Zoom in" title="Zoom in"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-plus"/></svg></button><span class="divider" aria-hidden="true"></span><button id="fit" class="icon-only" aria-label="Fit" title="Fit"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-fit"/></svg></button><button id="fs" class="icon-only" aria-label="Toggle fullscreen" title="Toggle fullscreen"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-expand"/></svg></button></div></div>
-    <div id="stage" tabindex="0" aria-label="Flowchart canvas. Use plus or minus to zoom, zero to fit, and arrow keys to pan."><div class="empty"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><strong>Your program, mapped out.</strong><span>Generate a flowchart to see the complete control flow here.</span></div></div>
+    <div class="panel-heading"><div><div class="panel-title"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><h2 id="diagram-title">Program flowchart</h2></div></div><div class="dd"><button id="exm" aria-expanded="false" aria-controls="mn"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-export"/></svg><span>Export</span><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-chevron"/></svg></button><div class="menu" id="mn" role="group" aria-label="Export options"><button id="ePng"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download PNG</span></button><button id="eSvg"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download SVG</span></button><button id="ePdf"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download PDF</span></button><button id="cp"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg><span>Copy image</span></button><button id="sh"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-share"/></svg><span>Share</span></button></div></div></div>
+    <div class="diagram-toolbar" role="toolbar" aria-label="Flowchart tools"><div class="toolbar-group" role="group" aria-label="Explanation panels"><button id="xp" aria-expanded="false" aria-controls="exp"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-algorithm"/></svg><span>Algorithm</span></button><button id="pcb" aria-expanded="false" aria-controls="ps"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-code"/></svg><span>Pseudocode</span></button></div><div class="toolbar-group view-controls" role="group" aria-label="Canvas view"><button id="zo" class="icon-only" aria-label="Zoom out" title="Zoom out"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-minus"/></svg></button><output id="zoom-level" aria-label="Zoom level">100%</output><button id="zi" class="icon-only" aria-label="Zoom in" title="Zoom in"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-plus"/></svg></button><span class="divider" aria-hidden="true"></span><button id="fit" class="icon-only" aria-label="Fit" title="Fit"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-fit"/></svg></button><button id="fs" class="icon-only" aria-label="Toggle fullscreen" title="Toggle fullscreen"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-expand"/></svg></button></div></div>
+    <div id="stage" role="region" tabindex="0" aria-label="Flowchart canvas. Use plus or minus to zoom, zero to fit, and arrow keys to pan."><div class="empty"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><strong>Your program, mapped out.</strong><span>Generate a flowchart to see the complete control flow here.</span></div></div>
     <div id="exp"><div id="exh"><b>Program algorithm</b><button id="cpa" class="icon-only" aria-label="Copy algorithm" title="Copy algorithm"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg></button></div><div id="exb"></div></div>
     <div id="ps"><div id="psh"><b>Program pseudocode</b><button id="cpp" class="icon-only" aria-label="Copy pseudocode" title="Copy pseudocode"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg></button></div><pre id="psb"></pre></div>
     <div id="chips"></div><div class="canvas-footer"><span id="chart-state" role="status" aria-live="polite">Ready to generate</span><span>Scroll to zoom <span aria-hidden="true">·</span> Drag to pan</span></div>
     <div id="ld" hidden><div class="sp"></div>Validating and mapping your program...</div>
   </section>
-</main><footer id="aff" hidden></footer><div id="toast" role="status" aria-live="polite"></div>
+</main>
+<section id="about" class="tool-guide" aria-labelledby="about-title">
+  <h2 id="about-title">Free online flowchart generator for code</h2>
+  <p>Flowchart Generator converts supported C/C++, Python and Java programs into diagrams you can read, explore and download. Use this code to flowchart tool to follow programming logic, study an algorithm or explain how a program works. Students can map classroom exercises, and programmers can trace conditions, loops and function calls.</p>
+  <nav aria-label="Generator guide"><a href="#how-it-works">How it works</a><a href="#supported-languages">Supported languages</a><a href="#features">Features</a><a href="#ta">Use the generator</a></nav>
+  <h3 id="how-it-works">How to generate a flowchart from code</h3>
+  <ol>
+    <li>Paste your program into the Source code editor above, or choose a built-in example.</li>
+    <li>Select C / C++, Python or Java, or leave the language set to Auto-detect.</li>
+    <li>Choose <strong>Generate Flowchart</strong> or press Ctrl/Command + Enter. If the tool reports a syntax error or unsupported construct, check the indicated line and try again.</li>
+    <li>Zoom and pan to inspect the diagram, open Algorithm or Pseudocode, then use Export to download an SVG, PNG or PDF.</li>
+  </ol>
+  <h3 id="supported-languages">Supported programming languages and syntax</h3>
+  <p>The generator supports a structured subset of <strong>C/C++</strong>, <strong>Python</strong> and <strong>Java</strong>: assignments, input and output, conditions, loops, function calls and returns. C/C++ functions, Java methods in simple class containers, and Python functions or top-level scripts can be mapped. Conventional switch/case and do/while are supported for C/C++ and Java.</p>
+  <p>This tool analyzes syntax and control flow in your browser; it does not execute your code or act as a compiler. Advanced constructs such as inheritance, exceptions, Python comprehensions and function overloading need simplification. Undefined names, type errors and runtime behavior are not fully checked. Inputs are limited to 50,000 characters, 20 functions and 500 flowchart steps, with additional token, nesting and call-link limits to keep diagrams responsive.</p>
+  <h3 id="features">Explore, explain and save your program</h3>
+  <ul>
+    <li><strong>See the complete program:</strong> function sections and dashed call links help you follow the path between an entry point and its helpers.</li>
+    <li><strong>Understand an algorithm:</strong> compare the chart with algorithm steps and pseudocode. Branches show decisions; loop paths show where a sequence repeats.</li>
+    <li><strong>Share a diagram:</strong> export SVG for scalable graphics, PNG for an image, or PDF for a document.</li>
+    <li><strong>Work without an account:</strong> generate and export flowcharts as a guest. Optional Google Sign-In enables My Codes, a private cloud library with autosave, search, favorites and recoverable Trash.</li>
+  </ul>
+  <p>Flowcharts help make a program's structure easier to discuss and review. Check the generated diagram against your source code, especially before using it in coursework or documentation.</p>
+  <p><a href="#ta">Convert your code to a flowchart</a> — paste a program or start with an example.</p>
+  <noscript><p>JavaScript is required to generate diagrams and use My Codes. You can still read this guide and the policy pages with JavaScript disabled.</p></noscript>
+</section>
+<footer class="site-footer"><nav aria-label="Site information"><a href="./">Flowchart Generator</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav></footer>
+<footer id="aff" hidden></footer><div id="toast" role="status" aria-live="polite"></div>
+<script src="syntax.js"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 /* ===== SITE SETTINGS — fill these in before deploying ===== */

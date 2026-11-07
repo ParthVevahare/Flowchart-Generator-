@@ -1,0 +1,45 @@
+# Flowchart Generator interface
+
+This is a task-focused code playground. Preserve the existing restrained
+interface, compact controls, and space for source code and generated diagrams.
+Runtime CSS variables in `index.html` are the canonical token source; this file
+documents their roles rather than generating a second token system.
+
+## Existing visual language
+
+Use the application's light/dark `--surface`, `--editor`, `--tx`, `--mu`, `--bd`
+and purple `--ac` roles. Reuse the SVG symbol library, native buttons and native
+selects. Language and Examples use platform-owned select popups inside the
+native top-layer editor-options popover. Keep source and diagram panels in the
+established desktop columns and mobile stack. Keep focus indicators visible.
+
+## Code color roles
+
+Color should help readers recognize syntax without changing the source or
+token widths. Token fonts, weight, spacing and line height match the textarea.
+
+| Role | Light | Dark |
+| --- | --- | --- |
+| Keywords, booleans | `#6f42c1` | `#c4a5ff` |
+| Strings, characters | `#137333` | `#a8d594` |
+| Comments | `#657080` | `#9ba6bb` |
+| Numbers | `#b54708` | `#f4bd7b` |
+| Functions, builtins | `#075ead` | `#86c5ff` |
+| Operators, punctuation | `#475569` | `#c3ccdb` |
+| Types, constants | `#8c3b12` | `#f6ca92` |
+| Directives, annotations | `#a02753` | `#f3a7cb` |
+
+## Editor behavior
+
+The native textarea owns editing, caret, selection, undo, clipboard, keyboard
+input and accessibility. The colored mirror is `aria-hidden`, noninteractive,
+and synchronized to the textarea's client dimensions and both scroll axes.
+Its padding and font metrics must remain identical to the textarea's.
+Selected language takes precedence over automatic detection. Theme switching
+only changes CSS colors. Forced-colors mode exposes native text instead.
+
+Highlighting is presentation only: it never executes source or changes parser
+validation. Invalid/incomplete code stays editable. Missing highlighting
+assets and programs above 100,000 characters fall back to escaped plain text.
+Verify tokens at WCAG AA contrast, language changes, raw source preservation,
+scroll alignment, example/reset/cloud loading, and mobile sizing.

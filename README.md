@@ -15,6 +15,7 @@ Use Node.js 24.12+ for the full suite. Run `npm ci`, `npm test`, `npm run test:u
 ## Workspace
 
 - Paste code or choose an example, open **Language and examples** (the sliders button) when needed, and choose **Generate Flowchart** (Ctrl/Cmd + Enter).
+- The source editor colors keywords, strings, comments, numbers and function names for C/C++, Python and Java. Highlighting follows the selected or detected language and adapts to light/dark mode. Editing and copying preserve the exact original source.
 - The complete program appears on one A4 canvas. Its entry point and helper functions each have a labeled section. Calls to known helpers use subprocess shapes; hover over a node for its call references. `RETURN` resumes at the calling step. Recursive functions are drawn once, and helper references are not drawn as execution paths between functions.
 - Zoom, fit, pan, or enter fullscreen. When the canvas has keyboard focus, use `+`/`-` to zoom, `0` to fit, and arrow keys to pan.
 - Algorithm and pseudocode panels cover all functions. Export the complete chart as SVG, PNG, or PDF.

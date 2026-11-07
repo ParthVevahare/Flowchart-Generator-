@@ -6,7 +6,7 @@ const path = require('node:path');
 const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const app=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function parseC('));
-const context=vm.createContext({console,FlowGraph:require('../flowchart.js')});
+const context=vm.createContext({console,FlowGraph:require('../flowchart.js'),CodeColors:require('../code-colors.js')});
 vm.runInContext(fs.readFileSync(path.join(root,'syntax.js'),'utf8'),context);
 vm.runInContext(app.slice(0,app.indexOf('/* ---------- app ---------- */'))+'\nglobalThis.api={parse,EX,buildProgram,pseudo,detect};',context);
 const {parse,EX,buildProgram,pseudo,detect}=context.api;

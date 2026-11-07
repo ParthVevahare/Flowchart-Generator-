@@ -174,6 +174,26 @@ html[data-theme=dark] .brand-logo-dark{display:block}
 #editor-settings select{font-size:12px;min-height:44px;width:100%;padding:9px;background:var(--soft)}
 .option-label{display:flex;align-items:center;gap:7px;color:var(--tx)}
 .option-label .icon{color:var(--mu)}
+
+:root{--syntax-keyword:#6f42c1;--syntax-string:#137333;--syntax-comment:#657080;--syntax-number:#b54708;--syntax-function:#075ead;--syntax-operator:#475569;--syntax-type:#8c3b12;--syntax-directive:#a02753}
+html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-comment:#9ba6bb;--syntax-number:#f4bd7b;--syntax-function:#86c5ff;--syntax-operator:#c3ccdb;--syntax-type:#f6ca92;--syntax-directive:#f3a7cb}
+.code-input{position:relative;display:flex;flex:1;min-width:0;min-height:0;overflow:hidden;background:var(--editor)}
+#code-colors{position:absolute;top:0;left:0;margin:0;border:0;box-sizing:border-box;padding:17px 18px 17px 8px;font:inherit;white-space:pre;tab-size:4;overflow:hidden;pointer-events:none;user-select:none;color:var(--tx);background:var(--editor);visibility:hidden}
+#code-tokens{font:inherit;white-space:inherit;tab-size:inherit}
+.syntax-ready #code-colors{visibility:visible}
+.syntax-ready #ta{position:relative;z-index:1;background:transparent;color:transparent;-webkit-text-fill-color:transparent;caret-color:var(--ac)}
+.syntax-ready #ta::placeholder{color:var(--mu);-webkit-text-fill-color:var(--mu)}
+.syntax-ready #ta::selection{color:transparent;-webkit-text-fill-color:transparent;background:rgba(122,104,215,.2)}
+#code-tokens .token{font-weight:inherit;font-style:normal}
+#code-tokens .keyword,#code-tokens .boolean{color:var(--syntax-keyword)}
+#code-tokens .string,#code-tokens .char{color:var(--syntax-string)}
+#code-tokens .comment{color:var(--syntax-comment)}
+#code-tokens .number{color:var(--syntax-number)}
+#code-tokens .function,#code-tokens .builtin{color:var(--syntax-function)}
+#code-tokens .operator,#code-tokens .punctuation{color:var(--syntax-operator)}
+#code-tokens .class-name,#code-tokens .constant{color:var(--syntax-type)}
+#code-tokens .macro,#code-tokens .directive,#code-tokens .annotation,#code-tokens .decorator{color:var(--syntax-directive)}
+@media(forced-colors:active){.syntax-ready #code-colors{visibility:hidden}.syntax-ready #ta{color:CanvasText;-webkit-text-fill-color:CanvasText}.syntax-ready #ta::selection{color:HighlightText;-webkit-text-fill-color:HighlightText;background:Highlight}}
 </style></head><body>
 <svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs><symbol id="icon-activity" viewBox="0 0 24 24"><path d="M3 17V11m6 6V7m6 10V4m6 13V9"/></symbol><symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 14.2A8.5 8.5 0 0 1 9.8 4a8.5 8.5 0 1 0 10.2 10.2Z"/></symbol><symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></symbol><symbol id="icon-flow" viewBox="0 0 24 24"><rect x="8" y="2.5" width="8" height="5" rx="1.5"/><path d="M12 7.5v4m-7 4v-4h14v4"/><rect x="1.5" y="15.5" width="7" height="6" rx="1.5"/><rect x="15.5" y="15.5" width="7" height="6" rx="1.5"/></symbol><symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1.8 7.2M4 4v6h6"/></symbol><symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><symbol id="icon-plus" viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></symbol><symbol id="icon-fit" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><rect x="7.5" y="7.5" width="9" height="9" rx="1"/></symbol><symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol><symbol id="icon-algorithm" viewBox="0 0 24 24"><path d="M9 5h12M9 12h12M9 19h12M3 4h1v3M3 11h2l-2 3h2M3 18h2v3H3"/></symbol><symbol id="icon-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6M14 3l-4 18"/></symbol><symbol id="icon-export" viewBox="0 0 24 24"><path d="M12 15V2m-4 4 4-4 4 4M4 13v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/></symbol><symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol><symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol><symbol id="icon-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/></symbol><symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M3 12h18m-6-6 6 6-6 6"/></symbol><symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol><symbol id="icon-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></symbol><symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol><symbol id="icon-signout" viewBox="0 0 24 24"><path d="M9 4H4v16h5m0-8h12m-4-4 4 4-4 4"/></symbol><symbol id="icon-filter" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M9 4v6m6 4v6"/></symbol><symbol id="icon-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3Zm3 0v6h10V3M7 21v-8h10v8"/></symbol></defs></svg>
 <header class="app-header">
@@ -191,7 +211,7 @@ html[data-theme=dark] .brand-logo-dark{display:block}
     </div>
     <div class="editor-settings" id="editor-settings" popover="auto" role="dialog" aria-label="Language and examples"><label class="field"><span class="option-label"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/></svg>Language</span><select id="lang" aria-label="Source language"><option value="auto">Auto-detect language</option><option value="c">C / C++</option><option value="python">Python</option><option value="java">Java</option></select></label><label class="field"><span class="option-label"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-code"/></svg>Examples</span><select id="exs" aria-label="Load a code example"><option value="">Load example…</option><option value="0">C · loop + if/else + switch</option><option value="1">C++ · positive / negative</option><option value="2">C · while / do-while / break</option><option value="3">Python · loops + if/elif</option><option value="4">Python · functions</option><option value="5">Java · loop + switch</option></select></label></div>
     <div id="err" role="alert"></div>
-    <div class="ed"><div id="g" aria-hidden="true"></div><textarea id="ta" aria-label="Source code" aria-describedby="editor-help" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="soft" placeholder="Paste your program here..."></textarea></div>
+    <div class="ed"><div id="g" aria-hidden="true"></div><div class="code-input"><pre id="code-colors" aria-hidden="true"><code id="code-tokens"></code></pre><textarea id="ta" aria-label="Source code" aria-describedby="editor-help" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="soft" placeholder="Paste your program here..."></textarea></div></div>
     <div class="editor-bottom"><div class="editor-action"><button class="pri" id="go"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><span>Generate Flowchart</span></button><span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span></div><details class="support-note"><summary>Supported syntax</summary><p id="editor-help">Tab and Shift+Tab move between controls. Ctrl/Command + ] inserts four spaces. Functions, assignments, input/output, conditions, loops, and C/Java switch statements. Unsupported syntax gets a line-specific error. Syntax checks do not execute your program or check variable types.</p></details></div>
   </section>
   <section class="card" id="pane" aria-labelledby="diagram-title">
@@ -216,6 +236,8 @@ html[data-theme=dark] .brand-logo-dark{display:block}
 <footer class="site-footer"><nav aria-label="Site information"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav></footer>
 <footer id="aff" hidden></footer><div id="toast" role="status" aria-live="polite"></div>
 <script src="syntax.js"></script>
+<script src="vendor/prism-code.js"></script>
+<script src="code-colors.js"></script>
 <script src="vendor/elk.bundled.js"></script>
 <script src="flowchart.js"></script>
 <script src="diagram-export.js"></script>
@@ -833,7 +855,7 @@ if(PS.fdiv)n.push('"//" is floor division (rounds down to a whole number).');
 if(n.length){L.push('');n.forEach(x=>L.push('// Note: '+x))}
 return L.join('\n')}
 function detect(src) {
-  const text=src.replace(/"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g,'""').replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,'');
+  const text=typeof CodeColors!=='undefined'?CodeColors.mask(src):src.replace(/"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g,'""').replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,'');
   if(/^\s*#\s*(include|define)\b/m.test(text))return 'c';
   const clean=text.replace(/#[^\n]*/g,'');
   if(/\bSystem\s*\.\s*(out|in|err)\b|\b(?:public|private|protected)\s+(?:static\s+)?(?:class|void|int|String|boolean)\b|^\s*(?:import|package)\s+java\./m.test(clean)||/\bclass\s+\w+[^;\n{]*\{/.test(clean))return 'java';
@@ -845,7 +867,20 @@ function detect(src) {
 const LN2={c:'C / C++',python:'Python',java:'Java'};
 const ta=$('ta'),g=$('g'),stage=$('stage');let charts=[],cur=0,V={k:1,x:0,y:0},vp=null,generation=0;
 const toast=m=>{const t=$('toast');t.textContent=m;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1800)};
-function gut(el){g.innerHTML=ta.value.split('\n').map((_,i)=>`<div${i+1==el?' class="e"':''}>${i+1}</div>`).join('')}
+const codeColors=$('code-colors'),codeTokens=$('code-tokens');
+function syncCodeColors(){
+  codeColors.style.width=ta.clientWidth+'px';codeColors.style.height=ta.clientHeight+'px';
+  codeColors.scrollTop=ta.scrollTop;codeColors.scrollLeft=ta.scrollLeft;
+}
+function renderCodeColors(){
+  if(typeof CodeColors==='undefined')return;
+  const lang=$('lang').value==='auto'?(ta.value.length>100000?'plain':detect(ta.value)):$('lang').value;
+  codeTokens.innerHTML=CodeColors.highlight(ta.value,lang)+'\n';codeTokens.dataset.language=lang;
+  ta.parentElement.classList.add('syntax-ready');syncCodeColors();
+}
+function gut(el){g.innerHTML=ta.value.split('\n').map((_,i)=>`<div${i+1==el?' class="e"':''}>${i+1}</div>`).join('');renderCodeColors();}
+if(typeof ResizeObserver!=='undefined')new ResizeObserver(syncCodeColors).observe(ta);
+
 let resetSnapshot=null;
 function clearError(){ $('err').style.display='none';ta.removeAttribute('aria-invalid');ta.setAttribute('aria-describedby','editor-help'); }
 function clearReset(){resetSnapshot=null;$('rs').querySelector('span').textContent='Reset';}
@@ -855,7 +890,7 @@ function restoreSource(){
   ta.value=saved.source;$('lang').value=saved.lang;clearError();gut();ta.focus();
   ta.setSelectionRange(saved.start,saved.end);ta.scrollTop=saved.scroll;g.scrollTop=ta.scrollTop;
 }
-ta.oninput=()=>{clearReset();invalidate('Code changed. Generate to update.');gut();clearError();};ta.onscroll=()=>g.scrollTop=ta.scrollTop;
+ta.oninput=()=>{clearReset();invalidate('Code changed. Generate to update.');gut();clearError();};ta.onscroll=()=>{g.scrollTop=ta.scrollTop;syncCodeColors();};
 ta.onkeydown=e=>{
   if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&resetSnapshot&&!ta.value){e.preventDefault();restoreSource();}
   else if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();gen();}
@@ -919,7 +954,7 @@ editorSettings.addEventListener('beforetoggle',e=>{editorOptions.setAttribute('a
 editorSettings.addEventListener('toggle',e=>{if(e.newState==='open')positionEditorOptions();});
 editorOptions.onclick=e=>{e.preventDefault();editorSettings.togglePopover();positionEditorOptions();};
 window.addEventListener('resize',positionEditorOptions);
-$('lang').onchange=()=>{invalidate('Language changed. Generate to update.');clearError();};
+$('lang').onchange=()=>{invalidate('Language changed. Generate to update.');clearError();renderCodeColors();};
 $('rs').onclick=()=>{
   if(resetSnapshot&&!ta.value){restoreSource();return;}
   if(ta.value){resetSnapshot={source:ta.value,lang:$('lang').value,start:ta.selectionStart,end:ta.selectionEnd,scroll:ta.scrollTop};$('rs').querySelector('span').textContent='Restore';}

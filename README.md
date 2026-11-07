@@ -14,10 +14,10 @@ Use Node.js 24.12+ for the full suite. Run `npm ci`, `npm test`, `npm run test:u
 
 ## Workspace
 
-- Paste code or choose an example, select its language, and choose **Generate Flowchart** (Ctrl/Cmd + Enter).
+- Paste code or choose an example, open **Language and examples** (the sliders button) when needed, and choose **Generate Flowchart** (Ctrl/Cmd + Enter).
 - The complete program appears on one A4 canvas. Its entry point and helper functions each have a labeled section. Calls to known helpers use subprocess shapes; hover over a node for its call references. `RETURN` resumes at the calling step. Recursive functions are drawn once, and helper references are not drawn as execution paths between functions.
 - Zoom, fit, pan, or enter fullscreen. When the canvas has keyboard focus, use `+`/`-` to zoom, `0` to fit, and arrow keys to pan.
-- Algorithm and pseudocode panels cover all functions. Export the complete chart as SVG, PNG, or PDF, or choose **Copy SVG** to copy the vector markup directly.
+- Algorithm and pseudocode panels cover all functions. Export the complete chart as SVG, PNG, or PDF.
 - Exports use A4 portrait proportions and 10 mm margins without stretching shapes. SVG is resolution independent; PNG is 2480 × 3508 with 300-DPI print metadata; PDF places that high-resolution page on A4. Very large programs fit on one page with smaller text; SVG remains sharp when enlarged.
 - Editing or resetting code invalidates the previous result and disables export until the next successful generation.
 

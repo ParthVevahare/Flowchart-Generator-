@@ -100,3 +100,54 @@ test('mobile controls are readable, touch sized, and fit without overflow',async
     for(const b of result.controls){assert.ok(b.width>=44&&b.height>=44,`${width}: ${b.id} ${b.width}×${b.height}`);assert.ok(b.font>=12,`${b.id} ${b.font}px`);}
   }
 });
+
+test('PNG is a 300-DPI A4 page and SVG copy contains scalable vector markup',async t=>{
+  const p=await open(t);
+  const dimensions=await p.evaluate(()=>new Promise(resolve=>canvas(c=>resolve([c.width,c.height]))));
+  assert.deepEqual(dimensions,[2480,3508]);
+  await p.evaluate(()=>Object.defineProperty(navigator,'clipboard',{configurable:true,value:{writeText:async text=>{window.copiedSvg=text;}}}));
+  await p.locator('#exm').click();await p.getByRole('button',{name:'Copy SVG',exact:true}).click();
+  const svg=await p.evaluate(()=>{
+    const d=new DOMParser().parseFromString(window.copiedSvg,'image/svg+xml');
+    return{error:!!d.querySelector('parsererror'),width:d.documentElement.getAttribute('width'),height:d.documentElement.getAttribute('height'),viewBox:d.documentElement.getAttribute('viewBox'),nodes:d.querySelectorAll('[data-node]').length,images:d.querySelectorAll('image').length};
+  });
+  assert.equal(svg.error,false);assert.equal(svg.width,'210mm');assert.equal(svg.height,'297mm');
+  assert.equal(svg.viewBox,'0 0 794 1123');assert.ok(svg.nodes>3);assert.equal(svg.images,0);
+  assert.match(await p.locator('#toast').textContent(),/SVG copied/);
+  const density=await p.evaluate(()=>new Promise(resolve=>canvas(async c=>{
+    const b=new Uint8Array(await (await DiagramExport.png(c)).arrayBuffer()),v=new DataView(b.buffer);
+    for(let o=8;o<b.length;o+=v.getUint32(o)+12){if(String.fromCharCode(...b.slice(o+4,o+8))==='pHYs')return resolve([v.getUint32(o+8),v.getUint32(o+12),b[o+16]]);}
+    resolve(null);
+  })));
+  assert.deepEqual(density,[11811,11811,1],'PNG print density is 300 DPI');
+});
+
+test('an old automatic layout cannot overwrite a newer generation',async t=>{
+  const p=await open(t);
+  await p.evaluate(()=>{
+    const actual=FlowGraph.layout;let release;
+    window.layoutStarted=false;window.releaseLayout=()=>release();
+    FlowGraph.layout=async graph=>{
+      const old=!window.layoutStarted;
+      if(old){window.layoutStarted=true;await new Promise(r=>release=r);}
+      const result=await actual(graph);if(old)window.oldLayoutFinished=true;return result;
+    };
+  });
+  await p.locator('#ta').fill('int main(){printf("OLD");return 0;}');await p.locator('#go').click();
+  await p.waitForFunction(()=>window.layoutStarted);
+  await p.locator('#ta').fill('int main(){printf("NEW");return 0;}');await p.locator('#go').click();
+  await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+  await p.evaluate(()=>window.releaseLayout());
+  await p.waitForFunction(()=>window.oldLayoutFinished);
+  assert.match(await p.locator('#stage').textContent(),/NEW/);assert.doesNotMatch(await p.locator('#stage').textContent(),/OLD/);
+});
+test('long function headings stay inside their section and A4 bounds',async t=>{
+ const p=await open(t),name='W'.repeat(45);
+ await p.locator('#ta').fill('int '+name+'(){return 1;}int main(){return 0;}');await p.locator('#go').click();
+ await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+ const bounds=await p.evaluate(()=>[...document.querySelectorAll('#stage [data-function]')].map(g=>{
+   const rect=g.querySelector('rect').getBBox(),title=g.querySelector('text').getBBox();
+   return{left:title.x,right:title.x+title.width,width:rect.width};
+ }));
+ for(const b of bounds)assert.ok(b.left>=10&&b.right<=b.width-10,JSON.stringify(b));
+});

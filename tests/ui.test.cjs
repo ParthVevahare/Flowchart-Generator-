@@ -38,7 +38,8 @@ test('normal text contrast passes in both themes and primary hover',async t=>{
       if(hover)await p.locator('#go').hover();else await p.mouse.move(0,0);
       const pairs=await p.evaluate(()=>{
         const style=e=>getComputedStyle(e),ta=document.getElementById('ta'),go=style(document.getElementById('go'));
-        return [[go.color,go.backgroundColor],[style(document.querySelector('.brand-caption')).color,style(document.body).backgroundColor],[getComputedStyle(ta,'::placeholder').color,style(ta).backgroundColor],[style(document.getElementById('g')).color,style(ta).backgroundColor]];
+        const editorBackground=style(ta.parentElement).backgroundColor;
+        return [[go.color,go.backgroundColor],[style(document.querySelector('.brand-caption')).color,style(document.body).backgroundColor],[getComputedStyle(ta,'::placeholder').color,editorBackground],[style(document.getElementById('g')).color,editorBackground]];
       });
       for(const [fg,bg]of pairs){
         const lum=c=>c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
@@ -172,4 +173,37 @@ test('long function headings stay inside their section and A4 bounds',async t=>{
    return{left:title.x,right:title.x+title.width,width:rect.width};
  }));
  for(const b of bounds)assert.ok(b.left>=10&&b.right<=b.width-10,JSON.stringify(b));
+});
+
+test('syntax colors follow language, preserve typing and track both scroll directions',async t=>{
+ const p=await open(t),source='int main(){\n // comment\n printf("hello");\n return 42;\n}\n';
+ await p.locator('#ta').fill(source);
+ await p.waitForFunction(()=>document.querySelector('#code-tokens .token.keyword'));
+ assert.equal(await p.locator('#ta').inputValue(),source);assert.equal(await p.locator('#code-colors').getAttribute('aria-hidden'),'true');
+ for(const token of ['keyword','string','number','comment'])assert.ok(await p.locator('#code-tokens .token.'+token).count());
+ await p.locator('#ta').focus();await p.locator('#ta').evaluate(e=>e.setSelectionRange(e.value.length,e.value.length));await p.keyboard.type('// typing');
+ assert.equal(await p.locator('#ta').inputValue(),source+'// typing');
+ await p.locator('#ta').fill(('int value = 42; '+'x'.repeat(250)+'\n').repeat(100));
+ await p.evaluate(()=>{const e=document.getElementById('ta');e.scrollTop=900;e.scrollLeft=10000;e.dispatchEvent(new Event('scroll'));});
+ const metrics=await p.evaluate(()=>{const a=document.getElementById('ta'),b=document.getElementById('code-colors');return{top:[a.scrollTop,b.scrollTop],left:[a.scrollLeft,b.scrollLeft],width:[a.clientWidth,b.clientWidth],font:[getComputedStyle(a).font,getComputedStyle(b).font]};});
+ assert.deepEqual(metrics.top,[900,900]);assert.ok(metrics.left[0]>0);assert.equal(metrics.left[0],metrics.left[1]);assert.equal(metrics.width[0],metrics.width[1]);assert.equal(metrics.font[0],metrics.font[1]);
+ await p.locator('#ta').fill('def hello():\n    return "world"\n');await p.locator('#editor-options').click();await p.locator('#lang').selectOption('python');
+ await p.waitForFunction(()=>document.getElementById('code-tokens').dataset.language==='python');assert.ok(await p.locator('#code-tokens .token.keyword').count());
+ const before=await p.locator('#code-tokens .token.keyword').first().evaluate(e=>getComputedStyle(e).color);await p.evaluate(()=>setTh(true));
+ const after=await p.locator('#code-tokens .token.keyword').first().evaluate(e=>getComputedStyle(e).color);assert.notEqual(before,after);
+});
+
+test('syntax tokens have readable contrast in both themes and safely display HTML-like strings',async t=>{
+ const p=await open(t);
+ await p.locator('#ta').fill('int main(){ // comment\n printf("<img src=x onerror=alert(1)>"); return 42; }');
+ await p.waitForFunction(()=>document.querySelector('#code-tokens .token.string'));
+ assert.equal(await p.locator('#code-tokens img').count(),0);
+ for(const dark of [false,true]){
+  await p.evaluate(d=>setTh(d),dark);
+  const pairs=await p.evaluate(()=>[...document.querySelectorAll('#code-tokens .token')].map(e=>[getComputedStyle(e).color,getComputedStyle(document.getElementById('code-colors')).backgroundColor]));
+  for(const [fg,bg]of pairs){
+   const lum=c=>c.match(/[\d.]+/g).slice(0,3).map(Number).map(v=>v/255).map(v=>v<=.04045?v/12.92:((v+.055)/1.055)**2.4).reduce((n,v,i)=>n+v*[.2126,.7152,.0722][i],0);
+   const [lo,hi]=[lum(fg),lum(bg)].sort((a,b)=>a-b);assert.ok((hi+.05)/(lo+.05)>=4.5,`${dark?'dark':'light'} ${fg} on ${bg}`);
+  }
+ }
 });

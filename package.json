@@ -2,7 +2,7 @@
   "name": "code-to-flowchart",
   "private": true,
   "scripts": {
-    "test": "node --test tests/core.test.cjs tests/flowchart.test.cjs tests/library.test.cjs",
+    "test": "node --test tests/core.test.cjs tests/flowchart.test.cjs tests/code-colors.test.cjs tests/library.test.cjs",
     "test:ui": "node --test tests/ui.test.cjs tests/library-ui.test.cjs tests/seo.test.cjs",
     "test:rules": "firebase emulators:exec --only firestore --project demo-flowchart-library \"node --test tests/firestore.test.cjs\""
   },

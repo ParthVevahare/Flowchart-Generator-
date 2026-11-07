@@ -8,7 +8,7 @@ Sitemap: https://parthvevahare.github.io/Flowchart-Generator-/sitemap.xml
 
 The sitemap contains the homepage, `privacy.html` and `terms.html`. The directory URL is canonical; `index.html`, fragments, the Google verification file and private library records are not sitemap entries. There are no separate login/account routes. My Codes loads account-scoped data through Firebase and must continue to use the existing Firestore access rules. Robots directives are not an access-control mechanism.
 
-All three public pages have unique titles/descriptions, absolute canonical URLs, indexing directives, Open Graph and Twitter card tags. Social cards reuse `assets/logo-light.png` (1024 × 1024). The homepage contains static, visible usage and supported-language content plus WebSite and WebApplication JSON-LD. No ratings, reviews, company information, breadcrumb hierarchy or prices are invented. Free use is described by `isAccessibleForFree`; this does not promise eligibility for Google's software rich results.
+All three public pages have unique titles/descriptions, absolute canonical URLs, indexing directives, Open Graph and Twitter card tags. Social cards reuse `assets/logo-light.png` (1024 × 1024). The homepage contains a short, three-step help dialog with SVG explanations, opened using How to use, plus WebSite and WebApplication JSON-LD. Help content is present in the initial HTML; the dialog is closed until requested. No ratings, reviews, company information, breadcrumb hierarchy or prices are invented. Free use is described by `isAccessibleForFree`; this does not promise eligibility for Google's software rich results.
 
 Keep the existing `G-8VGN06RJCS` Analytics initializer and `googlefde98e9521e001da.html` verification file. Do not add another Analytics loader or verification method. Legal-page policy text has not been changed by this SEO update.
 
@@ -27,7 +27,7 @@ The sitemap can be submitted directly to Search Console without that line. Do no
 ## Post-deployment checks
 
 1. Confirm the homepage, both policy pages, sitemap and `assets/logo-light.png` return HTTP 200 over HTTPS under `/Flowchart-Generator-/`.
-2. View the homepage source and confirm the new title, canonical link, JSON-LD and visible guide are present. Check that no HTTP `X-Robots-Tag: noindex` or blocking hostname-root robots rule has appeared.
+2. View the homepage source and confirm the new title, canonical link, JSON-LD and help dialog are present. Check that no HTTP `X-Robots-Tag: noindex` or blocking hostname-root robots rule has appeared.
 3. Confirm the existing Google verification file still returns its original content.
 4. Generate a chart, test export, and check Google Sign-In and an existing saved program with your own account. Automated tests use isolated fixtures/emulators, not your production account.
 5. Review Core Web Vitals in Search Console when sufficient real-user data is available. Local layout and interaction tests do not establish field LCP, INP or CLS scores. GitHub Pages controls HTTP caching; there is no unsupported cache-header configuration in this repository.
@@ -54,4 +54,4 @@ npm run test:ui
 npm run test:rules
 ```
 
-The browser suite includes `tests/seo.test.cjs`: JavaScript-disabled content, metadata, XML/JSON-LD parsing, canonical agreement, base-path links/assets, fragment navigation and mobile/short-desktop layout. Static checks disable page JavaScript; interactive checks intercept external requests so automated runs do not affect production Analytics or the visit counter. Existing library tests exercise sign-in transitions, autosave, recovery and account switching with fixtures; Firestore tests verify access rules using an isolated demo project.
+The browser suite includes `tests/seo.test.cjs`: JavaScript-disabled content, metadata, XML/JSON-LD parsing, canonical agreement, base-path links/assets, help opening, step navigation, Escape/focus behavior and a popup that fits mobile/landscape screens without scrolling. Static checks disable page JavaScript; interactive checks intercept external requests so automated runs do not affect production Analytics or the visit counter. Existing library tests exercise sign-in transitions, autosave, recovery and account switching with fixtures; Firestore tests verify access rules using an isolated demo project.

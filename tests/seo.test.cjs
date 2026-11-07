@@ -35,9 +35,9 @@ test('public pages expose unique metadata, crawlable content and working links w
       assert.equal(await p.locator('h1').count(),1);
       assert.equal(await p.locator('link[rel="icon"]').count(),1);
       if(!file){
-        await p.locator('#about').waitFor({state:'visible'});
-        assert.match(await p.locator('#about').innerText(),/C\/C\+\+.*Python.*Java/s);
-        assert.ok((await p.locator('#about').innerText()).length>1000);
+        assert.equal(await p.locator('#about').count(),0);
+        assert.equal(await p.locator('#how-to-use').isVisible(),false);
+        assert.match(await p.locator('#how-to-use').textContent(),/C\/C\+\+.*Python.*Java/s);
       }
       const links=await p.locator('a[href],link[rel="stylesheet"],link[rel="icon"],script[src],img[src]').evaluateAll(nodes=>nodes.map(n=>n.getAttribute('href')||n.getAttribute('src')));
       for(const link of new Set(links)){
@@ -74,13 +74,22 @@ test('guide and editor fit mobile and short desktop screens under the project ba
   try{
     const p=await context.newPage(),errors=[];p.on('pageerror',e=>errors.push(e.message));
     await p.goto(origin+base);await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
-    for(const viewport of [{width:1440,height:960},{width:1280,height:540},{width:390,height:844},{width:320,height:640}]){
+    for(const viewport of [{width:1440,height:960},{width:1280,height:540},{width:390,height:844},{width:320,height:480},{width:568,height:320}]){
       await p.setViewportSize(viewport);
       assert.ok(await p.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),'horizontal overflow at '+viewport.width);
-      assert.ok(await p.locator('#stage').evaluate(e=>e.clientHeight>200));
-      await p.locator('a[href="#about"]').click();await p.locator('#about').waitFor({state:'visible'});
-      await p.locator('#about a[href="#ta"]').first().click();
-      assert.equal(await p.evaluate(()=>document.activeElement.id),'ta');
+      assert.ok(await p.locator('#stage').evaluate(e=>e.clientHeight>=180));
+      assert.equal(await p.locator('#how-to-use').isVisible(),false);
+      await p.locator('#help-open').click();
+      for(let step=0;step<3;step++){
+        assert.ok(await p.locator('#help-step-'+step).isVisible());
+        assert.ok(await p.locator('#how-to-use').evaluate(e=>{const r=e.getBoundingClientRect();return e.scrollHeight<=e.clientHeight&&r.top>=0&&r.bottom<=innerHeight;}),'popup must fit without scrolling');
+        await p.locator('#help-next').click();
+      }
+      assert.equal(await p.locator('#how-to-use').isVisible(),false);
+      await p.waitForFunction(()=>document.activeElement.id==='ta');
+      await p.locator('#help-open').click();await p.keyboard.press('Escape');
+      assert.equal(await p.locator('#how-to-use').isVisible(),false);
+      await p.waitForFunction(()=>document.activeElement.id==='help-open');
     }
     assert.deepEqual(errors,[]);
   }finally{await context.close();}

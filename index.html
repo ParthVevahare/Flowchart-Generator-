@@ -497,6 +497,22 @@ let ex=n.k=='call'?`<path d="M${x+10} ${y}V${y+h}M${x+w-10} ${y}V${y+h}" stroke=
 const y0=cy-(n.L.length-1)*LH/2+4,tx=n.L.map((l,i)=>`<tspan x="${n.cx}" y="${y0+i*LH}">${esc(l)}</tspan>`).join('');
 return`<g fill="${f}" stroke="${s}" stroke-width="1.6">${sh}</g>${ex}<text text-anchor="middle" font-size="12.5" fill="#0f172a" font-weight="${n.k=='term'?700:500}">${tx}</text>`}
 function walk(l,f){l.forEach(s=>{f(s);[s.y,s.e,s.b,...(s.cs||[]).map(c=>c.b)].filter(Array.isArray).forEach(x=>walk(x,f))})}
+function fitFunctionHeadings(markup){
+  if(typeof document==='undefined')return markup;
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.style.cssText='position:fixed;left:-10000px;top:0;width:0;height:0;visibility:hidden';
+  svg.setAttribute('aria-hidden','true');svg.innerHTML=markup;document.body.appendChild(svg);
+  try{
+    for(const panel of svg.querySelectorAll('[data-function]')){
+      const heading=panel.querySelector(':scope > text'),text=heading.lastChild;
+      const chars=Array.from(heading.querySelector('title').textContent),available=Number(panel.querySelector('rect').getAttribute('width'))-32;
+      text.nodeValue=chars.join('');
+      // Use the actual SVG font metrics: fallback fonts differ across platforms.
+      while(chars.length&&heading.getBBox().width>available){chars.pop();text.nodeValue=chars.join('')+'…';}
+    }
+    return svg.innerHTML;
+  }finally{svg.remove();}
+}
 async function buildProgram(program) {
   const graph=FlowGraph.build(program),names=new Set(graph.functions.map(f=>f.name));
   const panels=[];let callCount=0;
@@ -535,7 +551,7 @@ async function buildProgram(program) {
   const explanations=ordered.map((f,i)=>({f,...explain(f,program,i===0)}));
   const content='<text x="0" y="22" fill="#0f172a" font-size="18" font-weight="700" font-family="system-ui,sans-serif">Program flowchart</text>'+sections;
   return {name:'program',disp:'Program flowchart',fname:'program',W:frame.width,H:frame.height,b:{x:0,y:0,w:frame.width,h:frame.height},
-    inner:defs+'<g transform="translate('+frame.x+' '+frame.y+') scale('+frame.scale+')">'+content+'</g>',
+    inner:fitFunctionHeadings(defs+'<g transform="translate('+frame.x+' '+frame.y+') scale('+frame.scale+')">'+content+'</g>'),
     ex:explanations.map(e=>'<section class="function-algorithm"><h3>'+esc(e.f.disp||e.f.name+'()')+'</h3>'+e.html+'</section>').join(''),
     algText:explanations.every(e=>e.text)?explanations.map(e=>e.text).join('\n\n'):null,functionCount:ordered.length,callCount,graph,layout:panels,contentScale:frame.scale};
 }

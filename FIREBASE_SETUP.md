@@ -22,6 +22,16 @@ npx firebase deploy --only firestore:rules,firestore:indexes --project YOUR_REAL
 
 Empty config deliberately keeps sign-in disabled with a setup explanation; all guest generator features continue working. If Google services fail to load, the panel explains how to retry. No Firebase secrets or production project identifiers are invented.
 
+## Google sign-in app name
+
+The website uses Google's official sign-in button artwork. The app name on Google's account chooser/consent screen is configured separately in Google Cloud; changing website text or the Firebase web app nickname does not change it.
+
+1. Open [Google Auth Platform → Branding for flowcharts-d5f51](https://console.cloud.google.com/auth/branding?project=flowcharts-d5f51).
+2. Set **App name** to **Code → Flowchart**, retain the correct support/contact email, and save.
+3. Complete the required branding details and submit for **brand verification** when prompted. Google requires brand verification to display a production app's name/logo, even for basic sign-in scopes. See [Google's verification guidance](https://support.google.com/cloud/answer/13463073).
+
+These Console changes must be made by the project owner; they are not deployed by GitHub Pages. Until Google approves the branding, the sign-in screen may still identify the Firebase domain. If a branded domain is needed in redirect URLs themselves, configure a domain you own using [Firebase's custom auth-domain setup](https://firebase.google.com/docs/auth/web/google-signin#customizing-the-redirect-domain-for-google-sign-in). Do not replace `authDomain` with an app display name or the GitHub Pages hostname: it must serve Firebase's auth handler.
+
 ## Storage and access control
 
 ```text

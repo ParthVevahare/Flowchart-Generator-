@@ -28,8 +28,14 @@ create a replacement property or regenerate verification tokens.
 On 8 November 2026 the canonical live sitemap returned HTTP 200 and
 `Content-Type: application/xml`; the hostname-root robots.txt returned 404,
 with no `X-Robots-Tag` blocking the sitemap. The reported Search Console URL
-contained a doubled slash. These observations identify a submission-path
-problem; they do not prove Google's next fetch or indexing result.
+contained a doubled slash. A subsequent fetch of that exact double-slash URL
+also returned HTTP 200 XML without a redirect. Use the canonical single-slash
+submission, but do not claim the extra slash conclusively caused Google's
+fetch failure: that failure was not reproduced by either HTTP check. If the
+canonical submission still says Could not fetch, check Search Console's last
+read timestamp and detailed error, then use URL Inspection and the live health
+check to distinguish a transient Google fetch from a current hosting problem.
+These checks do not prove Google's next fetch or indexing result.
 
 ## Public content and keyword coverage
 

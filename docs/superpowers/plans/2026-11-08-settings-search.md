@@ -46,3 +46,5 @@
 - Static audit limitation: the complete project-root audit reports 39 actionless-button findings because its scanner recognizes inline onclick only, while this application binds handlers in JavaScript; two textarea-resize findings ignore existing stylesheet rules. These are recorded rather than hidden by narrowing source roots. Runtime suites verify the controls and editor behavior.
 - Sitemap investigation: canonical live XML returned HTTP 200. The supplied Search Console URL used a doubled slash; submission instructions now explicitly require sitemap.xml without a leading slash after the project-prefix slash.
 - Integration: publish the tested feature branch and open a pull request against main; production changes after merge and GitHub Pages deployment.
+
+- Follow-up HTTP evidence: the exact double-slash submission also returns HTTP 200 XML today. Canonical resubmission is appropriate, but the reported Google fetch failure was not reproduced and is not claimed to be conclusively caused by the extra slash. SEO.md records this distinction.

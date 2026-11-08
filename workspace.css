@@ -1,0 +1,15 @@
+/* The workspace owns the first screen; secondary links follow in document flow. */
+body.workspace-layout{height:auto;min-height:100dvh;display:block;padding:0 18px 24px}
+.workspace-shell{height:100dvh;min-height:480px;display:flex;flex-direction:column;gap:14px;padding-bottom:14px;min-width:0}
+.workspace-shell .app-header{min-height:72px}
+.workspace-shell .panel-heading{min-height:66px;padding:11px 16px}
+.workspace-layout .site-footer{padding:24px 0 0}
+.workspace-layout .site-footer nav{row-gap:8px}
+@media(max-width:1100px){body.workspace-layout{padding-left:14px;padding-right:14px}}
+@media(max-width:860px){
+  .workspace-shell{height:auto;min-height:100dvh}
+  .workspace-shell #editor{height:max(560px,calc(100dvh - 112px))}
+  .workspace-shell #pane{height:max(700px,calc(100dvh - 28px))}
+  .workspace-shell #pane:fullscreen{height:100dvh}
+}
+@media(max-width:480px){body.workspace-layout{padding-left:10px;padding-right:10px}.workspace-shell{gap:12px}.workspace-shell .panel-heading{padding:11px 14px}}

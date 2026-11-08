@@ -22,6 +22,28 @@ async function invalid(page,source='hello world'){
   await page.locator('#ta').fill(source);await page.locator('#go').click();
   await page.waitForFunction(()=>document.getElementById('chart-state').textContent==='Check your code');
 }
+test('small flowcharts automatically fill the canvas without a 130-percent cap',async t=>{
+ const p=await open(t,{width:1920,height:1200});
+ await p.locator('#ta').fill('int main(){return 0;}');await p.locator('#go').click();
+ await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+ const bounds=await p.evaluate(()=>{
+   const stage=document.getElementById('stage').getBoundingClientRect(),diagram=document.querySelector('#vp > rect').getBoundingClientRect();
+   return {zoom:Number(document.getElementById('zoom-level').textContent.replace('%','')),fills:Math.max(diagram.width/stage.width,diagram.height/stage.height),inside:diagram.left>=stage.left+7&&diagram.right<=stage.right-7&&diagram.top>=stage.top+7&&diagram.bottom<=stage.bottom-7};
+ });
+ assert.ok(bounds.zoom>130,JSON.stringify(bounds));assert.ok(bounds.fills>.94,JSON.stringify(bounds));assert.ok(bounds.inside);
+ await p.locator('#zi').click();const zoom=Number((await p.locator('#zoom-level').textContent()).replace('%',''));assert.ok(zoom>bounds.zoom);
+ await p.locator('#fit').click();assert.equal(Number((await p.locator('#zoom-level').textContent()).replace('%','')),bounds.zoom);
+});
+test('playgrounds fill the first desktop viewport and footer is reached by scrolling',async t=>{
+ const p=await open(t);
+ for(const viewport of [{width:1440,height:960},{width:1280,height:540},{width:1920,height:1080}]){
+   await p.setViewportSize(viewport);await p.evaluate(()=>window.scrollTo(0,0));
+   const bounds=await p.evaluate(()=>({footer:document.querySelector('.site-footer').getBoundingClientRect().top,editor:document.getElementById('editor').getBoundingClientRect().bottom,pane:document.getElementById('pane').getBoundingClientRect().bottom,height:innerHeight,overflow:document.documentElement.scrollWidth>innerWidth}));
+   assert.ok(bounds.footer>=bounds.height,JSON.stringify(bounds));assert.ok(bounds.editor>=bounds.height-20);assert.ok(bounds.pane>=bounds.height-20);assert.equal(bounds.overflow,false);
+   await p.locator('.site-footer').scrollIntoViewIfNeeded();assert.ok(await p.evaluate(()=>scrollY>0));
+   assert.ok(await p.locator('.site-footer').evaluate(e=>{const r=e.getBoundingClientRect();return r.top<innerHeight&&r.bottom>0;}));
+ }
+});
 test('Tab and Shift+Tab leave the editor without modifying source',async t=>{
   const p=await open(t),ta=p.locator('#ta'),source=await ta.inputValue();
   await ta.focus();await p.keyboard.press('Tab');assert.notEqual(await p.evaluate(()=>document.activeElement.id),'ta');

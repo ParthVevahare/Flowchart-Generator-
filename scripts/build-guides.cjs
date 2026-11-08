@@ -1,6 +1,7 @@
-const fs=require('node:fs'),path=require('node:path');
+const fs=require('node:fs'),path=require('node:path'),crypto=require('node:crypto');
 const guides=require('./guide-content.cjs');
 const root=path.resolve(__dirname,'..'),base='https://parthvevahare.github.io/Flowchart-Generator-/';
+const cssVersion=crypto.createHash('sha256').update(fs.readFileSync(path.join(root,'guides/guides.css'),'utf8').replace(/\r\n/g,'\n')).digest('hex').slice(0,12);
 const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 const json=value=>JSON.stringify(value,null,2).replace(/</g,'\\u003c');
 const check=process.argv.includes('--check');let stale=false;
@@ -14,7 +15,7 @@ function head(title,description,url,graph){return `<!doctype html>
 <meta property="og:type" content="website"><meta property="og:site_name" content="Flowchart Generator"><meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(description)}"><meta property="og:url" content="${url}">
 <meta property="og:image" content="${base}assets/logo-light.png"><meta property="og:image:width" content="1024"><meta property="og:image:height" content="1024"><meta property="og:image:alt" content="Flowchart Generator decision diamond logo">
 <meta name="twitter:card" content="summary"><meta name="twitter:title" content="${esc(title)}"><meta name="twitter:description" content="${esc(description)}"><meta name="twitter:image" content="${base}assets/logo-light.png"><meta name="twitter:image:alt" content="Flowchart Generator decision diamond logo">
-<link rel="icon" href="../assets/logo-light.svg" type="image/svg+xml"><link rel="stylesheet" href="guides.css"><link rel="sitemap" type="application/xml" href="../sitemap.xml">
+<link rel="icon" href="../assets/logo-light.svg" type="image/svg+xml"><link rel="stylesheet" href="guides.css?v=${cssVersion}"><link rel="sitemap" type="application/xml" href="../sitemap.xml">
 <script type="application/ld+json">${json({'@context':'https://schema.org','@graph':graph})}</script>
 </head><body><a class="skip-link" href="#content">Skip to content</a>
 <header class="guide-header"><a class="guide-brand" href="../"><img src="../assets/logo-light.svg" width="32" height="32" alt="">Flowchart Generator</a><nav aria-label="Main navigation"><a href="./">Guides</a><a class="button small" href="../">Open generator ${arrow}</a></nav></header>`;}

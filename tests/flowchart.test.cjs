@@ -110,10 +110,11 @@ test('empty loop connectors have distinct attachment points and visible return r
  const xs=e.points.map(p=>p.x),ys=e.points.map(p=>p.y);
  assert.ok(Math.max(...xs)-Math.min(...xs)>20&&Math.max(...ys)-Math.min(...ys)>20,'visible two-dimensional loop');
 });
-test('A4 frame preserves proportions and leaves uniform margins',()=>{
- assert.equal(typeof FG.pageFrame,'function');const f=FG.pageFrame(2200,500);
- assert.equal(f.width,794);assert.equal(f.height,1123);
- assert.ok(f.x>=37&&f.y>=37);assert.ok(f.x+2200*f.scale<=757);assert.ok(f.y+500*f.scale<=1086);
+test('natural diagram frame adds margins without scaling or forcing a paper ratio',()=>{
+ assert.equal(typeof FG.diagramFrame,'function');
+ const f=FG.diagramFrame(2200,500);
+ assert.equal(f.width,2248);assert.equal(f.height,548);assert.equal(f.scale,1);
+ assert.equal(f.x,24);assert.equal(f.y,24);
 });
 
 // Compare observable execution with independently executed source, rather than

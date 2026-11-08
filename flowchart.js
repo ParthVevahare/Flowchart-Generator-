@@ -200,12 +200,11 @@
     });
     return{...graph,width:result.width,height:result.height,nodes:placed,edges:routed};
   }
-  function pageFrame(width,height){
-    const pageWidth=794,pageHeight=1123,margin=38;
-    const scale=Math.min((pageWidth-2*margin)/width,(pageHeight-2*margin)/height,1);
-    return{width:pageWidth,height:pageHeight,scale,x:(pageWidth-width*scale)/2,y:(pageHeight-height*scale)/2};
+  function diagramFrame(width,height){
+    const margin=24;
+    return{width:Math.ceil(width)+2*margin,height:Math.ceil(height)+2*margin,scale:1,x:margin,y:margin};
   }
-  return{build,validate,calls,layout,pageFrame,settings:Settings};
+  return{build,validate,calls,layout,diagramFrame,settings:Settings};
 });
 
 

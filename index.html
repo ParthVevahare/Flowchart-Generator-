@@ -57,8 +57,8 @@
   ]
 }
 </script>
-<link rel="stylesheet" href="library.css">
-<link rel="stylesheet" href="settings.css">
+<link rel="stylesheet" href="library.css?v=cdde5d246364">
+<link rel="stylesheet" href="settings.css?v=454e5668b66b">
 <script id="interface-icons">
 // Local, hand-drawn line icons shared by static controls and live status updates.
 function icon(name) {
@@ -243,7 +243,7 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
       <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-direction"/></svg>Direction</span><select id="setting-direction"><option value="DOWN">Top to bottom ↓</option><option value="RIGHT">Left to right →</option><option value="UP">Bottom to top ↑</option><option value="LEFT">Right to left ←</option></select></label>
       <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-width"/></svg>Width scale</span><input id="setting-widthScale" type="number" min="0.7" max="2" step="0.1" inputmode="decimal" aria-describedby="settings-error"><small>0.7–2× · node width and text wrapping.</small></label>
       <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-height"/></svg>Height scale</span><input id="setting-heightScale" type="number" min="0.7" max="2" step="0.1" inputmode="decimal" aria-describedby="settings-error"><small>0.7–2× · minimum node height.</small></label>
-      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-font"/></svg>Font size</span><input id="setting-fontSize" type="number" min="10" max="24" step="0.5" inputmode="decimal" aria-describedby="settings-error"><small>10–24 px · before fitting to A4.</small></label>
+      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-font"/></svg>Font size</span><input id="setting-fontSize" type="number" min="10" max="24" step="0.5" inputmode="decimal" aria-describedby="settings-error"><small>10–24 px · diagrams retain natural proportions.</small></label>
     </div><label class="settings-check"><input id="setting-compact" type="checkbox"><span><strong class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-compact"/></svg>Compact layout</strong><small>Reduce space between nodes while preserving readable text.</small></span></label></fieldset>
     <p id="settings-error" role="alert" hidden></p>
   </div>
@@ -258,17 +258,17 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
   <section id="help-step-2" class="help-step" hidden><svg viewBox="0 0 300 80" role="img" aria-label="Download your flowchart as SVG, PNG or PDF" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M150 3v30m-11-11 11 11 11-11M150 43v9m-84 0h168m-168 0v8m84-8v8m84-8v8"/><g fill="currentColor" stroke="none" font-family="system-ui,sans-serif" font-size="16" text-anchor="middle"><text x="66" y="76">SVG</text><text x="150" y="76">PNG</text><text x="234" y="76">PDF</text></g></svg><h3>Explore and export</h3><p>Zoom or drag to explore. Open Algorithm or Pseudocode for an explanation. Use <strong>Export</strong> to save your diagram.</p></section>
   <div class="help-actions"><button id="help-back" type="button" disabled>Back</button><button id="help-next" class="pri" type="button">Next</button></div>
 </dialog>
-<script src="help.js" defer></script>
+<script src="help.js?v=ce63e14e17fb" defer></script>
 <footer class="site-footer"><nav aria-label="Site information"><a href="guides/">Guides &amp; examples</a><a href="sitemap.xml">Sitemap</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav><p class="site-summary">Free code-to-flowchart converter for <a href="guides/c-to-flowchart.html">C</a>, <a href="guides/cpp-to-flowchart.html">C++</a>, <a href="guides/python-to-flowchart.html">Python</a> and <a href="guides/java-to-flowchart.html">Java</a>. Visualize algorithms, decisions and loops.</p></footer>
 <footer id="aff" hidden></footer><div id="toast" role="status" aria-live="polite"></div>
-<script src="syntax.js"></script>
-<script src="vendor/prism-code.js"></script>
-<script src="code-colors.js"></script>
-<script src="vendor/elk.bundled.js"></script>
-<script src="guide-examples.js"></script>
-<script src="diagram-settings.js"></script>
-<script src="flowchart.js"></script>
-<script src="diagram-export.js"></script>
+<script src="syntax.js?v=35b3ec6d97dc"></script>
+<script src="vendor/prism-code.js?v=a98a437f55de"></script>
+<script src="code-colors.js?v=923a24621561"></script>
+<script src="vendor/elk.bundled.js?v=cbf61b0182e9"></script>
+<script src="guide-examples.js?v=b81470c475ab"></script>
+<script src="diagram-settings.js?v=7070afa10fb4"></script>
+<script src="flowchart.js?v=5a94a3142199"></script>
+<script src="diagram-export.js?v=4c1dfdcb97e3"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 /* ===== SITE SETTINGS — fill these in before deploying ===== */
@@ -592,14 +592,14 @@ async function buildProgram(program,preferences) {
     const placed=await FlowGraph.layout(f,options);
     panels.push({...placed,panelW:Math.max(280,placed.width+24),panelH:placed.height+94});
   }
-  // Try shelf widths and keep the arrangement requiring the least A4 scaling.
+  // Pack function panels compactly without imposing a paper size.
   // This packs definitions into a page instead of an arbitrarily wide strip.
   const minW=Math.max(...panels.map(p=>p.panelW)),maxW=panels.reduce((v,p)=>v+p.panelW+24,0);
   let best;
   for(let limit=minW;limit<=maxW+120;limit+=120){
     let x=0,y=0,rowH=0,width=0;const positions=[];
     for(const p of panels){if(x&&x+p.panelW>limit){y+=rowH+28;x=0;rowH=0;}positions.push({x,y});width=Math.max(width,x+p.panelW);x+=p.panelW+24;rowH=Math.max(rowH,p.panelH);}
-    const height=y+rowH,score=Math.max(width/718,(height+60)/1047);
+    const height=y+rowH,score=width*(height+60)+.25*Math.pow(width-height,2);
     if(!best||score<best.score)best={positions,width,height,score};
   }
   const defs='<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" fill="'+palette.edge+'"/></marker></defs>';
@@ -618,7 +618,7 @@ async function buildProgram(program,preferences) {
     }).join('');
     return '<g data-function="'+esc(p.name)+'" transform="translate('+pos.x+' '+(pos.y+40)+')"><rect width="'+p.panelW+'" height="'+p.panelH+'" rx="12" fill="'+palette.panel+'" stroke="'+palette.border+'"/><text x="16" y="25" font-size="14" font-weight="700" fill="'+palette.text+'" font-family="system-ui,sans-serif"><title>'+esc(p.heading)+'</title>'+heading+'</text><text x="16" y="43" font-size="10" fill="'+palette.muted+'" font-family="system-ui,sans-serif">'+label+'</text><g transform="translate('+((p.panelW-p.width)/2)+' 58)">'+edges+nodes+labels+'</g></g>';
   }).join('');
-  const contentW=best.width,contentH=best.height+60,frame=FlowGraph.pageFrame(contentW,contentH);
+  const contentW=best.width,contentH=best.height+60,frame=FlowGraph.diagramFrame(contentW,contentH);
   const ordered=graph.functions.map(g=>program.fns.find(f=>f.name===g.name));
   const explanations=ordered.map((f,i)=>({f,...explain(f,program,i===0)}));
   const content='<text x="0" y="22" fill="'+palette.text+'" font-size="18" font-weight="700" font-family="system-ui,sans-serif">Program flowchart</text>'+sections;
@@ -972,7 +972,7 @@ function gen() {
       charts=[chart];
       const count={conditions:0,loops:0};
       program.fns.forEach(f=>walk(f.body,n=>{if(n.k==='if'||n.k==='sw')count.conditions++;if(['while','do','for'].includes(n.k))count.loops++;}));
-      $('chips').innerHTML=[LN2[LG],'A4 portrait',program.fns.length+' function'+(program.fns.length===1?'':'s'),chart.callCount+' call link'+(chart.callCount===1?'':'s'),count.conditions+' condition'+(count.conditions===1?'':'s'),count.loops+' loop'+(count.loops===1?'':'s')].map(t=>'<span class="chip">'+esc(t)+'</span>').join('');
+      $('chips').innerHTML=[LN2[LG],'Natural size',program.fns.length+' function'+(program.fns.length===1?'':'s'),chart.callCount+' call link'+(chart.callCount===1?'':'s'),count.conditions+' condition'+(count.conditions===1?'':'s'),count.loops+' loop'+(count.loops===1?'':'s')].map(t=>'<span class="chip">'+esc(t)+'</span>').join('');
       $('psb').textContent=pseudo(program);show(0);
       $('chart-state').textContent='Program mapped';
     } catch(e) {
@@ -1025,9 +1025,9 @@ function canvas(cb){
   const im=new Image();
   im.onload=()=>{
     if(charts[cur]!==chart)return toast('Code changed. Generate again before exporting.');
-    const c=document.createElement('canvas');c.width=DiagramExport.width;c.height=DiagramExport.height;
+    const size=DiagramExport.rasterSize(chart),c=document.createElement('canvas');c.width=size.width;c.height=size.height;
     const context=c.getContext('2d');if(!context)return toast('Image export is unavailable in this browser');
-    context.drawImage(im,0,0,c.width,c.height);cb(c);
+    context.drawImage(im,0,0,c.width,c.height);cb(c,size);
   };
   im.onerror=()=>toast('Export failed. Please try again.');
   im.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(DiagramExport.svg(chart,true));
@@ -1036,7 +1036,7 @@ let DLC=null;try{window.claude&&claude.use('downloads').then(d=>DLC=d,()=>{})}ca
 async function dl(data,name){if(DLC){try{await DLC.save({filename:name,data});toast('Saved '+name)}catch(e){if(e.code!='declined')toast('Download failed: '+(e.message||e.code))}return}
 const u=URL.createObjectURL(data),a=document.createElement('a');a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 const fn=()=>(charts[cur]?charts[cur].fname:'flowchart')+'-flowchart';
-$('ePng').onclick=()=>{const chart=charts[cur];canvas(async c=>{try{const blob=await DiagramExport.png(c);if(charts[cur]===chart)dl(blob,chart.fname+'-flowchart.png');}catch(e){toast('PNG export failed. Please try again.');}});};
+$('ePng').onclick=()=>{const chart=charts[cur];canvas(async(c,size)=>{try{const blob=await DiagramExport.png(c,size.dpi);if(charts[cur]===chart)dl(blob,chart.fname+'-flowchart.png');}catch(e){toast('PNG export failed. Please try again.');}});};
 $('eSvg').onclick=()=>{if(!charts[cur])return toast('Generate a flowchart first');dl(new Blob([svgStr(1)],{type:'image/svg+xml'}),fn()+'.svg')};
 let pdfLibrary=null,pdfBusy=false;
 function loadPdfLibrary(){
@@ -1059,7 +1059,7 @@ $('ePdf').onclick=async()=>{
     const library=await loadPdfLibrary();if(charts[cur]!==chart)return toast('Code changed. Generate again before exporting.');
     canvas(c=>{
       if(charts[cur]!==chart)return toast('Code changed. Generate again before exporting.');
-      try{const p=new library.jsPDF({orientation:'p',unit:'mm',format:'a4',compress:true}),k=Math.min(210/c.width,297/c.height),w=c.width*k,h=c.height*k;p.addImage(c.toDataURL('image/png'),'PNG',(210-w)/2,(297-h)/2,w,h);dl(p.output('blob'),chart.fname+'-flowchart.pdf');toast('PDF ready');}catch(e){toast('PDF export failed. Please try again.');}
+      try{const page=DiagramExport.pdfPage(chart),p=new library.jsPDF({orientation:page.orientation,unit:'mm',format:[page.width,page.height],compress:true});p.addImage(c.toDataURL('image/png'),'PNG',0,0,page.width,page.height);dl(p.output('blob'),chart.fname+'-flowchart.pdf');toast('PDF ready');}catch(e){toast('PDF export failed. Please try again.');}
     });
   }catch(e){toast('PDF library could not load. Please try again.');}
   finally{pdfBusy=false;$('ePdf').disabled=!charts.length;$('ePdf').setAttribute('aria-busy','false');$('ePdf').querySelector('span').textContent='Download PDF';}
@@ -1087,7 +1087,7 @@ if(typeof GuideExamples!=='undefined'&&Object.hasOwn(GuideExamples,requestedExam
 }else ta.value=EX[1];
 gut();gen();
 </script>
-<script src="settings-ui.js" defer></script>
+<script src="settings-ui.js?v=c3eea87fc4c2" defer></script>
 <aside id="library-panel" class="library-panel" aria-labelledby="library-heading" hidden>
   <div class="library-heading"><div><h2 id="library-heading">My Codes</h2><p id="library-count">Your personal code library</p></div><button id="library-close" class="icon-only" aria-label="Close My Codes" title="Close My Codes" ><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-close"/></svg></button></div>
   <p id="library-message" role="status" aria-live="polite"></p>
@@ -1103,9 +1103,9 @@ gut();gen();
   <div id="library-recovery"></div><p id="library-empty" hidden></p><div id="library-list"></div>
   <div id="library-pagination" class="library-pagination" hidden><button id="library-prev" class="icon-only" aria-label="Previous page" title="Previous page" ><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-arrow"/></svg></button><span id="library-page"></span><button id="library-next" class="icon-only" aria-label="Next page" title="Next page" ><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-arrow"/></svg></button></div>
 </aside>
-<script src="firebase-config.js"></script>
-<script src="library-core.js"></script>
-<script src="library-store.js"></script>
-<script src="library-drafts.js"></script>
-<script src="library-ui.js"></script>
+<script src="firebase-config.js?v=182f60f18943"></script>
+<script src="library-core.js?v=06921bf59950"></script>
+<script src="library-store.js?v=3000629f2e7f"></script>
+<script src="library-drafts.js?v=4057f1b41d6a"></script>
+<script src="library-ui.js?v=99d45b821362"></script>
 </body></html>

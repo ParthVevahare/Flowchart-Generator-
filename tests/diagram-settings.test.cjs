@@ -63,3 +63,9 @@ test('compact layout reduces whitespace without resizing text',async()=>{
  const normal=await FG.layout(graph),compact=await FG.layout(graph,{compact:true});
  assert.ok(compact.height<normal.height);assert.equal(compact.nodes[0].height,normal.nodes[0].height);
 });
+
+test('long programs retain natural font size instead of shrinking into A4',async()=>{
+ const program=parse('int main(){'+Array.from({length:50},(_,i)=>'printf("step '+i+'");').join('')+'return 0;}');
+ const chart=await ctx.api.buildProgram(program);
+ assert.equal(chart.contentScale,1);assert.ok(chart.H>1123);assert.ok(chart.W!==794);
+});

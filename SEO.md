@@ -50,7 +50,7 @@ the guide index, and seven distinct articles:
 | Java to flowchart | Java main-method flowchart, Java loops and method panels |
 | Loops and decisions | for/while/do-while flowcharts, break, continue, control flow |
 | Algorithms and pseudocode | code to algorithm, step-by-step program explanation, pseudocode output |
-| Export and settings | SVG/PNG/PDF flowcharts, A4 diagrams, themes and layout controls |
+| Export and settings | SVG/PNG/PDF flowcharts, natural-size diagrams, themes and layout controls |
 
 Each article has original educational content, a supported source example,
 FAQs, related links, and a link that loads its example in the generator.

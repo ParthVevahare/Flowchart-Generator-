@@ -16,10 +16,10 @@ Use Node.js 24.12+ for the full suite. Run `npm ci`, `npm test`, `npm run test:u
 
 - Paste code or choose an example, open **Language and examples** (the sliders button) when needed, and choose **Generate Flowchart** (Ctrl/Cmd + Enter).
 - The source editor colors keywords, strings, comments, numbers and function names for C/C++, Python and Java. Highlighting follows the selected or detected language and adapts to light/dark mode. Editing and copying preserve the exact original source.
-- The complete program appears on one A4 canvas. Its entry point and helper functions each have a labeled section. Calls to known helpers use subprocess shapes; hover over a node for its call references. `RETURN` resumes at the calling step. Recursive functions are drawn once, and helper references are not drawn as execution paths between functions.
+- The complete program appears on one naturally sized canvas. Its entry point and helper functions each have a labeled section. Calls to known helpers use subprocess shapes; hover over a node for its call references. `RETURN` resumes at the calling step. Recursive functions are drawn once, and helper references are not drawn as execution paths between functions.
 - Zoom, fit, pan, or enter fullscreen. When the canvas has keyboard focus, use `+`/`-` to zoom, `0` to fit, and arrow keys to pan.
 - Algorithm and pseudocode panels cover all functions. Export the complete chart as SVG, PNG, or PDF.
-- Exports use A4 portrait proportions and 10 mm margins without stretching shapes. SVG is resolution independent; PNG is 2480 × 3508 with 300-DPI print metadata; PDF places that high-resolution page on A4. Very large programs fit on one page with smaller text; SVG remains sharp when enlarged.
+- Exports follow the diagram’s natural proportions with no fixed A4 frame. SVG keeps full vector dimensions; PNG renders at up to 300 DPI within browser memory limits (8,192 pixels per side and 24 million pixels); PDF uses a custom page matching the diagram. Large diagrams retain their natural text size; use SVG for full detail beyond raster limits.
 - Editing or resetting code invalidates the previous result and disables export until the next successful generation.
 
 ## Supported syntax
@@ -53,7 +53,7 @@ Run `npm test` for the full core, graph and library checks. The suite covers all
 
 `syntax.js` and the existing parsers produce validated statement structures. `flowchart.js` builds a separate graph with explicit successors: branches share continuations, loops have dedicated condition/update targets, and abrupt transfers have no fallthrough. Consecutive assignments/declarations are grouped up to three statements, keeping calls and input/output separate. Unreachable nodes are removed; graph validation checks successor counts, branch labels, terminal exits and edge destinations.
 
-The locally bundled ELK.js 0.11.0 engine calculates node positions, orthogonal connector routes and edge-label positions. Layout-only reversal of loop feedback edges keeps the entry above the body; arrows are restored to their original direction before rendering. Function sections are packed for A4 and scaled uniformly. `diagram-export.js` supplies shared page dimensions and PNG density metadata. Layout does not change semantic graph edges or execute user code. Graph validation checks structural control flow, rather than proving satisfiability of arbitrary runtime predicates.
+The locally bundled ELK.js 0.11.0 engine calculates node positions, orthogonal connector routes and edge-label positions. Layout-only reversal of loop feedback edges keeps the entry above the body; arrows are restored to their original direction before rendering. Function sections are packed compactly without a fixed paper ratio. `diagram-export.js` supplies proportional raster dimensions, custom PDF page sizes and PNG density metadata. Layout does not change semantic graph edges or execute user code. Graph validation checks structural control flow, rather than proving satisfiability of arbitrary runtime predicates.
 
 The browser interaction suite additionally requires Playwright and Chromium:
 
@@ -90,3 +90,12 @@ The [sitemap](https://parthvevahare.github.io/Flowchart-Generator-/sitemap.xml)
 contains 11 public URLs. If Search Console already displays the project prefix
 ending in `/`, enter `sitemap.xml` with **no leading slash**. See [SEO.md](SEO.md)
 for the exact submission and deployment checks.
+
+## Browser cache compatibility
+
+After editing JavaScript or CSS, run `npm run build:guides`, then
+`npm run version:assets`. Entry-point script and stylesheet URLs carry content
+fingerprints so a fresh page cannot reuse an older incompatible module from
+the browser cache. `npm run check:assets` and the asset-cache regression tests
+prevent stale fingerprints from being deployed. Fingerprints normalize Git
+text line endings so Windows and Linux produce the same versions.

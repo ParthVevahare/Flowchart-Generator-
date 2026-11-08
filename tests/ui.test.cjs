@@ -70,7 +70,7 @@ test('Reset recovers the exact source with Restore and Ctrl+Z',async t=>{
 });
 test('PDF loads only on demand and failed loading can be retried',async t=>{
   let requests=0;
-  const stub='window.jspdf={jsPDF:class{addImage(){} output(){return new Blob(["%PDF-1.3"],{type:"application/pdf"})}}};';
+  const stub='window.jspdf={jsPDF:class{constructor(options){window.pdfOptions=options;}addImage(){} output(){return new Blob(["%PDF-1.3"],{type:"application/pdf"})}}};';
   const p=await open(t,undefined,async r=>{requests++;if(requests===1)return r.abort();await r.fulfill({contentType:'application/javascript',body:stub});});
   assert.equal(requests,0,'initial page must not request PDF library');
   await p.locator('#exm').click();await p.locator('#ePdf').click();
@@ -78,6 +78,8 @@ test('PDF loads only on demand and failed loading can be retried',async t=>{
   assert.equal(requests,1);assert.equal(await p.locator('#ePdf').getAttribute('aria-busy'),'false');
   await p.locator('#exm').click();const download=p.waitForEvent('download');await p.locator('#ePdf').click();
   assert.ok((await download).suggestedFilename().endsWith('.pdf'));assert.equal(requests,2);
+  const pdf=await p.evaluate(()=>({options:window.pdfOptions,width:charts[cur].W,height:charts[cur].H}));
+  assert.ok(Array.isArray(pdf.options.format));assert.ok(Math.abs(pdf.options.format[0]/pdf.options.format[1]-pdf.width/pdf.height)<1e-6);
 });
 test('pending PDF export deduplicates requests and never exports stale code',async t=>{
   let requests=0,release;const pending=new Promise(resolve=>release=resolve);
@@ -102,10 +104,12 @@ test('mobile controls are readable, touch sized, and fit without overflow',async
   }
 });
 
-test('PNG is a 300-DPI A4 page and SVG download contains scalable vector markup',async t=>{
+test('PNG and vector SVG use natural diagram proportions',async t=>{
   const p=await open(t);
   const dimensions=await p.evaluate(()=>new Promise(resolve=>canvas(c=>resolve([c.width,c.height]))));
-  assert.deepEqual(dimensions,[2480,3508]);
+  const natural=await p.evaluate(()=>({width:charts[cur].W,height:charts[cur].H,scale:charts[cur].contentScale}));
+  assert.equal(natural.scale,1);assert.notEqual(natural.width,794);
+  assert.ok(Math.abs(dimensions[0]/dimensions[1]-natural.width/natural.height)<.005);
   await p.evaluate(()=>{dl=async blob=>window.downloadedSvg=await blob.text();});
   await p.locator('#exm').click();await p.locator('#eSvg').click();
   await p.waitForFunction(()=>!!window.downloadedSvg);
@@ -113,8 +117,8 @@ test('PNG is a 300-DPI A4 page and SVG download contains scalable vector markup'
     const d=new DOMParser().parseFromString(window.downloadedSvg,'image/svg+xml');
     return{error:!!d.querySelector('parsererror'),width:d.documentElement.getAttribute('width'),height:d.documentElement.getAttribute('height'),viewBox:d.documentElement.getAttribute('viewBox'),nodes:d.querySelectorAll('[data-node]').length,images:d.querySelectorAll('image').length};
   });
-  assert.equal(svg.error,false);assert.equal(svg.width,'210mm');assert.equal(svg.height,'297mm');
-  assert.equal(svg.viewBox,'0 0 794 1123');assert.ok(svg.nodes>3);assert.equal(svg.images,0);
+  assert.equal(svg.error,false);assert.equal(Number(svg.width),natural.width);assert.equal(Number(svg.height),natural.height);
+  assert.equal(svg.viewBox,'0 0 '+natural.width+' '+natural.height);assert.ok(svg.nodes>3);assert.equal(svg.images,0);
   const density=await p.evaluate(()=>new Promise(resolve=>canvas(async c=>{
     const b=new Uint8Array(await (await DiagramExport.png(c)).arrayBuffer()),v=new DataView(b.buffer);
     for(let o=8;o<b.length;o+=v.getUint32(o)+12){if(String.fromCharCode(...b.slice(o+4,o+8))==='pHYs')return resolve([v.getUint32(o+8),v.getUint32(o+12),b[o+16]]);}
@@ -164,7 +168,7 @@ test('an old automatic layout cannot overwrite a newer generation',async t=>{
   await p.waitForFunction(()=>window.oldLayoutFinished);
   assert.match(await p.locator('#stage').textContent(),/NEW/);assert.doesNotMatch(await p.locator('#stage').textContent(),/OLD/);
 });
-test('long function headings stay inside their section and A4 bounds',async t=>{
+test('long function headings stay inside their natural diagram sections',async t=>{
  const p=await open(t),name='W'.repeat(45);
  await p.locator('#ta').fill('int '+name+'(){return 1;}int main(){return 0;}');await p.locator('#go').click();
  await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');

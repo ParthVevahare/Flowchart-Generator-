@@ -55,7 +55,7 @@ existing surface/text/accent tokens; it also owns global scrollbar styling.
 `diagram-settings.js` owns five explicit export palettes independently of the
 interface theme. Node geometry grows with font metrics; width scale changes
 wrapping and minimum width, height scale changes minimum height. All directions
-use actual port routing, not rotated text. Diagram exports remain A4 portrait.
+use actual port routing, not rotated text. Diagrams use natural dimensions with a 24 px margin and no fixed paper frame. SVG preserves vector dimensions; PNG bounds canvas memory and PDF uses a custom page matching the diagram’s proportions.
 
 Guides use `guides/guides.css`: the same purple accent, system typography,
 quiet borders and light/dark surfaces at a larger reading scale. Article

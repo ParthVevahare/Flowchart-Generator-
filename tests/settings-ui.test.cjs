@@ -6,13 +6,26 @@ const {chromium}=require('playwright');
 let browser;
 before(async()=>{browser=await chromium.launch({headless:true});});
 after(async()=>{await browser?.close();});
-async function open(t,viewport={width:1440,height:960},init){
+async function open(t,viewport={width:1440,height:960},init,setupRoutes){
  const context=await browser.newContext({viewport});t.after(()=>context.close());
  await context.route('https://**/*',r=>r.fulfill({body:r.request().url().includes('abacus')?'{"value":1588}':''}));
  if(init)await context.addInitScript(init);
+ if(setupRoutes)await setupRoutes(context);
  const p=await context.newPage();await p.goto(pathToFileURL(path.resolve(__dirname,'../index.html')).href);
  await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');return p;
 }
+test('new HTML bypasses an old cached flowchart module',async t=>{
+ const oldFlowGraph=fs.readFileSync(path.join(__dirname,'fixtures','flowchart-before-settings.js'),'utf8');
+ let oldRequests=0;
+ const p=await open(t,undefined,undefined,async context=>{
+   await context.route('**/flowchart.js',route=>{oldRequests++;return route.fulfill({contentType:'text/javascript',body:oldFlowGraph});});
+ });
+ assert.equal(oldRequests,0,'an updated page must use a versioned URL, not the cached unversioned module');
+ assert.equal(await p.locator('#err').textContent(),'');
+ await p.locator('#diagram-settings-open').click();await p.locator('#setting-theme').selectOption('ocean');await p.locator('#settings-apply').click();
+ await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+ assert.equal(await p.locator('#stage #vp > rect').getAttribute('fill'),'#f4faff');
+});
 test('settings apply to chart and vector export, persist, and never edit source',async t=>{
  const p=await open(t);assert.equal(await p.locator('#diagram-settings-open').count(),1,'diagram settings entry exists');
  const source=await p.locator('#ta').inputValue();

@@ -65,3 +65,17 @@ never overflows horizontally. Motion is limited to link/card feedback and
 respects reduced motion. No new font or image service is required.
 
 Canonical behavior and ownership are recorded in UX-CONTRACT.md.
+
+## Workspace viewport and automatic fit
+
+The first desktop viewport belongs to the header and the two playgrounds.
+`workspace.css` owns that viewport shell; the guide/legal/language footer stays
+in normal document flow after it and appears through scrolling. It remains
+keyboard accessible and crawlable. Wide screens use the available width rather
+than a centered 1700 px cap. Mobile keeps the existing stacked panels and grows
+each panel to make use of a tall viewport.
+
+Fit scales the complete natural diagram into the canvas with 8–16 px breathing
+room, without the former 130% automatic zoom cap. Manual zoom uses the same
+maximum as fit, so zooming in cannot unexpectedly reduce a fitted small chart.
+Export dimensions and diagram geometry are independent of viewport fit.

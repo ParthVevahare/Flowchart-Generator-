@@ -2,9 +2,13 @@
   "name": "code-to-flowchart",
   "private": true,
   "scripts": {
-    "test": "node --test tests/core.test.cjs tests/flowchart.test.cjs tests/code-colors.test.cjs tests/library.test.cjs",
-    "test:ui": "node --test tests/ui.test.cjs tests/library-ui.test.cjs tests/seo.test.cjs",
-    "test:rules": "firebase emulators:exec --only firestore --project demo-flowchart-library \"node --test tests/firestore.test.cjs\""
+    "test": "node --test tests/core.test.cjs tests/flowchart.test.cjs tests/code-colors.test.cjs tests/library.test.cjs tests/diagram-settings.test.cjs tests/sitemap.test.cjs",
+    "test:ui": "node --test tests/ui.test.cjs tests/library-ui.test.cjs tests/seo.test.cjs tests/settings-ui.test.cjs tests/search-guides.test.cjs",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-flowchart-library \"node --test tests/firestore.test.cjs\"",
+    "build:guides": "node scripts/build-guides.cjs",
+    "check:guides": "node scripts/build-guides.cjs --check",
+    "check:sitemap": "node scripts/check-sitemap.cjs",
+    "check:sitemap:live": "node scripts/check-sitemap.cjs --live"
   },
   "devDependencies": {
     "firebase": "13.2.0",

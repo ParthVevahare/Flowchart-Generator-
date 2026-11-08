@@ -1,0 +1,37 @@
+/* Settings inherit the application's canonical surface, text and accent roles. */
+:root{--scroll-thumb:var(--mu);--scroll-track:var(--soft);--scroll-hover:var(--ac)}
+html{scrollbar-color:var(--scroll-thumb) var(--scroll-track);scrollbar-width:auto}
+*::-webkit-scrollbar{width:12px;height:12px}
+*::-webkit-scrollbar-track{background:var(--scroll-track)}
+*::-webkit-scrollbar-thumb{background:var(--scroll-thumb);border:3px solid var(--scroll-track);border-radius:8px}
+*::-webkit-scrollbar-thumb:hover,*::-webkit-scrollbar-thumb:active{background:var(--scroll-hover)}
+#diagram-settings{padding:0;width:min(580px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 24px);border:1px solid var(--bd);border-radius:16px;background:var(--surface);color:var(--tx);box-shadow:0 20px 70px #0003;overflow:hidden}
+#diagram-settings::backdrop{background:#11182777}
+#diagram-settings button{min-height:44px}
+#diagram-settings form{display:flex;flex-direction:column;max-height:calc(100dvh - 26px)}
+.settings-header{display:flex;align-items:flex-start;justify-content:space-between;gap:16px;padding:22px 24px 16px;flex:none;border-bottom:1px solid var(--bd)}
+.settings-header h2{font-size:20px;letter-spacing:-.5px;margin:0 0 7px}
+.settings-header p{font-size:12px;line-height:1.6;color:var(--mu);margin:0;max-width:400px}
+.settings-header button{min-width:44px;flex:none}
+.settings-body{overflow:auto;padding:20px 24px;scrollbar-gutter:stable}
+.settings-body fieldset{border:0;padding:0;margin:0 0 24px;min-width:0}
+.settings-body fieldset:last-child{margin-bottom:0}
+.settings-body legend{font-size:13px;font-weight:700;padding:0;margin-bottom:14px;color:var(--ac)}
+.settings-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px}
+.settings-field{display:flex;flex-direction:column;gap:7px;font-size:12px;font-weight:600;min-width:0}
+.settings-field input,.settings-field select{width:100%;min-width:0;border:1px solid var(--bd);border-radius:8px;min-height:44px;padding:10px;background:var(--soft);color:var(--tx);font:inherit;font-weight:400}
+.settings-field small,.settings-check small{color:var(--mu);font-size:11px;font-weight:400;line-height:1.5}
+.settings-check{display:flex;align-items:flex-start;gap:10px;min-height:44px;margin-top:14px;font-size:12px;line-height:1.6;cursor:pointer}
+.settings-check input{accent-color:var(--ac);width:18px;height:18px;flex:none;margin:1px 0}
+.settings-check span{display:flex;flex-direction:column;gap:2px}
+.settings-actions{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid var(--bd);padding:16px 24px;flex:none;background:var(--surface)}
+.settings-actions div{display:flex;gap:8px}
+#settings-error{margin:16px 0 0;padding:10px 12px;border:1px solid currentColor;border-radius:8px;color:var(--tx);font-size:12px;line-height:1.5}
+#settings-error[hidden]{display:none}
+.settings-field [aria-invalid=true]{border:2px solid var(--ac)}
+#diagram-settings input:focus-visible,#diagram-settings select:focus-visible{outline:3px solid var(--ac);outline-offset:2px}
+@media(max-width:440px){.settings-header{padding:16px}.settings-header h2{font-size:18px}.settings-body{padding:16px}.settings-grid{gap:12px}.settings-actions{padding:12px;gap:6px}.settings-actions button{font-size:11px;padding:8px}.settings-actions div{gap:6px}}
+@media(max-height:400px){.settings-header{padding:10px 16px}.settings-header p{display:none}.settings-header h2{margin:0}.settings-body{padding:12px 16px}.settings-actions{padding:8px 16px}}
+@media(forced-colors:active){html{scrollbar-color:auto}#diagram-settings::backdrop{background:Canvas}*::-webkit-scrollbar-thumb{background:ButtonText}}
+
+.setting-label{display:flex;align-items:center;gap:7px}.setting-label .icon{width:16px;height:16px;color:var(--ac);flex:none}.settings-check .setting-label{font-weight:600}.site-summary{margin:0;text-align:center;color:var(--mu);font-size:11px;line-height:1.6}.site-summary a{color:inherit}.site-footer .site-summary a{display:inline;min-height:0}

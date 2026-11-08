@@ -1,0 +1,18 @@
+{
+  "profile": "product-admin",
+  "sourceRoots": ["."],
+  "locale": "en",
+  "canonicalMap": "UX-CONTRACT.md",
+  "requiredCapabilities": ["Select/Listbox", "Form", "Scrollbar", "Toast"],
+  "ownership": {"Select/Listbox": "native"},
+  "requiredCommands": ["unit", "e2e", "guides", "sitemap"],
+  "commands": {
+    "unit": "npm test",
+    "e2e": "npm run test:ui",
+    "guides": "npm run check:guides",
+    "sitemap": "npm run check:sitemap"
+  },
+  "evidence": {
+    "failurePaths": "tests/settings-ui.test.cjs"
+  }
+}

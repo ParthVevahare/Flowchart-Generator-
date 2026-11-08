@@ -10,7 +10,7 @@ before(async()=>{
   server=http.createServer((req,res)=>{
     const pathname=new URL(req.url,'http://localhost').pathname;
     if(!pathname.startsWith(base)){res.writeHead(404);return res.end();}
-    const file=path.join(root,pathname.slice(base.length)||'index.html');
+    const file=path.join(root,(pathname.endsWith('/')?pathname.slice(base.length)+'index.html':pathname.slice(base.length))||'index.html');
     fs.readFile(file,(error,data)=>{res.writeHead(error?404:200,{'Content-Type':file.endsWith('.xml')?'application/xml':file.endsWith('.css')?'text/css':/\.m?js$/.test(file)?'text/javascript':file.endsWith('.png')?'image/png':file.endsWith('.svg')?'image/svg+xml':'text/html'});res.end(error?'Missing':data);});
   });
   await new Promise(r=>server.listen(0,'127.0.0.1',r));origin='http://127.0.0.1:'+server.address().port;
@@ -64,7 +64,7 @@ test('sitemap and structured data identify only canonical public content',async(
     const xml=await (await p.request.get(origin+base+'sitemap.xml')).text();
     const parsed=await p.evaluate(text=>{const d=new DOMParser().parseFromString(text,'application/xml');return {errors:d.querySelectorAll('parsererror').length,namespace:d.documentElement.namespaceURI,urls:[...d.querySelectorAll('loc')].map(x=>x.textContent),dates:d.querySelectorAll('lastmod').length};},xml);
     assert.equal(parsed.errors,0);assert.equal(parsed.namespace,'http://www.sitemaps.org/schemas/sitemap/0.9');
-    assert.deepEqual(parsed.urls,pages.map(x=>canonical+x));assert.equal(parsed.dates,0);
+    assert.deepEqual(parsed.urls,[...pages,'guides/',...require('../scripts/guide-content.cjs').map(g=>'guides/'+g.slug+'.html')].map(x=>canonical+x));assert.equal(parsed.dates,0);
   }finally{await p.close();}
 });
 

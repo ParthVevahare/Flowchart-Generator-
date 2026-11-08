@@ -1,57 +1,129 @@
-# Search discovery and deployment
+# Search discovery and sitemap operations
 
 Canonical homepage: https://parthvevahare.github.io/Flowchart-Generator-/
 
-Sitemap: https://parthvevahare.github.io/Flowchart-Generator-/sitemap.xml
+Canonical sitemap: https://parthvevahare.github.io/Flowchart-Generator-/sitemap.xml
 
-## Public URLs
+## Search Console: avoid a doubled slash
 
-The sitemap contains the homepage, `privacy.html` and `terms.html`. The directory URL is canonical; `index.html`, fragments, the Google verification file and private library records are not sitemap entries. There are no separate login/account routes. My Codes loads account-scoped data through Firebase and must continue to use the existing Firestore access rules. Robots directives are not an access-control mechanism.
-
-All three public pages have unique titles/descriptions, absolute canonical URLs, indexing directives, Open Graph and Twitter card tags. Social cards reuse `assets/logo-light.png` (1024 × 1024). The homepage contains a short, three-step help dialog with SVG explanations, opened using How to use, plus WebSite and WebApplication JSON-LD. Help content is present in the initial HTML; the dialog is closed until requested. No ratings, reviews, company information, breadcrumb hierarchy or prices are invented. Free use is described by `isAccessibleForFree`; this does not promise eligibility for Google's software rich results.
-
-Keep the existing `G-8VGN06RJCS` Analytics initializer and `googlefde98e9521e001da.html` verification file. Do not add another Analytics loader or verification method. Legal-page policy text has not been changed by this SEO update.
-
-## GitHub Pages and robots
-
-This repository is a project site, not the root of `parthvevahare.github.io`. Google reads robots rules at **https://parthvevahare.github.io/robots.txt**, not at `/Flowchart-Generator-/robots.txt`. No misleading project-level robots file is added. The hostname-root robots URL returned 404 when checked on 7 November 2026; it therefore supplied no crawl restrictions at that time. Check it again after deployment and if the separate hostname-root site ever changes.
-
-If the owner later manages robots.txt in the separate hostname-root repository, preserve any rules needed by its other sites and optionally add:
+The property URL may already end in `/Flowchart-Generator-/`. In that case,
+enter **`sitemap.xml`** in the Add a new sitemap field, **without a leading
+slash**. The resulting complete URL must be:
 
 ```text
-Sitemap: https://parthvevahare.github.io/Flowchart-Generator-/sitemap.xml
+https://parthvevahare.github.io/Flowchart-Generator-/sitemap.xml
 ```
 
-The sitemap can be submitted directly to Search Console without that line. Do not disallow CSS, JavaScript or assets needed to render the public pages. No domain, DNS, Firebase or Pages configuration changes are needed for this update. The existing successful Pages workflow deploys from `main`; merge the reviewed changes there and wait for **pages build and deployment** to succeed. No application build step is required.
+Do not enter `/sitemap.xml` after that prefix; it produces
+`/Flowchart-Generator-//sitemap.xml`. If the field displays only the hostname
+prefix, enter `Flowchart-Generator-/sitemap.xml` without a leading slash.
+For a domain property with a full-URL field, paste the complete canonical URL.
+Inspect the combined URL before submitting.
 
-## Post-deployment checks
+For an existing double-slash entry, remove that entry from Search Console and
+submit the correct URL. Removing a sitemap report does not delete site content.
+Use the already verified property and the existing verification file; do not
+create a replacement property or regenerate verification tokens.
 
-1. Confirm the homepage, both policy pages, sitemap and `assets/logo-light.png` return HTTP 200 over HTTPS under `/Flowchart-Generator-/`.
-2. View the homepage source and confirm the new title, canonical link, JSON-LD and help dialog are present. Check that no HTTP `X-Robots-Tag: noindex` or blocking hostname-root robots rule has appeared.
-3. Confirm the existing Google verification file still returns its original content.
-4. Generate a chart, test export, and check Google Sign-In and an existing saved program with your own account. Automated tests use isolated fixtures/emulators, not your production account.
-5. Review Core Web Vitals in Search Console when sufficient real-user data is available. Local layout and interaction tests do not establish field LCP, INP or CLS scores. GitHub Pages controls HTTP caching; there is no unsupported cache-header configuration in this repository.
+On 8 November 2026 the canonical live sitemap returned HTTP 200 and
+`Content-Type: application/xml`; the hostname-root robots.txt returned 404,
+with no `X-Robots-Tag` blocking the sitemap. The reported Search Console URL
+contained a doubled slash. These observations identify a submission-path
+problem; they do not prove Google's next fetch or indexing result.
 
-## Submit to the existing Search Console property
+## Public content and keyword coverage
 
-1. Open [Google Search Console](https://search.google.com/search-console) and select the already verified property covering the exact homepage URL. Do not create a replacement property.
-2. Open **Sitemaps**. In **Add a new sitemap**, submit `https://parthvevahare.github.io/Flowchart-Generator-/sitemap.xml`. If the field already displays the project URL prefix, enter only `sitemap.xml`; if it displays only the hostname prefix, enter `Flowchart-Generator-/sitemap.xml`. Check the complete submitted URL before submitting.
-3. Wait for **Success** and inspect any reported fetch/parsing errors. The sitemap lists three canonical URLs.
-4. Paste `https://parthvevahare.github.io/Flowchart-Generator-/` into **URL Inspection**. Choose **Test live URL**, review crawl/indexing availability and the rendered page, then choose **Request indexing** if eligible. An owner or full user is required.
-5. Later, check the indexed URL's Google-selected canonical, Page indexing report and Performance report. A successful live test and sitemap submission do not guarantee indexing or rankings; repeated requests do not make Google crawl faster.
+The sitemap contains 11 canonical URLs: the homepage, privacy and terms pages,
+the guide index, and seven distinct articles:
 
-Official references: [sitemap submission](https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap), [URL Inspection and recrawl requests](https://developers.google.com/search/docs/crawling-indexing/ask-google-to-recrawl), [robots.txt](https://developers.google.com/search/docs/crawling-indexing/robots/intro).
+| Guide | Relevant search intent |
+| --- | --- |
+| Python to flowchart | Python code to flowchart, Python if/else and loop visualization |
+| C to flowchart | C program flowchart, factorial flowchart, C lab-report diagrams |
+| C++ to flowchart | C++ flowchart converter, cin/cout program logic |
+| Java to flowchart | Java main-method flowchart, Java loops and method panels |
+| Loops and decisions | for/while/do-while flowcharts, break, continue, control flow |
+| Algorithms and pseudocode | code to algorithm, step-by-step program explanation, pseudocode output |
+| Export and settings | SVG/PNG/PDF flowcharts, A4 diagrams, themes and layout controls |
 
-## Verification commands
+Each article has original educational content, a supported source example,
+FAQs, related links, and a link that loads its example in the generator.
+Examples are checked against the real parser. They are not executed. Copy
+describes the structured language subset honestly and distinguishes diagrams
+from runtime traces, UML, arbitrary pseudocode conversion and AI inference.
 
-Use the versions pinned by `package-lock.json`, Node.js 24 and Java 21 or later:
+The homepage keeps the workspace prominent while exposing language-guide links
+and a compact visible description. No hidden keyword blocks, doorway clones,
+invented ratings/reviews, or unsupported language claims are added. Google does
+not use the meta keywords tag; relevant search language belongs in useful page
+content, titles, descriptions and links. No ranking or indexing guarantee is made.
+
+All public pages have unique metadata and absolute canonicals. Guide Article
+and BreadcrumbList schema describe the actual content and navigation. They do
+not claim FAQ rich-result eligibility. The homepage retains WebSite and
+WebApplication schema. Social cards reuse assets/logo-light.png. Example query
+parameters and fragments are excluded from canonical URLs and the sitemap.
+
+## Static generation and validation
+
+The editorial source is scripts/guide-content.cjs. Run:
 
 ```sh
-npm ci
-npx playwright install chromium
+npm run build:guides
+npm run check:guides
+npm run check:sitemap
 npm test
 npm run test:ui
-npm run test:rules
 ```
 
-The browser suite includes `tests/seo.test.cjs`: JavaScript-disabled content, metadata, XML/JSON-LD parsing, canonical agreement, base-path links/assets, help opening, step navigation, Escape/focus behavior and a popup that fits mobile/landscape screens without scrolling. Static checks disable page JavaScript; interactive checks intercept external requests so automated runs do not affect production Analytics or the visit counter. Existing library tests exercise sign-in transitions, autosave, recovery and account switching with fixtures; Firestore tests verify access rules using an isolated demo project.
+Generation writes the seven guide articles, index, local example fixtures and
+sitemap. Generated files are committed because this site deploys static files
+from main. Check mode detects stale generated output. Sitemap checks reject
+malformed structure, duplicate URLs, doubled path slashes, off-site URLs,
+missing pages and canonical mismatches. Browser tests independently parse XML
+with DOMParser, visit links under the project base path, inspect metadata with
+JavaScript disabled and load guide examples through the actual editor.
+
+After deployment run:
+
+```sh
+npm run check:sitemap:live
+```
+
+This fetches the exact canonical sitemap without accepting a redirect, requires
+HTTP 200 and an XML content type, compares all 11 entries, and fetches each
+listed page to confirm HTTP 200 and canonical agreement. The Published sitemap
+health GitHub workflow runs after successful github-pages deployments and can
+also be triggered manually. It is a deployment check, not a crawler submission.
+Before these changes deploy, the live sitemap may still contain the old three
+entries; the live check correctly fails if the deployment is stale.
+
+## GitHub Pages and robots.txt
+
+This is a project site. Crawlers read robots rules at
+https://parthvevahare.github.io/robots.txt, not inside the project directory.
+A project-level robots file cannot repair a Search Console URL or change
+hostname-root crawl rules, so none is added. If the separate hostname-root
+repository later supplies robots.txt, preserve its other projects' rules and
+optionally add the full canonical sitemap URL there. Search Console accepts
+a direct sitemap submission without that line.
+
+Preserve the Analytics initializer G-8VGN06RJCS and the original
+`googlefde98e9521e001da.html` verification content. No DNS, domain, Pages source,
+Firebase rules, legal policies or account data needs to change for this work.
+
+## After the correct submission
+
+Wait for Search Console to fetch the sitemap, then review any reported errors.
+Use URL Inspection on the canonical homepage and representative guide URLs to
+check the live rendered page and request indexing when eligible. Do not submit
+private library records, example-query variants or the verification file.
+Monitor impressions and queries in Performance over time; a successful fetch
+does not guarantee indexing or rankings. Field Core Web Vitals require real
+traffic data and are not established by local browser tests.
+
+Official references:
+- https://developers.google.com/search/docs/fundamentals/seo-starter-guide
+- https://developers.google.com/search/docs/crawling-indexing/sitemaps/build-sitemap
+- https://support.google.com/webmasters/answer/7451001
+- https://developers.google.com/search/docs/crawling-indexing/robots/intro

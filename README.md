@@ -68,3 +68,25 @@ It checks keyboard navigation, contrast in both themes, short-window errors, lon
 Tab and Shift+Tab move between controls; Ctrl/Command + ] inserts four spaces in the editor. Reset exposes a Restore action, and Ctrl/Command + Z also recovers the cleared source until the next edit or example selection.
 
 The page loads its existing jsPDF CDN dependency only when PDF export is requested, with retry feedback if loading fails. Visit-counter/analytics services remain unchanged. Custom interface icons are inline SVG with no external icon library.
+
+## Diagram settings
+
+Use **Settings** in the diagram toolbar for custom true/false labels, statement
+grouping, decorated edge labels, five themes, four directions, font size,
+width/height scales and compact spacing. Every setting has a local SVG icon.
+Apply commits changes, Cancel/Escape discards the draft, and Reset restores the
+draft defaults. Settings persist only in the current browser when storage is
+available. They affect preview and exports without editing source code.
+
+## Guides and search discovery
+
+The [guide index](https://parthvevahare.github.io/Flowchart-Generator-/guides/)
+contains C, C++, Python and Java walkthroughs, control-flow explanations,
+algorithm/pseudocode help and an export guide. Use **Try this example** to load
+a checked example directly into the generator. Edit `scripts/guide-content.cjs`
+and run `npm run build:guides` to update the static pages and sitemap.
+
+The [sitemap](https://parthvevahare.github.io/Flowchart-Generator-/sitemap.xml)
+contains 11 public URLs. If Search Console already displays the project prefix
+ending in `/`, enter `sitemap.xml` with **no leading slash**. See [SEO.md](SEO.md)
+for the exact submission and deployment checks.

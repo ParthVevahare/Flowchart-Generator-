@@ -2,6 +2,7 @@
 <html lang="en"><head><meta charset="utf-8"><title>Free Online Flowchart Generator | Convert Code to Flowcharts</title>
 <meta name="description" content="Generate flowcharts from C/C++, Python and Java code online for free. Visualize programming logic, explore algorithms and export diagrams without signing in.">
 <link rel="canonical" href="https://parthvevahare.github.io/Flowchart-Generator-/">
+<link rel="sitemap" type="application/xml" href="sitemap.xml">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Flowchart Generator">
@@ -48,13 +49,16 @@
         "Flowcharts for a structured subset of C/C++, Python and Java",
         "Algorithm and pseudocode views",
         "SVG, PNG and PDF export",
-        "Optional private cloud code library"
+        "Optional private cloud code library",
+        "Custom branch labels, five diagram themes and four layout directions",
+        "Adjustable fonts, node scales, grouping and compact spacing"
       ]
     }
   ]
 }
 </script>
 <link rel="stylesheet" href="library.css">
+<link rel="stylesheet" href="settings.css">
 <script id="interface-icons">
 // Local, hand-drawn line icons shared by static controls and live status updates.
 function icon(name) {
@@ -195,7 +199,7 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
 #code-tokens .macro,#code-tokens .directive,#code-tokens .annotation,#code-tokens .decorator{color:var(--syntax-directive)}
 @media(forced-colors:active){.syntax-ready #code-colors{visibility:hidden}.syntax-ready #ta{color:CanvasText;-webkit-text-fill-color:CanvasText}.syntax-ready #ta::selection{color:HighlightText;-webkit-text-fill-color:HighlightText;background:Highlight}}
 </style></head><body>
-<svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs><symbol id="icon-activity" viewBox="0 0 24 24"><path d="M3 17V11m6 6V7m6 10V4m6 13V9"/></symbol><symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 14.2A8.5 8.5 0 0 1 9.8 4a8.5 8.5 0 1 0 10.2 10.2Z"/></symbol><symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></symbol><symbol id="icon-flow" viewBox="0 0 24 24"><rect x="8" y="2.5" width="8" height="5" rx="1.5"/><path d="M12 7.5v4m-7 4v-4h14v4"/><rect x="1.5" y="15.5" width="7" height="6" rx="1.5"/><rect x="15.5" y="15.5" width="7" height="6" rx="1.5"/></symbol><symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1.8 7.2M4 4v6h6"/></symbol><symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><symbol id="icon-plus" viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></symbol><symbol id="icon-fit" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><rect x="7.5" y="7.5" width="9" height="9" rx="1"/></symbol><symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol><symbol id="icon-algorithm" viewBox="0 0 24 24"><path d="M9 5h12M9 12h12M9 19h12M3 4h1v3M3 11h2l-2 3h2M3 18h2v3H3"/></symbol><symbol id="icon-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6M14 3l-4 18"/></symbol><symbol id="icon-export" viewBox="0 0 24 24"><path d="M12 15V2m-4 4 4-4 4 4M4 13v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/></symbol><symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol><symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol><symbol id="icon-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/></symbol><symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M3 12h18m-6-6 6 6-6 6"/></symbol><symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol><symbol id="icon-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></symbol><symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol><symbol id="icon-signout" viewBox="0 0 24 24"><path d="M9 4H4v16h5m0-8h12m-4-4 4 4-4 4"/></symbol><symbol id="icon-filter" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M9 4v6m6 4v6"/></symbol><symbol id="icon-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3Zm3 0v6h10V3M7 21v-8h10v8"/></symbol></defs></svg>
+<svg class="icon-library" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" focusable="false"><defs><symbol id="icon-activity" viewBox="0 0 24 24"><path d="M3 17V11m6 6V7m6 10V4m6 13V9"/></symbol><symbol id="icon-moon" viewBox="0 0 24 24"><path d="M20 14.2A8.5 8.5 0 0 1 9.8 4a8.5 8.5 0 1 0 10.2 10.2Z"/></symbol><symbol id="icon-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2m0 16v2M2 12h2m16 0h2M5 5l1.4 1.4m11.2 11.2L19 19M5 19l1.4-1.4M17.6 6.4 19 5"/></symbol><symbol id="icon-flow" viewBox="0 0 24 24"><rect x="8" y="2.5" width="8" height="5" rx="1.5"/><path d="M12 7.5v4m-7 4v-4h14v4"/><rect x="1.5" y="15.5" width="7" height="6" rx="1.5"/><rect x="15.5" y="15.5" width="7" height="6" rx="1.5"/></symbol><symbol id="icon-reset" viewBox="0 0 24 24"><path d="M4 10a8 8 0 1 1 1.8 7.2M4 4v6h6"/></symbol><symbol id="icon-minus" viewBox="0 0 24 24"><path d="M5 12h14"/></symbol><symbol id="icon-plus" viewBox="0 0 24 24"><path d="M5 12h14m-7-7v14"/></symbol><symbol id="icon-fit" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/><rect x="7.5" y="7.5" width="9" height="9" rx="1"/></symbol><symbol id="icon-expand" viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5"/></symbol><symbol id="icon-algorithm" viewBox="0 0 24 24"><path d="M9 5h12M9 12h12M9 19h12M3 4h1v3M3 11h2l-2 3h2M3 18h2v3H3"/></symbol><symbol id="icon-code" viewBox="0 0 24 24"><path d="m7 6-6 6 6 6m10-12 6 6-6 6M14 3l-4 18"/></symbol><symbol id="icon-export" viewBox="0 0 24 24"><path d="M12 15V2m-4 4 4-4 4 4M4 13v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/></symbol><symbol id="icon-chevron" viewBox="0 0 24 24"><path d="m7 10 5 5 5-5"/></symbol><symbol id="icon-download" viewBox="0 0 24 24"><path d="M12 3v12m-4-4 4 4 4-4M4 16v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4"/></symbol><symbol id="icon-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="13" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></symbol><symbol id="icon-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 10.5 6.8-4m-6.8 7 6.8 4"/></symbol><symbol id="icon-arrow" viewBox="0 0 24 24"><path d="M3 12h18m-6-6 6 6-6 6"/></symbol><symbol id="icon-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol><symbol id="icon-close" viewBox="0 0 24 24"><path d="m6 6 12 12M6 18 18 6"/></symbol><symbol id="icon-star" viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2-5.6-3-5.6 3 1.1-6.2L3 9.6l6.2-.9Z"/></symbol><symbol id="icon-trash" viewBox="0 0 24 24"><path d="M3 6h18M9 6V3h6v3M5 6l1 15h12l1-15M10 10v7m4-7v7"/></symbol><symbol id="icon-signout" viewBox="0 0 24 24"><path d="M9 4H4v16h5m0-8h12m-4-4 4 4-4 4"/></symbol><symbol id="icon-filter" viewBox="0 0 24 24"><path d="M4 7h16M4 17h16M9 4v6m6 4v6"/></symbol><symbol id="icon-save" viewBox="0 0 24 24"><path d="M4 3h13l4 4v14H3V3Zm3 0v6h10V3M7 21v-8h10v8"/></symbol><symbol id="icon-setting-true" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/><path d="M4 3h16v18H4z"/></symbol><symbol id="icon-setting-false" viewBox="0 0 24 24"><path d="m8 8 8 8m0-8-8 8"/><rect x="3" y="3" width="18" height="18" rx="3"/></symbol><symbol id="icon-setting-group" viewBox="0 0 24 24"><rect x="2" y="3" width="6" height="6" rx="1"/><rect x="2" y="15" width="6" height="6" rx="1"/><path d="M8 6h3v12H8m3-6h4"/><rect x="15" y="7" width="7" height="10" rx="1"/></symbol><symbol id="icon-setting-label" viewBox="0 0 24 24"><path d="M3 4h10l8 8-9 9-9-9Z"/><circle cx="8" cy="9" r="1.5"/></symbol><symbol id="icon-setting-palette" viewBox="0 0 24 24"><path d="M12 3a9 9 0 1 0 0 18h1a2 2 0 0 0 0-4h-1a2 2 0 0 1 0-4h3a6 6 0 0 0 0-12"/><circle cx="7" cy="9" r="1"/><circle cx="11" cy="6" r="1"/><circle cx="6" cy="14" r="1"/></symbol><symbol id="icon-setting-direction" viewBox="0 0 24 24"><path d="M3 12h18m-4-4 4 4-4 4M12 3v18m-4-4 4 4 4-4m-8-10 4-4 4 4M7 8l-4 4 4 4"/></symbol><symbol id="icon-setting-width" viewBox="0 0 24 24"><path d="M3 5v14m18-14v14M3 12h18m-14-4-4 4 4 4m10-8 4 4-4 4"/></symbol><symbol id="icon-setting-height" viewBox="0 0 24 24"><path d="M5 3h14M5 21h14M12 3v18m-4-14 4-4 4 4m-8 10 4 4 4-4"/></symbol><symbol id="icon-setting-font" viewBox="0 0 24 24"><path d="M3 5h14M10 5v15M7 20h6m1-6h8m-4-4v10m-2 0h4"/></symbol><symbol id="icon-setting-compact" viewBox="0 0 24 24"><path d="M4 9h16v6H4zM12 1v6m-3-3 3 3 3-3M12 23v-6m-3 3 3-3 3 3"/></symbol></defs></svg>
 <header class="app-header">
   <div class="brand"><div class="brand-mark" aria-hidden="true"><img class="brand-logo-light" src="assets/logo-light.svg" width="38" height="38" alt=""><img class="brand-logo-dark" src="assets/logo-dark.svg" width="38" height="38" alt=""></div><div><h1>Flowchart Generator</h1><div class="brand-caption">by Parth V · <button id="help-open" type="button" aria-haspopup="dialog" aria-controls="how-to-use">How to use</button></div></div></div>
   <div class="header-actions"><span id="vc" class="vc" hidden></span><button id="library-toggle" aria-expanded="false" aria-controls="library-panel"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-code"/></svg><span>My Codes</span></button><button id="th"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-moon"/></svg><span>Dark</span></button></div>
@@ -216,7 +220,7 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
   </section>
   <section class="card" id="pane" aria-labelledby="diagram-title">
     <div class="panel-heading"><div><div class="panel-title"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><h2 id="diagram-title">Program flowchart</h2></div></div><div class="dd"><button id="exm" aria-expanded="false" aria-controls="mn"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-export"/></svg><span>Export</span><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-chevron"/></svg></button><div class="menu" id="mn" role="group" aria-label="Export options"><button id="ePng"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download PNG</span></button><button id="eSvg"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download SVG</span></button><button id="ePdf"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download PDF</span></button><button id="cp"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg><span>Copy image</span></button><button id="sh"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-share"/></svg><span>Share</span></button></div></div></div>
-    <div class="diagram-toolbar" role="toolbar" aria-label="Flowchart tools"><div class="toolbar-group" role="group" aria-label="Explanation panels"><button id="xp" aria-expanded="false" aria-controls="exp"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-algorithm"/></svg><span>Algorithm</span></button><button id="pcb" aria-expanded="false" aria-controls="ps"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-code"/></svg><span>Pseudocode</span></button></div><div class="toolbar-group view-controls" role="group" aria-label="Canvas view"><button id="zo" class="icon-only" aria-label="Zoom out" title="Zoom out"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-minus"/></svg></button><output id="zoom-level" aria-label="Zoom level">100%</output><button id="zi" class="icon-only" aria-label="Zoom in" title="Zoom in"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-plus"/></svg></button><span class="divider" aria-hidden="true"></span><button id="fit" class="icon-only" aria-label="Fit" title="Fit"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-fit"/></svg></button><button id="fs" class="icon-only" aria-label="Toggle fullscreen" title="Toggle fullscreen"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-expand"/></svg></button></div></div>
+    <div class="diagram-toolbar" role="toolbar" aria-label="Flowchart tools"><div class="toolbar-group" role="group" aria-label="Diagram settings and explanations"><button id="diagram-settings-open" type="button" aria-haspopup="dialog" aria-expanded="false" aria-controls="diagram-settings"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-filter"/></svg><span>Settings</span></button><button id="xp" aria-expanded="false" aria-controls="exp"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-algorithm"/></svg><span>Algorithm</span></button><button id="pcb" aria-expanded="false" aria-controls="ps"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-code"/></svg><span>Pseudocode</span></button></div><div class="toolbar-group view-controls" role="group" aria-label="Canvas view"><button id="zo" class="icon-only" aria-label="Zoom out" title="Zoom out"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-minus"/></svg></button><output id="zoom-level" aria-label="Zoom level">100%</output><button id="zi" class="icon-only" aria-label="Zoom in" title="Zoom in"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-plus"/></svg></button><span class="divider" aria-hidden="true"></span><button id="fit" class="icon-only" aria-label="Fit" title="Fit"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-fit"/></svg></button><button id="fs" class="icon-only" aria-label="Toggle fullscreen" title="Toggle fullscreen"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-expand"/></svg></button></div></div>
     <div id="stage" role="region" tabindex="0" aria-label="Flowchart canvas. Use plus or minus to zoom, zero to fit, and arrow keys to pan."><div class="empty"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><strong>Your program, mapped out.</strong><span>Generate a flowchart to see the complete control flow here.</span></div></div>
     <div id="exp"><div id="exh"><b>Program algorithm</b><button id="cpa" class="icon-only" aria-label="Copy algorithm" title="Copy algorithm"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg></button></div><div id="exb"></div></div>
     <div id="ps"><div id="psh"><b>Program pseudocode</b><button id="cpp" class="icon-only" aria-label="Copy pseudocode" title="Copy pseudocode"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg></button></div><pre id="psb"></pre></div>
@@ -224,6 +228,28 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
     <div id="ld" hidden><div class="sp"></div>Validating and mapping your program...</div>
   </section>
 </main>
+<dialog id="diagram-settings" aria-labelledby="diagram-settings-title" aria-describedby="diagram-settings-description">
+<form id="diagram-settings-form" novalidate>
+  <div class="settings-header"><div><h2 id="diagram-settings-title">Diagram settings</h2><p id="diagram-settings-description">Make the flowchart yours. Preferences apply to your preview and exports, and are saved in this browser.</p></div><button id="settings-close" type="button" aria-label="Close diagram settings"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-close"/></svg></button></div>
+  <div class="settings-body">
+    <fieldset><legend>Content</legend><div class="settings-grid">
+      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-true"/></svg>True label</span><input id="setting-trueLabel" maxlength="40" placeholder="Yes" autocomplete="off"><small>When a condition is true.</small></label>
+      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-false"/></svg>False label</span><input id="setting-falseLabel" maxlength="40" placeholder="No" autocomplete="off"><small>When a condition is false.</small></label>
+    </div>
+    <label class="settings-check"><input id="setting-optimizeCommon" type="checkbox"><span><strong class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-group"/></svg>Group simple statements</strong><small>Combine adjacent assignments into a single node. Calls and branches stay separate.</small></span></label>
+    <label class="settings-check"><input id="setting-decorateLabels" type="checkbox"><span><strong class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-label"/></svg>Decorate edge labels</strong><small>Put branch labels in a pill for extra contrast.</small></span></label></fieldset>
+    <fieldset><legend>Rendering</legend><div class="settings-grid">
+      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-palette"/></svg>Diagram theme</span><select id="setting-theme"><option value="classic">Classic</option><option value="ocean">Ocean</option><option value="forest">Forest</option><option value="monochrome">Monochrome · print</option><option value="dark">Dark</option></select></label>
+      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-direction"/></svg>Direction</span><select id="setting-direction"><option value="DOWN">Top to bottom ↓</option><option value="RIGHT">Left to right →</option><option value="UP">Bottom to top ↑</option><option value="LEFT">Right to left ←</option></select></label>
+      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-width"/></svg>Width scale</span><input id="setting-widthScale" type="number" min="0.7" max="2" step="0.1" inputmode="decimal" aria-describedby="settings-error"><small>0.7–2× · node width and text wrapping.</small></label>
+      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-height"/></svg>Height scale</span><input id="setting-heightScale" type="number" min="0.7" max="2" step="0.1" inputmode="decimal" aria-describedby="settings-error"><small>0.7–2× · minimum node height.</small></label>
+      <label class="settings-field"><span class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-font"/></svg>Font size</span><input id="setting-fontSize" type="number" min="10" max="24" step="0.5" inputmode="decimal" aria-describedby="settings-error"><small>10–24 px · before fitting to A4.</small></label>
+    </div><label class="settings-check"><input id="setting-compact" type="checkbox"><span><strong class="setting-label"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-setting-compact"/></svg>Compact layout</strong><small>Reduce space between nodes while preserving readable text.</small></span></label></fieldset>
+    <p id="settings-error" role="alert" hidden></p>
+  </div>
+  <div class="settings-actions"><button id="settings-reset" type="button">Reset to defaults</button><div><button id="settings-cancel" type="button">Cancel</button><button id="settings-apply" type="submit" class="pri">Apply settings</button></div></div>
+</form>
+</dialog>
 <dialog id="how-to-use" aria-labelledby="help-title" aria-describedby="help-progress">
   <div class="help-header"><h2 id="help-title">How to use</h2><button id="help-close" type="button" aria-label="Close help"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-close"/></svg></button></div>
   <p id="help-progress" class="help-progress" aria-live="polite">Step 1 of 3</p>
@@ -233,12 +259,14 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
   <div class="help-actions"><button id="help-back" type="button" disabled>Back</button><button id="help-next" class="pri" type="button">Next</button></div>
 </dialog>
 <script src="help.js" defer></script>
-<footer class="site-footer"><nav aria-label="Site information"><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav></footer>
+<footer class="site-footer"><nav aria-label="Site information"><a href="guides/">Guides &amp; examples</a><a href="sitemap.xml">Sitemap</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav><p class="site-summary">Free code-to-flowchart converter for <a href="guides/c-to-flowchart.html">C</a>, <a href="guides/cpp-to-flowchart.html">C++</a>, <a href="guides/python-to-flowchart.html">Python</a> and <a href="guides/java-to-flowchart.html">Java</a>. Visualize algorithms, decisions and loops.</p></footer>
 <footer id="aff" hidden></footer><div id="toast" role="status" aria-live="polite"></div>
 <script src="syntax.js"></script>
 <script src="vendor/prism-code.js"></script>
 <script src="code-colors.js"></script>
 <script src="vendor/elk.bundled.js"></script>
+<script src="guide-examples.js"></script>
+<script src="diagram-settings.js"></script>
 <script src="flowchart.js"></script>
 <script src="diagram-export.js"></script>
 <script>
@@ -521,15 +549,24 @@ const LH=17;
 const COL={p:['#eef3fa','#8ca6c9'],call:['#efedfb','#8d82ce'],in:['#eef7f5','#80aaa0'],out:['#eef7f5','#80aaa0'],dec:['#faf5e9','#c5ad76'],ret:['#f6f3ee','#b8a78c'],brk:['#f1f3f6','#9ba7b8'],cnt:['#f1f3f6','#9ba7b8']};
 function pd(p){p=p.filter((q,i)=>!i||q[0]!=p[i-1][0]||q[1]!=p[i-1][1]);let d=`M${p[0]}`;const u=n=>{const l=Math.hypot(n[0],n[1])||1;return[n[0]/l,n[1]/l]};
 for(let i=1;i<p.length-1;i++){const a=p[i-1],b=p[i],c=p[i+1],r=Math.min(9,Math.hypot(b[0]-a[0],b[1]-a[1])/2,Math.hypot(c[0]-b[0],c[1]-b[1])/2),v=u([b[0]-a[0],b[1]-a[1]]),w=u([c[0]-b[0],c[1]-b[1]]);d+=`L${b[0]-v[0]*r},${b[1]-v[1]*r}Q${b},${b[0]+w[0]*r},${b[1]+w[1]*r}`}return d+`L${p[p.length-1]}`}
-function pill(t,x,y){const w=t.length*6.4+12;return`<rect x="${x-w/2}" y="${y-9}" width="${w}" height="17" rx="8.5" fill="#fff" stroke="#cbd5e1"/><text x="${x}" y="${y+3.5}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#475569" font-family="system-ui,sans-serif">${esc(t)}</text>`}
-function drawN(n){const cy=n.y+n.h/2,[f,s]=n.k=='term'?(/^(START|ENTER)/.test(n.L[0])?['#edf6f0','#82a68e']:['#f0f2f6','#9ca7b8']):COL[n.k],x=n.x,y=n.y,w=n.w,h=n.h;let sh;
-if(n.k=='term')sh=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/>`;
-else if(n.k=='dec')sh=`<polygon points="${n.cx},${y} ${x+w},${cy} ${n.cx},${y+h} ${x},${cy}" stroke-linejoin="round"/>`;
-else if(n.k=='in'||n.k=='out')sh=`<polygon points="${x+16},${y} ${x+w},${y} ${x+w-16},${y+h} ${x},${y+h}" stroke-linejoin="round"/>`;
-else sh=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2"/>`;
-let ex=n.k=='call'?`<path d="M${x+10} ${y}V${y+h}M${x+w-10} ${y}V${y+h}" stroke="${s}" stroke-width="1.2"/>`:'';
-const y0=cy-(n.L.length-1)*LH/2+4,tx=n.L.map((l,i)=>`<tspan x="${n.cx}" y="${y0+i*LH}">${esc(l)}</tspan>`).join('');
-return`<g fill="${f}" stroke="${s}" stroke-width="1.6">${sh}</g>${ex}<text text-anchor="middle" font-size="12.5" fill="#0f172a" font-weight="${n.k=='term'?700:500}">${tx}</text>`}
+function pill(t,x,y,options,palette){
+  const size=Math.max(10.5,options.fontSize*.84),w=Array.from(t).length*size+16,h=size+10;
+  const decoration=options.decorateLabels?`<rect x="${x-w/2}" y="${y-h/2}" width="${w}" height="${h}" rx="8.5" fill="${palette.pill}" stroke="${palette.pillBorder}"/>`:'';
+  return`${decoration}<text x="${x}" y="${y+size*.35}" text-anchor="middle" font-size="${size}" font-weight="700" fill="${palette.muted}" font-family="system-ui,sans-serif">${esc(t)}</text>`;
+}
+function drawN(n,options,palette){
+  const cy=n.y+n.h/2,role=n.k==='in'||n.k==='out'?'io':n.k==='brk'||n.k==='cnt'?'jump':n.k;
+  const [f,s]=n.k==='term'?(/^(START|ENTER)/.test(n.L[0])?palette.start:palette.stop):palette[role];
+  const x=n.x,y=n.y,w=n.w,h=n.h;let sh;
+  if(n.k==='term')sh=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${h/2}"/>`;
+  else if(n.k==='dec')sh=`<polygon points="${n.cx},${y} ${x+w},${cy} ${n.cx},${y+h} ${x},${cy}" stroke-linejoin="round"/>`;
+  else if(n.k==='in'||n.k==='out')sh=`<polygon points="${x+16},${y} ${x+w},${y} ${x+w-16},${y+h} ${x},${y+h}" stroke-linejoin="round"/>`;
+  else sh=`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2"/>`;
+  const ex=n.k==='call'?`<path d="M${x+10} ${y}V${y+h}M${x+w-10} ${y}V${y+h}" stroke="${s}" stroke-width="1.2"/>`:'';
+  const lh=n.lineHeight||LH,y0=cy-(n.L.length-1)*lh/2+options.fontSize*.32;
+  const tx=n.L.map((l,i)=>`<tspan x="${n.cx}" y="${y0+i*lh}">${esc(l)}</tspan>`).join('');
+  return`<g fill="${f}" stroke="${s}" stroke-width="1.6">${sh}</g>${ex}<text text-anchor="middle" font-size="${options.fontSize}" fill="${palette.text}" font-weight="${n.k==='term'?700:500}">${tx}</text>`;
+}
 function walk(l,f){l.forEach(s=>{f(s);[s.y,s.e,s.b,...(s.cs||[]).map(c=>c.b)].filter(Array.isArray).forEach(x=>walk(x,f))})}
 function fitFunctionHeadings(markup){
   if(typeof document==='undefined')return markup;
@@ -547,11 +584,12 @@ function fitFunctionHeadings(markup){
     return svg.innerHTML;
   }finally{svg.remove();}
 }
-async function buildProgram(program) {
-  const graph=FlowGraph.build(program),names=new Set(graph.functions.map(f=>f.name));
+async function buildProgram(program,preferences) {
+  const options=FlowGraph.settings.normalize(preferences),palette=FlowGraph.settings.palettes[options.theme];
+  const graph=FlowGraph.build(program,options),names=new Set(graph.functions.map(f=>f.name));
   const panels=[];let callCount=0;
   for(const f of graph.functions){
-    const placed=await FlowGraph.layout(f);
+    const placed=await FlowGraph.layout(f,options);
     panels.push({...placed,panelW:Math.max(280,placed.width+24),panelH:placed.height+94});
   }
   // Try shelf widths and keep the arrangement requiring the least A4 scaling.
@@ -564,27 +602,27 @@ async function buildProgram(program) {
     const height=y+rowH,score=Math.max(width/718,(height+60)/1047);
     if(!best||score<best.score)best={positions,width,height,score};
   }
-  const defs='<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" fill="#64748b"/></marker></defs>';
+  const defs='<defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 1L9 5L0 9z" fill="'+palette.edge+'"/></marker></defs>';
   const sections=panels.map((p,i)=>{
     const pos=best.positions[i],characters=Array.from(p.heading),maxTitle=Math.max(12,Math.floor((p.panelW-32)/14));
     // Budget a full font-size per character, including wide glyphs such as W.
     // The full signature remains in the title; visible text stays in its panel.
     const heading=esc(characters.length>maxTitle?characters.slice(0,maxTitle-1).join('')+'…':p.heading);
     const label=p.isEntry?'PROGRAM ENTRY':!graph.entry&&i===0?'FUNCTION ROOT (NO ENTRY POINT)':'FUNCTION DEFINITION';
-    const edges=p.edges.map(e=>'<path data-edge="'+e.id+'" d="'+pd(e.points.map(q=>[q.x,q.y]))+'" fill="none" stroke="#64748b" stroke-width="1.5" marker-end="url(#ar)"/>').join('');
-    const labels=p.edges.filter(e=>e.label).map(e=>{const l=e.labelPosition;return l?pill(e.label,l.x+l.width/2,l.y+l.height/2):'';}).join('');
+    const edges=p.edges.map(e=>'<path data-edge="'+e.id+'" d="'+pd(e.points.map(q=>[q.x,q.y]))+'" fill="none" stroke="'+palette.edge+'" stroke-width="1.5" marker-end="url(#ar)"/>').join('');
+    const labels=p.edges.filter(e=>e.label).map(e=>{const l=e.labelPosition;return l?pill(e.displayLabel,l.x+l.width/2,l.y+l.height/2,options,palette):'';}).join('');
     const nodes=p.nodes.map(n=>{
       const refs=n.calls.filter(name=>names.has(name));callCount+=refs.length;
       const reference=refs.map(name=>'<g data-call="'+esc(p.name+'->'+name)+'"><title>'+esc('Calls '+name+'(); execution resumes here after the helper returns.')+'</title></g>').join('');
-      return '<g data-node="'+n.id+'" data-kind="'+n.k+'"><title>'+esc(n.t+' (line '+n.line+')')+'</title>'+reference+drawN({...n,L:n.lines,w:n.width,h:n.height,cx:n.x+n.width/2})+'</g>';
+      return '<g data-node="'+n.id+'" data-kind="'+n.k+'"><title>'+esc(n.t+' (line '+n.line+')')+'</title>'+reference+drawN({...n,L:n.lines,w:n.width,h:n.height,cx:n.x+n.width/2},options,palette)+'</g>';
     }).join('');
-    return '<g data-function="'+esc(p.name)+'" transform="translate('+pos.x+' '+(pos.y+40)+')"><rect width="'+p.panelW+'" height="'+p.panelH+'" rx="12" fill="#fafbff" stroke="#e2e8f0"/><text x="16" y="25" font-size="14" font-weight="700" fill="#334155" font-family="system-ui,sans-serif"><title>'+esc(p.heading)+'</title>'+heading+'</text><text x="16" y="43" font-size="10" fill="#64748b" font-family="system-ui,sans-serif">'+label+'</text><g transform="translate('+((p.panelW-p.width)/2)+' 58)">'+edges+nodes+labels+'</g></g>';
+    return '<g data-function="'+esc(p.name)+'" transform="translate('+pos.x+' '+(pos.y+40)+')"><rect width="'+p.panelW+'" height="'+p.panelH+'" rx="12" fill="'+palette.panel+'" stroke="'+palette.border+'"/><text x="16" y="25" font-size="14" font-weight="700" fill="'+palette.text+'" font-family="system-ui,sans-serif"><title>'+esc(p.heading)+'</title>'+heading+'</text><text x="16" y="43" font-size="10" fill="'+palette.muted+'" font-family="system-ui,sans-serif">'+label+'</text><g transform="translate('+((p.panelW-p.width)/2)+' 58)">'+edges+nodes+labels+'</g></g>';
   }).join('');
   const contentW=best.width,contentH=best.height+60,frame=FlowGraph.pageFrame(contentW,contentH);
   const ordered=graph.functions.map(g=>program.fns.find(f=>f.name===g.name));
   const explanations=ordered.map((f,i)=>({f,...explain(f,program,i===0)}));
-  const content='<text x="0" y="22" fill="#0f172a" font-size="18" font-weight="700" font-family="system-ui,sans-serif">Program flowchart</text>'+sections;
-  return {name:'program',disp:'Program flowchart',fname:'program',W:frame.width,H:frame.height,b:{x:0,y:0,w:frame.width,h:frame.height},
+  const content='<text x="0" y="22" fill="'+palette.text+'" font-size="18" font-weight="700" font-family="system-ui,sans-serif">Program flowchart</text>'+sections;
+  return {settings:options,background:palette.background,name:'program',disp:'Program flowchart',fname:'program',W:frame.width,H:frame.height,b:{x:0,y:0,w:frame.width,h:frame.height},
     inner:fitFunctionHeadings(defs+'<g transform="translate('+frame.x+' '+frame.y+') scale('+frame.scale+')">'+content+'</g>'),
     ex:explanations.map(e=>'<section class="function-algorithm"><h3>'+esc(e.f.disp||e.f.name+'()')+'</h3>'+e.html+'</section>').join(''),
     algText:explanations.every(e=>e.text)?explanations.map(e=>e.text).join('\n\n'):null,functionCount:ordered.length,callCount,graph,layout:panels,contentScale:frame.scale};
@@ -864,6 +902,7 @@ function detect(src) {
   return 'python';
 }
 /* ---------- app ---------- */
+let diagramPreferences=(()=>{try{return DiagramSettings.load(localStorage);}catch(e){return DiagramSettings.normalize(null);}})();
 const LN2={c:'C / C++',python:'Python',java:'Java'};
 const ta=$('ta'),g=$('g'),stage=$('stage');let charts=[],cur=0,V={k:1,x:0,y:0},vp=null,generation=0;
 const toast=m=>{const t=$('toast');t.textContent=m;t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1800)};
@@ -912,7 +951,7 @@ function invalidate(message='Ready to generate') {
 }
 function show(i) {
   cur=i;const c=charts[i];
-  stage.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Complete program flowchart" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"><g id="vp"><rect width="${c.W}" height="${c.H}" fill="#fff"/>${c.inner}</g></svg>`;
+  stage.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Complete program flowchart" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"><g id="vp"><rect width="${c.W}" height="${c.H}" fill="${c.background||'#fff'}"/>${c.inner}</g></svg>`;
   vp=$('vp');$('exb').innerHTML=c.ex;setChartTools(true);$('cpa').disabled=!c.algText;fit();
 }
 function showErr(e,hint){const m=e&&e.m?e.m:'Unexpected error: '+(e&&e.message||e);$('err').style.display='block';$('err').innerHTML=(e&&e.l?`<b>Line ${e.l}:</b> `:'')+esc(m)+'<br><span style="opacity:.8">No flowchart was generated, to avoid showing an inaccurate diagram.</span>'+(hint?`<br><span style="opacity:.8">Detected language: ${LN2[hint]}. If that is wrong, pick the language from the dropdown above the code.</span>`:'');
@@ -927,7 +966,8 @@ function gen() {
   setTimeout(async()=>{
     if(ticket!==generation)return;
     try {
-      const program=parse(source,LG),chart=await buildProgram(program);
+      const preferences={...diagramPreferences};
+      const program=parse(source,LG),chart=await buildProgram(program,preferences);
       if(ticket!==generation)return;
       charts=[chart];
       const count={conditions:0,loops:0};
@@ -1041,8 +1081,13 @@ document.addEventListener('click',()=>closeExport());
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&mn.classList.contains('open'))closeExport(true);});
 stage.addEventListener('keydown',e=>{if(!charts.length)return;let used=true;const r=stage.getBoundingClientRect();if(e.key==='+'||e.key==='=')zoomAt(r.left+r.width/2,r.top+r.height/2,1.2);else if(e.key==='-')zoomAt(r.left+r.width/2,r.top+r.height/2,1/1.2);else if(e.key==='0')fit();else if(e.key==='ArrowLeft')V.x+=30;else if(e.key==='ArrowRight')V.x-=30;else if(e.key==='ArrowUp')V.y+=30;else if(e.key==='ArrowDown')V.y-=30;else used=false;if(used){e.preventDefault();apply();}});
 if(typeof ResizeObserver!=='undefined')new ResizeObserver(()=>{if(charts.length)fit();}).observe(stage);
-ta.value=EX[1];gut();gen();
+const requestedExample=new URLSearchParams(location.search).get('example');
+if(typeof GuideExamples!=='undefined'&&Object.hasOwn(GuideExamples,requestedExample)){
+  const example=GuideExamples[requestedExample];ta.value=example.source;$('lang').value=example.language;
+}else ta.value=EX[1];
+gut();gen();
 </script>
+<script src="settings-ui.js" defer></script>
 <aside id="library-panel" class="library-panel" aria-labelledby="library-heading" hidden>
   <div class="library-heading"><div><h2 id="library-heading">My Codes</h2><p id="library-count">Your personal code library</p></div><button id="library-close" class="icon-only" aria-label="Close My Codes" title="Close My Codes" ><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-close"/></svg></button></div>
   <p id="library-message" role="status" aria-live="polite"></p>

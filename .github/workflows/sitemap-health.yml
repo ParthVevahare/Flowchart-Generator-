@@ -1,0 +1,20 @@
+name: Published sitemap health
+on:
+  deployment_status:
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    if: github.event_name == 'workflow_dispatch' || (github.event.deployment_status.state == 'success' && github.event.deployment.environment == 'github-pages')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.deployment.sha || github.sha }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Verify the published XML and every listed canonical page
+        run: node scripts/check-sitemap.cjs --live

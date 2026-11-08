@@ -43,3 +43,25 @@ validation. Invalid/incomplete code stays editable. Missing highlighting
 assets and programs above 100,000 characters fall back to escaped plain text.
 Verify tokens at WCAG AA contrast, language changes, raw source preservation,
 scroll alignment, example/reset/cloud loading, and mobile sizing.
+
+## Diagram settings and guide surfaces
+
+Settings use the native modal dialog pattern already established by help,
+with a fixed header/action bar and internally scrolling fields. Each setting
+has a decorative SVG symbol from the local icon library. Native selects retain
+platform-owned popup geometry and keyboard behavior. Settings CSS inherits
+existing surface/text/accent tokens; it also owns global scrollbar styling.
+
+`diagram-settings.js` owns five explicit export palettes independently of the
+interface theme. Node geometry grows with font metrics; width scale changes
+wrapping and minimum width, height scale changes minimum height. All directions
+use actual port routing, not rotated text. Diagram exports remain A4 portrait.
+
+Guides use `guides/guides.css`: the same purple accent, system typography,
+quiet borders and light/dark surfaces at a larger reading scale. Article
+content is static HTML, with a narrow contents rail on desktop and stacked
+navigation on mobile. Code samples own horizontal overflow; the document
+never overflows horizontally. Motion is limited to link/card feedback and
+respects reduced motion. No new font or image service is required.
+
+Canonical behavior and ownership are recorded in UX-CONTRACT.md.

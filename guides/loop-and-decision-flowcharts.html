@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>For, While &amp; If/Else Flowcharts — Control Flow Guide | Flowchart Generator</title>
+<meta name="description" content="Learn to read for-loop, while-loop and if/else flowcharts. See how break, continue and return change control flow with a runnable C example.">
+<link rel="canonical" href="https://parthvevahare.github.io/Flowchart-Generator-/guides/loop-and-decision-flowcharts.html"><meta name="robots" content="index, follow, max-image-preview:large">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Flowchart Generator"><meta property="og:title" content="For, While &amp; If/Else Flowcharts — Control Flow Guide | Flowchart Generator"><meta property="og:description" content="Learn to read for-loop, while-loop and if/else flowcharts. See how break, continue and return change control flow with a runnable C example."><meta property="og:url" content="https://parthvevahare.github.io/Flowchart-Generator-/guides/loop-and-decision-flowcharts.html">
+<meta property="og:image" content="https://parthvevahare.github.io/Flowchart-Generator-/assets/logo-light.png"><meta property="og:image:width" content="1024"><meta property="og:image:height" content="1024"><meta property="og:image:alt" content="Flowchart Generator decision diamond logo">
+<meta name="twitter:card" content="summary"><meta name="twitter:title" content="For, While &amp; If/Else Flowcharts — Control Flow Guide | Flowchart Generator"><meta name="twitter:description" content="Learn to read for-loop, while-loop and if/else flowcharts. See how break, continue and return change control flow with a runnable C example."><meta name="twitter:image" content="https://parthvevahare.github.io/Flowchart-Generator-/assets/logo-light.png"><meta name="twitter:image:alt" content="Flowchart Generator decision diamond logo">
+<link rel="icon" href="../assets/logo-light.svg" type="image/svg+xml"><link rel="stylesheet" href="guides.css"><link rel="sitemap" type="application/xml" href="../sitemap.xml">
+<script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "TechArticle",
+      "@id": "https://parthvevahare.github.io/Flowchart-Generator-/guides/loop-and-decision-flowcharts.html#article",
+      "url": "https://parthvevahare.github.io/Flowchart-Generator-/guides/loop-and-decision-flowcharts.html",
+      "headline": "For, While & If/Else Flowcharts — Control Flow Guide",
+      "description": "Learn to read for-loop, while-loop and if/else flowcharts. See how break, continue and return change control flow with a runnable C example.",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@id": "https://parthvevahare.github.io/Flowchart-Generator-/#website"
+      },
+      "mainEntityOfPage": "https://parthvevahare.github.io/Flowchart-Generator-/guides/loop-and-decision-flowcharts.html"
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Generator",
+          "item": "https://parthvevahare.github.io/Flowchart-Generator-/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Guides",
+          "item": "https://parthvevahare.github.io/Flowchart-Generator-/guides/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "Control flow",
+          "item": "https://parthvevahare.github.io/Flowchart-Generator-/guides/loop-and-decision-flowcharts.html"
+        }
+      ]
+    }
+  ]
+}</script>
+</head><body><a class="skip-link" href="#content">Skip to content</a>
+<header class="guide-header"><a class="guide-brand" href="../"><img src="../assets/logo-light.svg" width="32" height="32" alt="">Flowchart Generator</a><nav aria-label="Main navigation"><a href="./">Guides</a><a class="button small" href="../">Open generator <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a></nav></header>
+<nav class="breadcrumbs" aria-label="Breadcrumb"><a href="../">Generator</a><span aria-hidden="true">/</span><a href="./">Guides</a><span aria-hidden="true">/</span><span aria-current="page">Control flow</span></nav>
+<main id="content"><article>
+<header class="article-hero"><p class="eyebrow">Control flow · A practical guide</p><h1>Follow every branch. Understand every loop.</h1><p class="lede">Sequence, selection and iteration are easier to discuss when you can point to the next step. A code-generated flowchart shows the structure of supported programs and keeps connectors tied to control flow rather than where boxes happen to sit.</p><a class="button" href="../?example=loop-and-decision-flowcharts#generator">Try this example <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a><p class="hero-note">Free in your browser. No sign-in needed to generate or export.</p></header>
+<div class="article-layout"><aside class="contents"><nav aria-label="On this page"><strong>In this guide</strong><a href="#section-0">Decisions split a path and can rejoin it</a><a href="#section-1">For, while and do/while test at different times</a><a href="#section-2">Break, continue and return take different exits</a><a href="#section-3">Use the diagram as a reasoning aid</a><a href="#example">Runnable example</a><a href="#questions">Common questions</a></nav></aside>
+<div class="article-body"><section id="section-0"><h2>Decisions split a path and can rejoin it</h2><p>An if/else statement becomes a diamond with true and false paths. With the default labels, Yes means the condition is true and No means it is false. Follow the condition literally: for x &lt; 0, Yes means negative, not simply “success.” You can change the printed labels in Settings without changing the underlying branch.</p><p>Branches often meet at the next shared statement. A return changes that: it exits the current function, so it must not lead to a statement that appears later in the source. An else-if chain is several decisions, not one diamond with arbitrarily many Yes paths.</p></section>
+<section id="section-1"><h2>For, while and do/while test at different times</h2><p>A for loop normally has initialization, a condition, a body and an update. A while loop checks its condition before entering the body. A do/while loop enters the body first and checks its condition afterward. This difference explains why a supported do/while body can run once even when its trailing condition is false.</p><p>A loop’s return connector is not an extra execution step: it means the next test will happen again. Compact layout can reduce the space between nodes, but it must preserve that relationship. Changing the diagram to left-to-right moves the layout, not the order of operations.</p></section>
+<section id="section-2"><h2>Break, continue and return take different exits</h2><p>In the example, continue skips the remaining body when i equals two; the for-loop update still happens before the next condition check. Break leaves the loop when i equals five. The final return exits main. Try tracing i = 1, 2 and 5 separately to see all three paths.</p><p>Inside nested structures, the destination depends on context. A break inside a switch exits that switch; a continue inside a switch nested in a loop continues the enclosing loop. Read the actual connector destination instead of assuming every jump goes to the bottom of the page.</p></section>
+<section id="section-3"><h2>Use the diagram as a reasoning aid</h2><p>A control-flow diagram shows possible supported paths, not how often each one executes or whether the program terminates for all inputs. Literal true/false predicates may eliminate unreachable paths; other predicates are left as decisions. The generator does not run arbitrary code to guess a branch outcome. Use tests and a language runtime to investigate actual behavior.</p></section>
+<section id="example"><div class="example-heading"><h2>Try it with real code</h2><span class="code-language">C</span></div><pre data-language="c"><code>#include &lt;stdio.h&gt;
+int main() {
+    for (int i = 1; i &lt;= 6; i++) {
+        if (i == 2) {
+            continue;
+        }
+        if (i == 5) {
+            break;
+        }
+        printf(&quot;%d&quot;, i);
+    }
+    return 0;
+}</code></pre><a class="text-link" href="../?example=loop-and-decision-flowcharts#generator">Open this example in the generator <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a><p class="small-note">Examples are checked against the parser. The generator visualizes source structure; it does not execute your program.</p></section>
+<section id="questions"><h2>Common questions</h2><details><summary>What shape represents a condition?</summary><p>A diamond represents a decision. Follow the outgoing label and connector to the next node; the node’s position alone does not determine execution.</p></details><details><summary>Why is a branch missing for while(0)?</summary><p>A literal false condition never enters the body. The graph can omit that unreachable path without evaluating arbitrary source expressions.</p></details><details><summary>Is a flowchart the same as a control-flow graph?</summary><p>A control-flow graph models nodes and possible transitions. This tool renders its validated graph with familiar flowchart shapes, labels and routed arrows.</p></details></section>
+</div></div></article>
+<section class="related"><p class="eyebrow">Keep exploring</p><h2>More ways to understand your code.</h2><div class="guide-grid"><a class="guide-card" href="python-to-flowchart.html"><span class="eyebrow">Python</span><h3>Turn Python code into a flowchart.</h3><p>Trace Python decisions, loops and functions without drawing every connector by hand. Paste a supported Python program into the free generator, inspect its control flow, then download the diagram for a report or revision notes.</p><span class="card-action">Read guide <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></a><a class="guide-card" href="c-to-flowchart.html"><span class="eyebrow">C</span><h3>Map the logic of a C program.</h3><p>Make the path through a C program easier to follow. The generator turns supported source into a control-flow diagram, with explicit branches, loop paths, input/output and function panels.</p><span class="card-action">Read guide <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></a><a class="guide-card" href="java-to-flowchart.html"><span class="eyebrow">Java</span><h3>Visualize a Java program’s control flow.</h3><p>Explain the decisions and iteration inside a small Java program with a diagram generated from its source. Start with a supported main method, inspect the paths, and pair the chart with an algorithm or pseudocode view.</p><span class="card-action">Read guide <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></span></a></div></section>
+<section class="guide-cta"><div><h2>Ready to map your program?</h2><p>Paste supported code, adjust the diagram, and export.</p></div><a class="button" href="../">Open generator <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 12h16m-6-6 6 6-6 6"/></svg></a></section></main><footer class="guide-footer"><p>Flowchart Generator · by Parth V</p><nav aria-label="Site information"><a href="../">Generator</a><a href="./">All guides</a><a href="../privacy.html">Privacy</a><a href="../terms.html">Terms</a><a href="../sitemap.xml">Sitemap</a></nav></footer></body></html>

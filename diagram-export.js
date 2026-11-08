@@ -3,7 +3,7 @@ const DiagramExport=(()=>{
   const width=2480,height=3508;
   function svg(chart,raster=false){
     const dimensions=raster?`width="${width}" height="${height}"`:'width="210mm" height="297mm"';
-    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${chart.W} ${chart.H}" ${dimensions} preserveAspectRatio="xMidYMid meet" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"><rect width="${chart.W}" height="${chart.H}" fill="#ffffff"/>${chart.inner}</svg>`;
+    return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${chart.W} ${chart.H}" ${dimensions} preserveAspectRatio="xMidYMid meet" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"><rect width="${chart.W}" height="${chart.H}" fill="${chart.background||'#ffffff'}"/>${chart.inner}</svg>`;
   }
   async function png(canvas){
     const blob=await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('PNG export failed')),'image/png'));

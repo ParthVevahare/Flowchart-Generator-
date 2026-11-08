@@ -1,0 +1,4 @@
+# Keep generated output deterministic on both Windows and Linux checkouts.
+/guides/*.html text eol=lf
+/guide-examples.js text eol=lf
+/sitemap.xml text eol=lf

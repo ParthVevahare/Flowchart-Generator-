@@ -1,9 +1,10 @@
 /* Statement AST -> control-flow graph. Coordinates never determine execution. */
 (function(root,factory){
-  const api=factory();
+  const settings=typeof module==='object'&&module.exports?require('./diagram-settings.js'):root.DiagramSettings;
+  const api=factory(settings);
   if(typeof module==='object'&&module.exports)module.exports=api;
   else root.FlowGraph=api;
-})(typeof globalThis!=='undefined'?globalThis:this,function(){
+})(typeof globalThis!=='undefined'?globalThis:this,function(Settings){
   'use strict';
   const calls=tokens=>[...new Set((tokens||[]).filter((t,i,a)=>/^[A-Za-z_]\w*$/.test(t.t)&&a[i+1]?.t==='('&&a[i-1]?.t!=='new').map(t=>t.t))];
   // Only fold literal predicates. Evaluating arbitrary source would be unsafe
@@ -25,7 +26,7 @@
     }
     return out;
   }
-  function buildFunction(f,program,isEntry,names){
+  function buildFunction(f,program,isEntry,names,options){
     let serial=0;const nodes=[],edges=[];
     const add=(k,t,s={})=>{
       const n={id:'n'+serial++,k,t,line:s.l||f.l||1,calls:calls(s.q||s.ct),statements:s.statements||[s]};
@@ -44,7 +45,7 @@
       if(v!==true)edge(id,no,'No');
     }
     function sequence(body,after,ctx){
-      const list=group(body);let next=after;
+      const list=options.optimizeCommon?group(body):body;let next=after;
       for(let i=list.length-1;i>=0;i--){const s=list[i];
         if(s.k==='if'){
           const id=decision(s),yes=sequence(s.y,next,ctx),no=s.e?sequence(s.e,next,ctx):next;
@@ -119,39 +120,47 @@
     if(seen.size!==ids.size)throw new Error('Graph contains unreachable nodes');
     return graph;
   }
-  function build(program){
+  function build(program,preferences){
+    const options=Settings.normalize(preferences);
     const fns=program.fns,names=new Set(fns.map(f=>f.name));
     const entry=fns.find(f=>f.script)||(program.lang!=='python'&&fns.find(f=>f.name==='main'))||null;
     const ordered=entry?[entry,...fns.filter(f=>f!==entry)]:fns;
-    return{entry:entry?.name||null,functions:ordered.map(f=>buildFunction(f,program,f===entry,names))};
+    return{entry:entry?.name||null,functions:ordered.map(f=>buildFunction(f,program,f===entry,names,options))};
   }
   function wrap(text,limit){
     const lines=[];
     for(const row of text.split('\n')){
-      let rest=row;
+      let rest=Array.from(row);
       while(rest.length>limit){
         let cut=rest.lastIndexOf(' ',limit);if(cut<limit/3)cut=limit;
-        lines.push(rest.slice(0,cut));rest=rest.slice(cut).replace(/^ /,'');
+        lines.push(rest.slice(0,cut).join(''));rest=rest.slice(cut);if(rest[0]===' ')rest.shift();
       }
-      lines.push(rest);
+      lines.push(rest.join(''));
     }
     return lines;
   }
-  function geometry(n){
-    const decision=n.k==='dec',io=n.k==='in'||n.k==='out';
-    const lines=wrap(n.t,decision?22:36),textWidth=Math.max(...lines.map(l=>l.length))*7.5;
-    return{...n,lines,width:decision?Math.max(172,textWidth*2+36):Math.max(130,textWidth+(io?64:40)),
-      height:decision?Math.max(90,lines.length*34+34):Math.max(44,lines.length*17+28)};
+  function geometry(n,options){
+    const decision=n.k==='dec',io=n.k==='in'||n.k==='out',fontSize=options.fontSize;
+    const lineHeight=17*fontSize/12.5,scale=fontSize/12.5;
+    const lines=wrap(n.t,Math.max(12,Math.floor((decision?22:36)*options.widthScale)));
+    // Fallback fonts can use a full em for CJK/emoji. Counting every glyph as
+    // a narrow Latin monospace character lets translated strings escape nodes.
+    const textWidth=Math.max(...lines.map(l=>Array.from(l).reduce((w,c)=>w+(c.codePointAt(0)>127?1.05:.65),0)))*fontSize;
+    return{...n,lines,fontSize,lineHeight,
+      width:decision?Math.max(172*options.widthScale,textWidth*2+36*scale):Math.max(130*options.widthScale,textWidth+(io?64:40)*scale),
+      height:decision?Math.max(90*options.heightScale,lines.length*lineHeight*2+34*scale):Math.max(44*options.heightScale,lines.length*lineHeight+28*scale)};
   }
   let engine;
-  async function layout(graph){
+  async function layout(graph,preferences){
     validate(graph);
+    const options=Settings.normalize(preferences);
+    const ports={DOWN:{forward:'s',incoming:'n',branch:'e',back:'w'},UP:{forward:'n',incoming:'s',branch:'e',back:'w'},RIGHT:{forward:'e',incoming:'w',branch:'s',back:'n'},LEFT:{forward:'w',incoming:'e',branch:'s',back:'n'}}[options.direction];
     if(!engine){
       const ELKClass=typeof module==='object'&&module.exports?require('./vendor/elk.bundled.js'):globalThis.ELK;
       if(!ELKClass)throw new Error('The automatic layout engine could not load. Reload and try again.');
       engine=new ELKClass();
     }
-    const nodes=graph.nodes.map(geometry),byId=new Map(nodes.map(n=>[n.id,n]));
+    const nodes=graph.nodes.map(n=>geometry(n,options)),byId=new Map(nodes.map(n=>[n.id,n]));
     const outgoing=new Map(nodes.map(n=>[n.id,graph.edges.filter(e=>e.source===n.id)]));
     const active=new Set(),seen=new Set(),feedback=new Set();
     function visit(id){
@@ -165,17 +174,18 @@
       ports:[['n',n.width/2,0,'NORTH'],['s',n.width/2,n.height,'SOUTH'],['e',n.width,n.height/2,'EAST'],['w',0,n.height/2,'WEST']].map(([side,x,y,cardinal])=>({id:n.id+'_'+side,x,y,width:0,height:0,layoutOptions:{'org.eclipse.elk.port.side':cardinal}}))}));
     const edges=graph.edges.map(e=>{
       const back=feedback.has(e.id),n=byId.get(e.source);
-      const from=back?'w':n.k==='dec'&&e.label==='No'?'e':'s';
+      const from=back?ports.back:n.k==='dec'&&e.label==='No'?ports.branch:ports.forward;
+      const label=Settings.displayLabel(e,options),labelSize=Math.max(10.5,options.fontSize*.84);
       // Reverse only the layout representation of DFS feedback edges. This
       // gives ELK an acyclic forward graph, keeping the entry above the body.
       // Reverse the routed points again below; semantic edges never change.
-      return{id:e.id,sources:[back?e.target+(e.source===e.target?'_n':'_w'):e.source+'_'+from],targets:[back?e.source+'_w':e.target+'_n'],
-        ...(e.label?{labels:[{id:e.id+'_label',text:e.label,width:Math.max(32,e.label.length*6.5+12),height:20}]}:{})};
+      return{id:e.id,sources:[back?e.target+'_'+(e.source===e.target?ports.incoming:ports.back):e.source+'_'+from],targets:[back?e.source+'_'+ports.back:e.target+'_'+ports.incoming],
+        ...(label?{labels:[{id:e.id+'_label',text:label,width:Math.max(32,Array.from(label).length*labelSize+16),height:labelSize+12}]}:{})};
     });
     const result=await engine.layout({id:'root',layoutOptions:{
-      'elk.algorithm':'layered','elk.direction':'DOWN','elk.edgeRouting':'ORTHOGONAL',
+      'elk.algorithm':'layered','elk.direction':options.direction,'elk.edgeRouting':'ORTHOGONAL',
       'elk.padding':'[top=20,left=24,bottom=20,right=24]',
-      'elk.spacing.nodeNode':'36','elk.layered.spacing.nodeNodeBetweenLayers':'48',
+      'elk.spacing.nodeNode':String(options.compact?22:36),'elk.layered.spacing.nodeNodeBetweenLayers':String(options.compact?28:48),
       'elk.spacing.edgeNode':'18','elk.spacing.edgeEdge':'12',
       'elk.layered.considerModelOrder.strategy':'NODES_AND_EDGES',
       'elk.layered.nodePlacement.bk.fixedAlignment':'BALANCED',
@@ -186,7 +196,7 @@
       const s=e.sections?.[0];if(!s)throw new Error('Layout engine did not route an execution path');
       const points=[s.startPoint,...(s.bendPoints||[]),s.endPoint];
       if(feedback.has(e.id))points.reverse();
-      return{...graph.edges[i],feedback:feedback.has(e.id),points,labelPosition:e.labels?.[0]};
+      return{...graph.edges[i],displayLabel:Settings.displayLabel(graph.edges[i],options),feedback:feedback.has(e.id),points,labelPosition:e.labels?.[0]};
     });
     return{...graph,width:result.width,height:result.height,nodes:placed,edges:routed};
   }
@@ -195,7 +205,7 @@
     const scale=Math.min((pageWidth-2*margin)/width,(pageHeight-2*margin)/height,1);
     return{width:pageWidth,height:pageHeight,scale,x:(pageWidth-width*scale)/2,y:(pageHeight-height*scale)/2};
   }
-  return{build,validate,calls,layout,pageFrame};
+  return{build,validate,calls,layout,pageFrame,settings:Settings};
 });
 
 

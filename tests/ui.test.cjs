@@ -34,6 +34,43 @@ test('small flowcharts automatically fill the canvas without a 130-percent cap',
  await p.locator('#zi').click();const zoom=Number((await p.locator('#zoom-level').textContent()).replace('%',''));assert.ok(zoom>bounds.zoom);
  await p.locator('#fit').click();assert.equal(Number((await p.locator('#zoom-level').textContent()).replace('%','')),bounds.zoom);
 });
+test('large charts start at readable scale and keep their view beside explanations',async t=>{
+ const p=await open(t,{width:1280,height:540});
+ const readView=()=>p.evaluate(()=>({
+   zoom:Number(document.getElementById('zoom-level').textContent.replace('%','')),
+   transform:document.getElementById('vp').getAttribute('transform')
+ }));
+ for(const viewport of [{width:1280,height:540},{width:390,height:844}]){
+   await p.setViewportSize(viewport);
+   await p.locator('#go').click();
+   await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+   const initial=await readView();
+   assert.ok(initial.zoom>=100,JSON.stringify(initial));
+   await p.locator('#fit').click();
+   const fitted=await readView();
+   assert.ok(fitted.zoom<initial.zoom,JSON.stringify(fitted));
+   assert.ok(await p.evaluate(()=>{
+     const s=document.getElementById('stage').getBoundingClientRect();
+     const d=document.querySelector('#vp > rect').getBoundingClientRect();
+     return d.top>=s.top&&d.bottom<=s.bottom&&d.left>=s.left&&d.right<=s.right;
+   }),'Fit shows the complete diagram');
+   await p.locator('#zi').click();
+   await p.locator('#stage').press('ArrowDown');
+   const chosen=await readView();
+   for(const [button,panel,expanded] of [['#xp','#exp',true],['#pcb','#ps',true],['#pcb','#ps',false]]){
+     await p.locator(button).click();
+     assert.equal(await p.locator(button).getAttribute('aria-expanded'),String(expanded));
+     assert.equal(await p.locator(panel).isVisible(),expanded);
+     await p.evaluate(()=>new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve))));
+     assert.deepEqual(await readView(),chosen);
+     assert.ok(await p.evaluate(()=>{
+       const pane=document.getElementById('pane').getBoundingClientRect();
+       return document.querySelector('.canvas-footer').getBoundingClientRect().bottom<=pane.bottom+1;
+     }),'chart status stays inside the workspace');
+   }
+ }
+});
+
 test('playgrounds fill the first desktop viewport and footer is reached by scrolling',async t=>{
  const p=await open(t);
  for(const viewport of [{width:1440,height:960},{width:1280,height:540},{width:1920,height:1080}]){

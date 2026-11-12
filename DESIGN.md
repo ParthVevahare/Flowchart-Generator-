@@ -75,7 +75,10 @@ keyboard accessible and crawlable. Wide screens use the available width rather
 than a centered 1700 px cap. Mobile keeps the existing stacked panels and grows
 each panel to make use of a tall viewport.
 
-Fit scales the complete natural diagram into the canvas with 8–16 px breathing
-room, without the former 130% automatic zoom cap. Manual zoom uses the same
-maximum as fit, so zooming in cannot unexpectedly reduce a fitted small chart.
-Export dimensions and diagram geometry are independent of viewport fit.
+The initial view fits small diagrams to the canvas and opens large diagrams at
+100% so their labels retain their designed size. Overflow starts at the top or
+left edge with room to pan. Fit shows the whole diagram with 8–16 px of padding.
+Manual zoom uses the same maximum as Fit. Opening, closing, or switching
+Algorithm and Pseudocode preserves the canvas transform while the text panel
+scrolls within its available space. Export dimensions and diagram geometry are
+independent of viewport zoom.

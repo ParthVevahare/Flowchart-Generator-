@@ -47,7 +47,8 @@ test('narrow screens offer a jump to the current flowchart beside Generate',asyn
    await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
    assert.equal(await p.evaluate(()=>scrollY),scrollBefore,'generation leaves the user at the editor');
    const bounds=await jump.boundingBox();
-   assert.ok(bounds&&bounds.x>=0&&bounds.x+bounds.width<=width&&bounds.height>=44);
+   assert.ok(bounds&&bounds.x>=0&&bounds.x+bounds.width<=width&&bounds.height>=44,
+     `at ${width}px the result action fits and has a 44px target: ${JSON.stringify(bounds)}`);
    assert.ok(bounds.y>=0&&bounds.y+bounds.height<=844,'the action appears in the visible editor');
    await jump.press('Enter');
    assert.equal(await p.evaluate(()=>document.activeElement.id),'stage');

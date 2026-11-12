@@ -86,3 +86,7 @@ Manual zoom uses the same maximum as Fit. Opening, closing, or switching
 Algorithm and Pseudocode preserves the canvas transform while the text panel
 scrolls within its available space. Export dimensions and diagram geometry are
 independent of viewport zoom.
+
+The chart image describes the source language and its control flow at a glance.
+**Read pseudocode** opens the named text panel and focuses its heading. Escape
+from the panel returns focus to the control.

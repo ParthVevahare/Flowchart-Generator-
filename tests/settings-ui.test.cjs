@@ -21,7 +21,8 @@ test('new HTML bypasses an old cached flowchart module',async t=>{
    await context.route('**/flowchart.js',route=>{oldRequests++;return route.fulfill({contentType:'text/javascript',body:oldFlowGraph});});
  });
  assert.equal(oldRequests,0,'an updated page must use a versioned URL, not the cached unversioned module');
- assert.equal(await p.locator('#err').textContent(),'');
+ assert.equal(await p.locator('#err').isVisible(),false);
+ assert.equal(await p.locator('#err-message').textContent(),'');
  await p.locator('#diagram-settings-open').click();await p.locator('#setting-theme').selectOption('ocean');await p.locator('#settings-apply').click();
  await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
  assert.equal(await p.locator('#stage #vp > rect').getAttribute('fill'),'#f4faff');

@@ -64,6 +64,36 @@ test('narrow screens offer a jump to the current flowchart beside Generate',asyn
  assert.equal(await jump.isVisible(),false,'failed generation offers no result action');
 });
 
+test('the flowchart describes its contents and offers keyboard access to pseudocode',async t=>{
+ const p=await open(t,{width:390,height:844});
+ const ta=p.locator('#ta'),go=p.locator('#go');
+ const chart=p.getByRole('img',{name:'Complete program flowchart'});
+ const read=p.getByRole('button',{name:'Read pseudocode',exact:true});
+ const heading=p.getByRole('heading',{name:'Program pseudocode',exact:true});
+ await ta.fill('x = 3\nif x > 0:\n    print("positive")\nelse:\n    print("negative")');
+ assert.ok(await read.isDisabled());
+ await go.click();
+ await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+ const cdp=await p.context().newCDPSession(p);
+ const {nodes}=await cdp.send('Accessibility.getFullAXTree');
+ const image=nodes.find(n=>n.role?.value==='image'&&n.name?.value==='Complete program flowchart');
+ assert.match(image?.description?.value??'',/Python control flow: 1 section, 1 condition, 0 loops/);
+ assert.match(image.description.value,/Read pseudocode/);
+ assert.equal(await heading.isVisible(),false);
+ await read.press('Enter');
+ assert.equal(await read.getAttribute('aria-expanded'),'true');
+ assert.equal(await heading.evaluate(el=>el===document.activeElement),true);
+ assert.match(await p.locator('#psb').textContent(),/IF x > 0 THEN/);
+ assert.match(await p.locator('#psb').textContent(),/ELSE/);
+ await p.keyboard.press('Escape');
+ assert.equal(await read.getAttribute('aria-expanded'),'false');
+ assert.equal(await read.evaluate(el=>el===document.activeElement),true);
+ assert.equal(await heading.isVisible(),false);
+ await ta.fill('print("updated")');
+ assert.ok(await read.isDisabled());
+ assert.equal(await chart.count(),0);
+});
+
 test('large charts start at readable scale and keep their view beside explanations',async t=>{
  const p=await open(t,{width:1280,height:540});
  const readView=()=>p.evaluate(()=>({

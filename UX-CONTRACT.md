@@ -26,6 +26,13 @@ Display labels do not change semantic Yes/No edges or parser validation.
 Every generation and export is bound to a chart snapshot; editing source or
 applying settings invalidates stale work.
 
+## Source recovery
+
+Reset and example loading retain the prior nonempty source, language, selection
+and editor scroll position for Restore or Ctrl/Cmd+Z. Trying more examples keeps
+the original recovery point until the user edits the source, restores it, or
+opens another program. Restoring invalidates the chart and its exports.
+
 ## Guides
 
 Articles and metadata are static HTML available without JavaScript. An example

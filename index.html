@@ -926,15 +926,24 @@ if(typeof ResizeObserver!=='undefined')new ResizeObserver(syncCodeColors).observ
 let resetSnapshot=null;
 function clearError(){ $('err').style.display='none';ta.removeAttribute('aria-invalid');ta.setAttribute('aria-describedby','editor-help'); }
 function clearReset(){resetSnapshot=null;$('rs').querySelector('span').textContent='Reset';}
+function rememberSourceForRestore(){
+  if(resetSnapshot||!ta.value)return;
+  resetSnapshot={
+    source:ta.value,lang:$('lang').value,start:ta.selectionStart,end:ta.selectionEnd,
+    direction:ta.selectionDirection,scrollTop:ta.scrollTop,scrollLeft:ta.scrollLeft
+  };
+  $('rs').querySelector('span').textContent='Restore';
+}
 function restoreSource(){
   if(!resetSnapshot)return;
   const saved=resetSnapshot;clearReset();invalidate('Code restored. Generate to update.');
   ta.value=saved.source;$('lang').value=saved.lang;clearError();gut();ta.focus();
-  ta.setSelectionRange(saved.start,saved.end);ta.scrollTop=saved.scroll;g.scrollTop=ta.scrollTop;
+  ta.setSelectionRange(saved.start,saved.end,saved.direction);
+  ta.scrollTop=saved.scrollTop;ta.scrollLeft=saved.scrollLeft;g.scrollTop=ta.scrollTop;syncCodeColors();
 }
 ta.oninput=()=>{clearReset();invalidate('Code changed. Generate to update.');gut();clearError();};ta.onscroll=()=>{g.scrollTop=ta.scrollTop;syncCodeColors();};
 ta.onkeydown=e=>{
-  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&resetSnapshot&&!ta.value){e.preventDefault();restoreSource();}
+  if((e.ctrlKey||e.metaKey)&&!e.shiftKey&&e.key.toLowerCase()==='z'&&resetSnapshot&&!ta.readOnly){e.preventDefault();restoreSource();}
   else if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();gen();}
   else if((e.ctrlKey||e.metaKey)&&e.key===']'){e.preventDefault();ta.setRangeText('    ',ta.selectionStart,ta.selectionEnd,'end');ta.dispatchEvent(new Event('input'));}
 };
@@ -1006,12 +1015,18 @@ editorOptions.onclick=e=>{e.preventDefault();editorSettings.togglePopover();posi
 window.addEventListener('resize',positionEditorOptions);
 $('lang').onchange=()=>{invalidate('Language changed. Generate to update.');clearError();renderCodeColors();};
 $('rs').onclick=()=>{
-  if(resetSnapshot&&!ta.value){restoreSource();return;}
-  if(ta.value){resetSnapshot={source:ta.value,lang:$('lang').value,start:ta.selectionStart,end:ta.selectionEnd,scroll:ta.scrollTop};$('rs').querySelector('span').textContent='Restore';}
+  if(resetSnapshot){restoreSource();return;}
+  rememberSourceForRestore();
   invalidate();ta.value='';gut();clearError();ta.focus();
   if(resetSnapshot)toast('Code cleared. Use Restore or Ctrl+Z to recover.');
 };
-$('exs').onchange=e=>{if(e.target.value!==''){clearReset();ta.value=EX[e.target.value];$('lang').value='auto';gut();gen();e.target.value='';closeEditorOptions();ta.focus();}};
+$('exs').onchange=e=>{
+  if(!e.target.value)return;
+  rememberSourceForRestore();
+  ta.value=EX[e.target.value];$('lang').value='auto';gut();gen();
+  e.target.value='';closeEditorOptions();ta.focus();
+  if(resetSnapshot)toast('Example loaded. Choose Restore to recover your code.');
+};
 $('zi').onclick=()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,1.25)};
 $('zo').onclick=()=>{const r=stage.getBoundingClientRect();zoomAt(r.left+r.width/2,r.top+r.height/2,.8)};$('fit').onclick=fit;
 $('fs').onclick=()=>document.fullscreenElement?document.exitFullscreen():$('pane').requestFullscreen&&$('pane').requestFullscreen();

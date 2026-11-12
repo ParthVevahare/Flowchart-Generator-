@@ -73,7 +73,9 @@ The first desktop viewport belongs to the header and the two playgrounds.
 in normal document flow after it and appears through scrolling. It remains
 keyboard accessible and crawlable. Wide screens use the available width rather
 than a centered 1700 px cap. Mobile keeps the existing stacked panels and grows
-each panel to make use of a tall viewport.
+each panel to make use of a tall viewport. In the stacked layout, **View
+flowchart** appears beside Generate while a current chart is available. It scrolls
+to the result and focuses the canvas when activated.
 
 The initial view fits small diagrams to the canvas and opens large diagrams at
 100% so their labels retain their designed size. Overflow starts at the top or

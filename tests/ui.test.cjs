@@ -238,6 +238,36 @@ test('editor options stay tucked away, escape cleanly, and preserve language/exa
  }
 });
 
+test('a language hint can open and focus the source language selector',async t=>{
+ const p=await open(t,{width:390,height:844});
+ const options=p.getByRole('button',{name:'Language and examples',exact:true});
+ const change=p.getByRole('button',{name:'Change language',exact:true});
+ const ta=p.locator('#ta'),lang=p.locator('#lang'),code='def broken(:';
+ assert.match(await options.textContent(),/Language and examples/);
+ assert.equal(await change.isVisible(),false);
+ for(const width of [390,320,1280]){
+   await p.setViewportSize({width,height:844});
+   const heading=await options.boundingBox();
+   assert.ok(heading&&heading.x>=0&&heading.x+heading.width<=width);
+   if(await lang.inputValue()!=='auto'){
+     await options.click();
+     await lang.selectOption('auto');
+     await p.keyboard.press('Escape');
+   }
+   await invalid(p,code);
+   assert.match(await p.getByRole('alert').filter({hasText:'Detected language'}).textContent(),/Detected language: Python/);
+   assert.ok(await change.isVisible());
+   await change.press('Enter');
+   assert.equal(await p.evaluate(()=>document.activeElement.id),'lang');
+   assert.equal(await options.getAttribute('aria-expanded'),'true');
+   assert.equal(await ta.inputValue(),code);
+   await lang.selectOption('python');
+   assert.equal(await change.isVisible(),false);
+   assert.equal(await ta.inputValue(),code);
+   await p.keyboard.press('Escape');
+ }
+});
+
 test('loading examples lets users restore their draft by button or keyboard',async t=>{
  const p=await open(t),ta=p.locator('#ta'),options=p.getByRole('button',{name:'Language and examples',exact:true});
  const source='def draft():\n    return "keep this"\n';

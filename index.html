@@ -178,7 +178,11 @@ html[data-theme=dark] .brand-logo-dark{display:block}
 
 #editor>.panel-heading{min-height:64px;padding-top:10px;padding-bottom:10px}
 .editor-heading-actions{display:flex;align-items:center;gap:4px;flex:none}
-#editor-options{width:44px;height:44px;min-height:44px;font-size:12px}
+#editor-options{min-height:44px;font-size:12px}
+#err-language{margin-top:6px;min-height:44px}
+@media(max-width:480px){
+  #editor .panel-heading{flex-wrap:wrap}
+}
 #editor-options[aria-expanded="true"]{background:var(--accent-soft);color:var(--ac)}
 #editor-settings{position:fixed;inset:auto;margin:0;width:300px;max-width:calc(100vw - 24px);padding:16px;grid-template-columns:minmax(0,1fr);gap:14px;border:1px solid var(--bd);border-radius:12px;background:var(--surface);color:var(--tx);box-shadow:0 8px 24px #20293918}
 #editor-settings:not(:popover-open){display:none}
@@ -217,14 +221,17 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
 <script id="visit-counter-mount">VisitCounter.mount(document.getElementById("vc"));</script>
 <main id="generator" aria-label="Code to flowchart workspace">
   <section class="card" id="editor" aria-labelledby="source-title">
-    <div class="panel-heading"><div><div class="panel-title"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-code"/></svg><h2 id="source-title">Source code</h2></div><p class="panel-description">Write or paste your program.</p></div><div class="editor-heading-actions"><button id="editor-options" class="quiet icon-only" type="button" popovertarget="editor-settings" aria-label="Language and examples" title="Language and examples" aria-haspopup="dialog" aria-expanded="false" aria-controls="editor-settings"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-filter"/></svg></button><button id="rs" class="quiet"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-reset"/></svg><span>Reset</span></button></div></div>
+    <div class="panel-heading"><div><div class="panel-title"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-code"/></svg><h2 id="source-title">Source code</h2></div><p class="panel-description">Write or paste your program.</p></div><div class="editor-heading-actions"><button id="editor-options" class="quiet" type="button" popovertarget="editor-settings" aria-haspopup="dialog" aria-expanded="false" aria-controls="editor-settings"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-filter"/></svg><span>Language and examples</span></button><button id="rs" class="quiet"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-reset"/></svg><span>Reset</span></button></div></div>
     <div id="cloud-editor" class="cloud-editor" hidden>
       <label class="cloud-title">Program title<input id="program-title" maxlength="120" autocomplete="off"></label>
       <div class="cloud-toolbar"><div class="save-actions" role="group" aria-label="Save program"><button id="program-save" data-busy-control><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-save"/></svg>Save now</button><button id="program-copy" data-busy-control>Save as new</button></div><div class="code-actions" role="group" aria-label="Copy or download source"><button id="program-download" class="icon-only" aria-label="Download code" title="Download code" ><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg></button><button id="program-clipboard" class="icon-only" aria-label="Copy code" title="Copy code" ><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg></button></div><span id="cloud-status" role="status" aria-live="polite"></span></div>
       <details><summary>Program details</summary><div class="program-details"><label>Description<textarea id="program-description" maxlength="2000" rows="2"></textarea></label><label>Tags, separated by commas<input id="program-tags" placeholder="practice, loops"></label><label class="check-label"><input type="checkbox" id="program-favorite">Favorite</label><button id="program-reload">Reload cloud version</button></div></details>
     </div>
     <div class="editor-settings" id="editor-settings" popover="auto" role="dialog" aria-label="Language and examples"><label class="field"><span class="option-label"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/></svg>Language</span><select id="lang" aria-label="Source language"><option value="auto">Auto-detect language</option><option value="c">C / C++</option><option value="python">Python</option><option value="java">Java</option></select></label><label class="field"><span class="option-label"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-code"/></svg>Examples</span><select id="exs" aria-label="Load a code example"><option value="">Load example…</option><option value="0">C · loop + if/else + switch</option><option value="1">C++ · positive / negative</option><option value="2">C · while / do-while / break</option><option value="3">Python · loops + if/elif</option><option value="4">Python · functions</option><option value="5">Java · loop + switch</option></select></label></div>
-    <div id="err" role="alert"></div>
+    <div id="err">
+      <div id="err-message" role="alert"></div>
+      <button id="err-language" type="button" aria-haspopup="dialog" aria-controls="editor-settings" hidden>Change language</button>
+    </div>
     <div class="ed"><div id="g" aria-hidden="true"></div><div class="code-input"><pre id="code-colors" aria-hidden="true"><code id="code-tokens"></code></pre><textarea id="ta" aria-label="Source code" aria-describedby="editor-help" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="soft" placeholder="Paste your program here..."></textarea></div></div>
     <div class="editor-bottom"><div class="editor-action"><button class="pri" id="go"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><span>Generate Flowchart</span></button><button id="view-flowchart" type="button" aria-controls="stage" hidden>View flowchart</button><span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span></div><details class="support-note"><summary>Supported syntax</summary><p id="editor-help">Tab and Shift+Tab move between controls. Ctrl/Command + ] inserts four spaces. Functions, assignments, input/output, conditions, loops, and C/Java switch statements. Unsupported syntax gets a line-specific error. Syntax checks do not execute your program or check variable types.</p></details></div>
   </section>
@@ -990,8 +997,14 @@ function show(i) {
   stage.innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Complete program flowchart" font-family="ui-monospace,SFMono-Regular,Menlo,Consolas,monospace"><g id="vp"><rect width="${c.W}" height="${c.H}" fill="${c.background||'#fff'}"/>${c.inner}</g></svg>`;
   vp=$('vp');$('exb').innerHTML=c.ex;setChartTools(true);$('cpa').disabled=!c.algText;showReadableView();
 }
-function showErr(e,hint){const m=e&&e.m?e.m:'Unexpected error: '+(e&&e.message||e);$('err').style.display='block';$('err').innerHTML=(e&&e.l?`<b>Line ${e.l}:</b> `:'')+esc(m)+'<br><span style="opacity:.8">No flowchart was generated, to avoid showing an inaccurate diagram.</span>'+(hint?`<br><span style="opacity:.8">Detected language: ${LN2[hint]}. If that is wrong, pick the language from the dropdown above the code.</span>`:'');
-ta.setAttribute('aria-invalid','true');ta.setAttribute('aria-describedby','editor-help err');
+function showErr(e,hint){
+const m=e&&e.m?e.m:'Unexpected error: '+(e&&e.message||e);
+$('err').style.display='block';
+$('err-message').innerHTML=(e&&e.l?`<b>Line ${e.l}:</b> `:'')+esc(m)
+  +'<div>No flowchart generated.</div>'
+  +(hint?`<div>Detected language: ${LN2[hint]}.</div>`:'');
+$('err-language').hidden=!hint;
+ta.setAttribute('aria-invalid','true');ta.setAttribute('aria-describedby','editor-help err-message');
 if(e&&e.l){gut(e.l);const ls=ta.value.split('\n');let p=0;for(let i=0;i<e.l-1;i++)p+=ls[i].length+1;ta.setSelectionRange(p,p+(ls[e.l-1]||'').length);
 const style=getComputedStyle(ta),lineHeight=parseFloat(style.lineHeight),padding=parseFloat(style.paddingTop);
 ta.scrollTop=Math.max(0,padding+(e.l-1)*lineHeight-Math.max(0,(ta.clientHeight-lineHeight)/2));g.scrollTop=ta.scrollTop;}}
@@ -1033,6 +1046,13 @@ function closeEditorOptions(focus=false){if(editorSettings.matches(':popover-ope
 editorSettings.addEventListener('beforetoggle',e=>{editorOptions.setAttribute('aria-expanded',String(e.newState==='open'));});
 editorSettings.addEventListener('toggle',e=>{if(e.newState==='open')positionEditorOptions();});
 editorOptions.onclick=e=>{e.preventDefault();editorSettings.togglePopover();positionEditorOptions();};
+$('err-language').onclick=()=>{
+  if(!editorSettings.matches(':popover-open')){
+    editorSettings.showPopover();
+    positionEditorOptions();
+  }
+  $('lang').focus();
+};
 window.addEventListener('resize',positionEditorOptions);
 $('lang').onchange=()=>{invalidate('Language changed. Generate to update.');clearError();renderCodeColors();};
 $('rs').onclick=()=>{

@@ -10,7 +10,9 @@ documents their roles rather than generating a second token system.
 Use the application's light/dark `--surface`, `--editor`, `--tx`, `--mu`, `--bd`
 and purple `--ac` roles. Reuse the SVG symbol library, native buttons and native
 selects. Language and Examples use platform-owned select popups inside the
-native top-layer editor-options popover. Keep source and diagram panels in the
+native top-layer editor-options popover. Its editor control has a visible label,
+and the Change language action in auto-detection diagnostics opens the same
+popover with focus on the source language select. Keep source and diagram panels in the
 established desktop columns and mobile stack. Keep focus indicators visible.
 
 ## Code color roles

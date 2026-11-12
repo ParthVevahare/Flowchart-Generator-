@@ -34,6 +34,36 @@ test('small flowcharts automatically fill the canvas without a 130-percent cap',
  await p.locator('#zi').click();const zoom=Number((await p.locator('#zoom-level').textContent()).replace('%',''));assert.ok(zoom>bounds.zoom);
  await p.locator('#fit').click();assert.equal(Number((await p.locator('#zoom-level').textContent()).replace('%','')),bounds.zoom);
 });
+test('narrow screens offer a jump to the current flowchart beside Generate',async t=>{
+ const p=await open(t,{width:390,height:844});
+ const go=p.locator('#go'),jump=p.locator('#view-flowchart'),ta=p.locator('#ta');
+ for(const width of [390,320]){
+   await p.setViewportSize({width,height:844});
+   await ta.fill('print("Hello '+width+'")');
+   assert.equal(await jump.isVisible(),false,'editing hides the previous result action');
+   await go.scrollIntoViewIfNeeded();
+   const scrollBefore=await p.evaluate(()=>scrollY);
+   await go.click();
+   await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+   assert.equal(await p.evaluate(()=>scrollY),scrollBefore,'generation leaves the user at the editor');
+   const bounds=await jump.boundingBox();
+   assert.ok(bounds&&bounds.x>=0&&bounds.x+bounds.width<=width&&bounds.height>=44,
+     `at ${width}px the result action fits and has a 44px target: ${JSON.stringify(bounds)}`);
+   assert.ok(bounds.y>=0&&bounds.y+bounds.height<=844,'the action appears in the visible editor');
+   await jump.press('Enter');
+   assert.equal(await p.evaluate(()=>document.activeElement.id),'stage');
+   assert.ok(await p.locator('#stage').evaluate(el=>{
+     const {top,bottom}=el.getBoundingClientRect();
+     return top>=0&&top<innerHeight&&bottom>0;
+   }),'activating the jump brings the chart into view');
+ }
+ await p.setViewportSize({width:1280,height:840});
+ assert.equal(await jump.isVisible(),false,'the split workspace already shows the result');
+ await p.setViewportSize({width:390,height:844});
+ await invalid(p);
+ assert.equal(await jump.isVisible(),false,'failed generation offers no result action');
+});
+
 test('large charts start at readable scale and keep their view beside explanations',async t=>{
  const p=await open(t,{width:1280,height:540});
  const readView=()=>p.evaluate(()=>({

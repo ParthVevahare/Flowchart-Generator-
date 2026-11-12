@@ -137,8 +137,15 @@ html[data-theme=dark]{color-scheme:dark;--bg:#11141d;--surface:#191e2a;--soft:#1
 @media(max-width:860px){body{height:auto;min-height:100dvh;padding:0 14px 16px}main{display:flex;flex-direction:column;flex:none}.app-header{min-height:76px}.card{min-height:0}#editor{height:560px}#pane{height:700px;min-height:60dvh}.header-actions{gap:12px}.ed{min-height:160px}.shortcut{display:block}.panel-description{font-size:11px}#pane:fullscreen{height:100dvh}}
 @media(max-width:480px){body{padding:0 10px 12px;gap:12px}.app-header{gap:8px;flex-wrap:wrap;padding:14px 2px;min-height:86px}.brand{gap:9px}.brand-mark{width:33px;height:33px;border-radius:9px}h1{font-size:16px;letter-spacing:-.4px}.brand-caption{font-size:10px}.header-actions{gap:8px}.vc{font-size:9px;gap:4px}.vc .icon{width:11px;height:11px}#th{padding:6px;font-size:10px;min-height:30px}#th .icon{width:13px;height:13px}.panel-heading{padding:14px;min-height:72px}.editor-settings{padding:11px 14px;gap:8px;grid-template-columns:1fr 1.18fr}.field select{font-size:10px;padding:7px}.editor-bottom{padding:14px}.shortcut{display:none}#pane{height:650px}.diagram-toolbar{padding:8px 10px;gap:7px}.toolbar-group button{font-size:10px;padding:5px}.toolbar-group .icon{width:14px;height:14px}.view-controls{gap:0}#zoom-level{width:32px;font-size:9px}.divider{margin:0 2px}.canvas-footer{padding:9px 12px;gap:8px;font-size:9px}#chips{padding:8px 12px;gap:5px 12px;font-size:9px}#exm{padding:7px 9px}#exp,#ps{padding:12px 14px}}
 @media(max-width:360px){.vc{display:none}.diagram-toolbar{flex-direction:column;align-items:stretch}.view-controls{margin-left:0;justify-content:flex-end}.panel-description{font-size:10px}}
+#view-flowchart{display:none}
 @media(max-width:860px){
 #editor{height:auto;min-height:560px}.ed{flex:1;height:auto;min-height:280px}.editor-bottom{max-height:none;overflow:visible}
+.editor-action #go{min-width:0;min-height:44px;white-space:normal;line-height:1.25;padding-block:6px}
+#view-flowchart{display:inline-flex;min-height:44px;flex:none}
+}
+@media(max-width:360px){
+.editor-action{gap:8px}
+.editor-action #go,#view-flowchart{padding-inline:8px}
 }
 @media(max-width:480px){
 .brand-caption,.vc,.panel-description,.field,.support-note{font-size:12px}.panel-description{line-height:1.5}
@@ -219,7 +226,7 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
     <div class="editor-settings" id="editor-settings" popover="auto" role="dialog" aria-label="Language and examples"><label class="field"><span class="option-label"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c5 5 5 13 0 18-5-5-5-13 0-18Z"/></svg>Language</span><select id="lang" aria-label="Source language"><option value="auto">Auto-detect language</option><option value="c">C / C++</option><option value="python">Python</option><option value="java">Java</option></select></label><label class="field"><span class="option-label"><svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><use href="#icon-code"/></svg>Examples</span><select id="exs" aria-label="Load a code example"><option value="">Load example…</option><option value="0">C · loop + if/else + switch</option><option value="1">C++ · positive / negative</option><option value="2">C · while / do-while / break</option><option value="3">Python · loops + if/elif</option><option value="4">Python · functions</option><option value="5">Java · loop + switch</option></select></label></div>
     <div id="err" role="alert"></div>
     <div class="ed"><div id="g" aria-hidden="true"></div><div class="code-input"><pre id="code-colors" aria-hidden="true"><code id="code-tokens"></code></pre><textarea id="ta" aria-label="Source code" aria-describedby="editor-help" spellcheck="false" autocapitalize="off" autocomplete="off" wrap="soft" placeholder="Paste your program here..."></textarea></div></div>
-    <div class="editor-bottom"><div class="editor-action"><button class="pri" id="go"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><span>Generate Flowchart</span></button><span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span></div><details class="support-note"><summary>Supported syntax</summary><p id="editor-help">Tab and Shift+Tab move between controls. Ctrl/Command + ] inserts four spaces. Functions, assignments, input/output, conditions, loops, and C/Java switch statements. Unsupported syntax gets a line-specific error. Syntax checks do not execute your program or check variable types.</p></details></div>
+    <div class="editor-bottom"><div class="editor-action"><button class="pri" id="go"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><span>Generate Flowchart</span></button><button id="view-flowchart" type="button" aria-controls="stage" hidden>View flowchart</button><span class="shortcut"><kbd>Ctrl</kbd> + <kbd>Enter</kbd></span></div><details class="support-note"><summary>Supported syntax</summary><p id="editor-help">Tab and Shift+Tab move between controls. Ctrl/Command + ] inserts four spaces. Functions, assignments, input/output, conditions, loops, and C/Java switch statements. Unsupported syntax gets a line-specific error. Syntax checks do not execute your program or check variable types.</p></details></div>
   </section>
   <section class="card" id="pane" aria-labelledby="diagram-title">
     <div class="panel-heading"><div><div class="panel-title"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-flow"/></svg><h2 id="diagram-title">Program flowchart</h2></div></div><div class="dd"><button id="exm" aria-expanded="false" aria-controls="mn"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-export"/></svg><span>Export</span><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-chevron"/></svg></button><div class="menu" id="mn" role="group" aria-label="Export options"><button id="ePng"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download PNG</span></button><button id="eSvg"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download SVG</span></button><button id="ePdf"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-download"/></svg><span>Download PDF</span></button><button id="cp"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-copy"/></svg><span>Copy image</span></button><button id="sh"><svg class="icon" aria-hidden="true" focusable="false" viewBox="0 0 24 24"><use href="#icon-share"/></svg><span>Share</span></button></div></div></div>
@@ -965,7 +972,10 @@ function fit(){positionChart(VIEW_MIN);}
 function showReadableView(){positionChart(1);}
 function zoomAt(cx,cy,f){const r=stage.getBoundingClientRect(),px=cx-r.left,py=cy-r.top,nk=Math.min(VIEW_MAX,Math.max(VIEW_MIN,V.k*f));V.x=px-(px-V.x)*nk/V.k;V.y=py-(py-V.y)*nk/V.k;V.k=nk;apply()}
 const chartTools=['zo','zi','fit','xp','pcb','exm','ePng','eSvg','ePdf','cp','sh','cpa','cpp'];
-function setChartTools(enabled){chartTools.forEach(id=>$(id).disabled=!enabled);}
+function setChartTools(enabled){
+  chartTools.forEach(id=>$(id).disabled=!enabled);
+  $('view-flowchart').hidden=!enabled;
+}
 function invalidate(message='Ready to generate') {
   generation++;charts=[];cur=0;vp=null;V={k:1,x:0,y:0};
   stage.innerHTML='<div class="empty">'+icon('flow')+'<strong>Your program, mapped out.</strong><span>Generate a flowchart to see the complete control flow here.</span></div>';
@@ -1008,6 +1018,10 @@ function gen() {
   },20);
 }
 $('go').onclick=gen;
+$('view-flowchart').onclick=()=>{
+  $('pane').scrollIntoView({block:'start'});
+  stage.focus({preventScroll:true});
+};
 const editorSettings=$('editor-settings'),editorOptions=$('editor-options');
 function positionEditorOptions(){
   if(!editorSettings.matches(':popover-open'))return;

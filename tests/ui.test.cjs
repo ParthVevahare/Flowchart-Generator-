@@ -177,7 +177,10 @@ test('loading examples lets users restore their draft by button or keyboard',asy
  for(const method of ['button','keyboard']){
   await ta.fill(source);
   await options.click();await p.locator('#lang').selectOption('python');await p.keyboard.press('Escape');
-  await ta.evaluate(el=>el.setSelectionRange(4,9,'backward'));
+  await ta.press('Control+Home');await ta.press('Shift+ArrowRight');
+  const selection=()=>ta.evaluate(el=>[el.selectionStart,el.selectionEnd,el.selectionDirection]);
+  const originalSelection=await selection();
+  assert.deepEqual(originalSelection,[0,1,'forward']);
   for(const value of ['3','4']){
    await options.click();await p.locator('#exs').selectOption(value);
    await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
@@ -187,7 +190,7 @@ test('loading examples lets users restore their draft by button or keyboard',asy
   else await p.keyboard.press('Control+z');
   assert.equal(await ta.inputValue(),source);
   assert.equal(await p.locator('#lang').inputValue(),'python');
-  assert.deepEqual(await ta.evaluate(el=>[el.selectionStart,el.selectionEnd,el.selectionDirection]),[4,9,'backward']);
+  assert.deepEqual(await selection(),originalSelection);
   assert.ok(await p.locator('#exm').isDisabled(),'the example chart cannot be exported after restoring source');
   assert.equal(await p.evaluate(()=>document.activeElement.id),'ta');
  }

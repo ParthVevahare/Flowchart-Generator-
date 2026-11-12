@@ -171,6 +171,28 @@ test('editor options stay tucked away, escape cleanly, and preserve language/exa
  }
 });
 
+test('loading examples lets users restore their draft by button or keyboard',async t=>{
+ const p=await open(t),ta=p.locator('#ta'),options=p.getByRole('button',{name:'Language and examples',exact:true});
+ const source='def draft():\n    return "keep this"\n';
+ for(const method of ['button','keyboard']){
+  await ta.fill(source);
+  await options.click();await p.locator('#lang').selectOption('python');await p.keyboard.press('Escape');
+  await ta.evaluate(el=>el.setSelectionRange(4,9,'backward'));
+  for(const value of ['3','4']){
+   await options.click();await p.locator('#exs').selectOption(value);
+   await p.waitForFunction(()=>document.getElementById('chart-state').textContent==='Program mapped');
+   assert.notEqual(await ta.inputValue(),source);
+  }
+  if(method==='button')await p.getByRole('button',{name:'Restore',exact:true}).click();
+  else await p.keyboard.press('Control+z');
+  assert.equal(await ta.inputValue(),source);
+  assert.equal(await p.locator('#lang').inputValue(),'python');
+  assert.deepEqual(await ta.evaluate(el=>[el.selectionStart,el.selectionEnd,el.selectionDirection]),[4,9,'backward']);
+  assert.ok(await p.locator('#exm').isDisabled(),'the example chart cannot be exported after restoring source');
+  assert.equal(await p.evaluate(()=>document.activeElement.id),'ta');
+ }
+});
+
 test('an old automatic layout cannot overwrite a newer generation',async t=>{
   const p=await open(t);
   await p.evaluate(()=>{

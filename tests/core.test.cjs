@@ -39,6 +39,105 @@ const valid=[
   ['java','public class Main{public static void main(String[] args){int[] values=new int[]{1,2,3};for(int n:values){System.out.println(n);}}}'],
 ];
 for(const [lang,source] of valid)test(`accepts valid ${lang}: ${source.slice(0,55)}`,()=>assert.ok(parse(source,lang).fns.length));
+test('draws a linked-list program with typedefs, designated initializers, and member access',async()=>{
+  const program=parse(`typedef struct Node Node;
+struct Node { int value; Node *next; };
+Node *advance(Node *node) { return node->next; }
+int main(void) {
+  Node last = { .value = 2, .next = 0 };
+  Node first = { .value = 1, .next = &last };
+  for (Node *node = &first; node; node = advance(node)) printf("%d", node->value);
+  return 0;
+}`,'c');
+  const chart=await buildProgram(program);
+  assert.match(chart.inner,/data-call="main-&gt;advance"/);
+  assert.match(chart.inner,/node-&gt;value/);
+  assert.doesNotMatch(chart.inner,/typedef struct Node/);
+  assert.match(pseudo(program),/DECLARE first : Node/);
+});
+
+test('draws aggregate objects and recognizes inline types and compound literals',()=>{
+  const program=parse(`enum State { Idle, Busy = 2, };
+union Number { int whole; double fraction; } defaultNumber = { .whole = 3 };
+typedef unsigned long Size, *SizePtr;
+int main(void) {
+  typedef struct { unsigned ready : 1; int data[3]; } Work;
+  Work w = (Work){ .ready = 1, .data[2] = 4 };
+  struct { enum State state; union Number value; } current = { Busy, { .whole = w.data[2] } };
+  Size size = sizeof(Work *);
+  SizePtr ptr = &size;
+  return current.value.whole + *ptr + (int[2]){1, 2}[0];
+}`,'c');
+  assert.match(pseudo(program),/DECLARE \*?ptr : SizePtr/);
+  assert.match(pseudo(program),/DECLARE current/);
+  assert.match(pseudo(program),/defaultNumber/);
+});
+
+test('typedef names are visible after their declarations inside their block',()=>{
+  const valid='int main(void) { { typedef int Local; Local x = 0; } return 0; }';
+  assert.match(pseudo(parse(valid,'c')),/DECLARE x : Local/);
+  for(const source of [
+    'int main(void) { { typedef int Local; } Local x = 0; return 0; }',
+    'int main(void) { Local x = 0; typedef int Local; return x; }',
+    'int main(void) { if (1) typedef int Local; Local x = 0; return x; }',
+  ]) assert.throws(()=>parse(source,'c'),e=>e.l===1&&!!e.m);
+});
+test('pseudocode keeps typedef declarations after another program is parsed',()=>{
+  const program=parse('typedef int Alias; int main(void) { Alias *value = 0; return 0; }','c');
+  parse('int main(void) { return 0; }','c');
+  assert.match(pseudo(program),/DECLARE \*value : Alias/);
+});
+
+test('malformed aggregate members and designators report their source lines',()=>{
+  assert.throws(()=>parse('struct Item {\n  int value\n}; int main(void) { return 0; }','c'),e=>e.l===2&&/;/.test(e.m));
+  assert.throws(()=>parse('struct Item { int value; };\nint main(void) { struct Item x = {.value 1}; return 0; }','c'),e=>e.l===2&&/Expected/.test(e.m));
+});
+
+test('detects C in an aggregate program with an alias as its return type',()=>{
+  assert.equal(detect('typedef struct { char value; } Item; Item make(void) { Item x = { 0 }; return x; }'),'c');
+  assert.equal(detect('struct Node;\nstruct Node *identity(struct Node *node) { return node; }'),'c');
+});
+test('draws calls through callback typedefs and function pointer members',()=>{
+  const program=parse(`typedef int (*Compare)(int, int);
+typedef int CompareFunction(int, int);
+struct Operations { Compare compare; CompareFunction *alternate; void (*log)(const char *, ...); };
+int compare(int a, int b) { return a - b; }
+int apply(int (*callback)(int, int)) { return callback(1, 2); }
+int main(void) {
+  struct Operations ops = { .compare = compare };
+  int (*callback)(int, int) = ops.compare;
+  return apply(callback);
+}`,'c');
+  assert.match(pseudo(program),/RETURN callback\(1, 2\)/);
+  assert.match(pseudo(program),/DECLARE .*callback/);
+});
+test('aggregate tags and typedef names can also be used as scoped variables',()=>{
+  const program=parse(`typedef struct { int n; } Node;
+struct point { int x; };
+int inc(Node *Node) { Node->n++; return Node->n; }
+int main(void) {
+  struct point point = { 0 };
+  point.x++;
+  for (int Node = 0; Node < 2; Node++) Node += 1;
+  Node node = { point.x };
+  return inc(&node);
+}`,'c');
+  assert.match(pseudo(program),/INCREMENT Node->n/);
+  assert.match(pseudo(program),/DECLARE node : Node/);
+});
+test('callback members named like built-ins or helpers avoid false chart links',async()=>{
+  const chart=await buildProgram(parse(`int run(int n) { return n; }
+struct Ops { int (*printf)(int); int (*run)(int); };
+int main(void) { struct Ops ops = { .printf = run, .run = run }; ops.printf(3); int (*run)(int) = ops.run; return run(ops.run(1)); }`,'c'));
+  assert.doesNotMatch(chart.inner,/Output:|data-call="main-&gt;run"/);
+  assert.match(chart.inner,/ops\.printf/);
+});
+test('deeply nested named aggregate members validate within the parser limits',()=>{
+  const members=Array.from({length:40}).reduce(text=>'struct { '+text+' } nested;', 'int value;');
+  assert.equal(parse('struct Root { '+members+' }; int main(void) { return 0; }','c').fns[0].name,'main');
+  const size=Array.from({length:18}).reduce(text=>'sizeof (struct { int data['+text+']; }){0}', '1');
+  assert.equal(parse('int main(void) { return '+size+'; }','c').fns[0].name,'main');
+});
 const invalid=[
   ['c','hello world'],['python','hello world'],['python','this is not code'],
   ['python','just_some_random_word'],['python','12345'],['python','x ='],

@@ -281,13 +281,13 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
 <script src="help.js?v=ce63e14e17fb" defer></script>
 <footer class="site-footer"><nav aria-label="Site information"><a href="guides/">Guides &amp; examples</a><a href="sitemap.xml">Sitemap</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav><p class="site-summary">Free code-to-flowchart converter for <a href="guides/c-to-flowchart.html">C</a>, <a href="guides/cpp-to-flowchart.html">C++</a>, <a href="guides/python-to-flowchart.html">Python</a> and <a href="guides/java-to-flowchart.html">Java</a>. Visualize algorithms, decisions and loops.</p></footer>
 <footer id="aff" hidden></footer><div id="toast" role="status" aria-live="polite"></div>
-<script src="syntax.js?v=35b3ec6d97dc"></script>
+<script src="syntax.js?v=a0097c05a487"></script>
 <script src="vendor/prism-code.js?v=a98a437f55de"></script>
 <script src="code-colors.js?v=923a24621561"></script>
 <script src="vendor/elk.bundled.js?v=cbf61b0182e9"></script>
 <script src="guide-examples.js?v=b81470c475ab"></script>
 <script src="diagram-settings.js?v=7070afa10fb4"></script>
-<script src="flowchart.js?v=5a94a3142199"></script>
+<script src="flowchart.js?v=ed9751d44766"></script>
 <script src="diagram-export.js?v=4c1dfdcb97e3"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -413,7 +413,8 @@ if(j>0){const eq=topEq(a);if(eq>0){const lhs=a.slice(0,eq),rhs=a.slice(eq+1),nm=
 return null}
 function parseC(src,java){const T=lex(src);Syntax.begin(java?'java':'c',T);let i=0;const vars=new Set(),hasIO=java&&T.some(x=>/^(Scanner|BufferedReader|Console|DataInputStream)$/.test(x.t));
 const err=(m,l)=>{throw{m,l:l||(T[Math.min(i,T.length-1)]||{l:1}).l}};
-const st=[];for(const k of T){if(k.t.length>1)continue;if('({['.includes(k.t))st.push(k);else if(')}]'.includes(k.t)){const o=st.pop();if(!o||'({['.indexOf(o.t)!=')}]'.indexOf(k.t))err(`Unmatched '${k.t}'`+(o?` (the last open bracket was '${o.t}' on line ${o.l})`:''),k.l)}}
+const st=[],blockEnds=new Map();let scope={end:T.length};
+for(const [index,k] of T.entries()){if(k.t.length>1)continue;if('({['.includes(k.t))st.push(k);else if(')}]'.includes(k.t)){const o=st.pop();if(!o||'({['.indexOf(o.t)!=')}]'.indexOf(k.t))err(`Unmatched '${k.t}'`+(o?` (the last open bracket was '${o.t}' on line ${o.l})`:''),k.l);if(o.t==='{')blockEnds.set(o,index)}}
 if(st.length)err(`'${st[st.length-1].t}' is never closed`,st[st.length-1].l);
 const is=t=>T[i]&&T[i].t==t;
 const eat=t=>{if(!is(t))err(`Expected '${t}'`+(T[i]?` but found '${T[i].t}'`:' but reached the end of the code'),t==';'?T[i-1].l:(T[i]||T[i-1]).l);i++};
@@ -422,21 +423,23 @@ function semi(){const a=[];let d=0;while(i<T.length){const t=T[i].t;if(t.length=
 if(d<0)err(`Missing ';' before '${t}'`,T[i-1].l);if(t==';'&&!d)break;const p=a[a.length-1];
 a.push(T[i++])}
 if(i>=T.length)err("Missing ';' at end of statement",T[T.length-1].l);i++;return a}
-function seq(){const r=[];while(!is('}')){if(i>=T.length)err("Missing '}'");r.push(...stmt())}i++;return r}
+function seq(){const r=[],outerScope=scope;scope={end:blockEnds.get(T[i-1])};while(!is('}')){if(i>=T.length)err("Missing '}'");r.push(...stmt(true))}i++;scope=outerScope;return r}
 const TP=/^((const|static|unsigned|signed|register|extern)\s+)*(int|float|double|char|long|short|bool|string|auto|size_t|vector\S*|struct \w+)\b/;
-function simple(){const a=semi(),f=fm(a),s=a.map(x=>x.t),has=n=>s.includes(n),l=a[0]?a[0].l:0;let k='p',t=f;if(java){const jr=javaIO(a,s,f,l,hasIO);if(jr)return jr}
+function simple(a){const f=fm(a),s=a.map(x=>x.t),l=a[0]?a[0].l:0;let k='p',t=f;if(java){const jr=javaIO(a,s,f,l,hasIO);if(jr)return jr}
+const io=(name,j)=>!['.','->'].includes(s[j-1])&&!Syntax.isValue(a[j])&&(name==='cin'?s[j+1]==='>>':name==='cout'||name==='cerr'?s[j+1]==='<<':s[j+1]==='(');
+const has=n=>s.some((name,j)=>name===n&&io(name,j));
 if(['scanf','scanf_s','cin','gets','getline','getchar','fgets'].some(has)){k='in';t='Input: '+f;
 if(has('scanf')||has('scanf_s')){const j=a.findIndex(x=>x.t[0]=='"');t='Input: '+split(a.slice(j+2,-1),',').map(x=>fm(x).replace(/^&/,'')).join(', ')}
 else if(has('cin')&&s[s.indexOf('cin')+1]=='>>')t='Input: '+split(a.slice(s.indexOf('cin')+1),'>>').map(fm).filter(Boolean).join(', ')}
 else if(['printf','puts','putchar','cout','cerr','fprintf'].some(has)){k='out';t='Output: '+f;
-const pi=s.findIndex(x=>/^(printf|puts|putchar)$/.test(x));
+const pi=s.findIndex((x,j)=>/^(printf|puts|putchar)$/.test(x)&&io(x,j));
 if(pi>=0)t='Output: '+fm(a.slice(pi+2,-1));
 else if(has('cout')||has('cerr'))t='Output: '+split(a.slice(s.findIndex(x=>/^c(out|err)$/.test(x))+1),'<<').map(fm).filter(Boolean).join(', ')}
 else if(TP.test(f)){const rest=f.replace(TP,'');split(a.slice(a.findIndex((x,j)=>j>0&&/^[*&A-Za-z_]/.test(x.t)&&!/^(int|float|double|char|long|short|const|unsigned|signed|static|bool|string|auto|size_t|struct)$/.test(x.t))),',').forEach(p=>{const m=fm(p).match(/^[*&\s]*([A-Za-z_]\w*)/);if(m)vars.add(m[1])});
 if(!f.includes('=')&&!f.includes('('))t='Declare '+f}
 if(java&&k=='p'&&isDeclStmt(a)){(decl(a)||[]).forEach(x=>{const m=x.match(/^DECLARE \*?(\w+)/);if(m)vars.add(m[1])})}
 return{k,t,l,q:a}}
-function stmt(){const q=T[i];if(!q)err('Unexpected end of code');const t=q.t,l=q.l;
+function stmt(blockItem=false){const q=T[i];if(!q)err('Unexpected end of code');const t=q.t,l=q.l;
 if(t=='{'){i++;return seq()}if(t==';'){i++;return[]}
 if(t=='if'){i++;const ct=paren(),c=fm(ct),y=stmt();let e=null;if(is('else')){i++;e=stmt();if(!e.length)e=null}return[{k:'if',c,ct,y,e,l}]}
 if(t=='else')err("'else' without a matching 'if'");
@@ -445,31 +448,46 @@ if(t=='do'){i++;const b=stmt();eat('while');const ct=paren(),c=fm(ct);eat(';');r
 if(t=='for'){i++;const h=paren(),p=split(h,';');let init=null,c,step=null,pre=[],it=null,ct=null,stt=null,rf=null;
 if(p.length==3){init=fm(p[0])||null;c=fm(p[1])||'true';step=fm(p[2])||null;it=p[0];ct=p[1];stt=p[2]}
 else{const q2=split(h,':');if(q2.length<2)err("Invalid 'for' header",l);c='Items left in '+fm(q2[1])+'?';rf=[fm(q2[0]),fm(q2[1])];pre=[{k:'p',t:fm(q2[0])+' = next item of '+fm(q2[1]),l}]}
-return[{k:'for',i:init,c,it,ct,stt,rf,rft:rf?split(h,':'):null,s:step,b:pre.concat(stmt()),l}]}
-if(t=='switch'){i++;const ct=paren(),c=fm(ct);eat('{');const cs=[];let cur=null;
+const loopScope={end:scope.end};if(it)Syntax.valueDeclaration(it,loopScope);
+const b=pre.concat(stmt());loopScope.end=i;
+return[{k:'for',i:init,c,it,ct,stt,rf,rft:rf?split(h,':'):null,s:step,b,l}]}
+if(t=='switch'){i++;const ct=paren(),c=fm(ct);eat('{');const cs=[],outerScope=scope;scope={end:blockEnds.get(T[i-1])};let cur=null;
 while(!is('}')){if(i>=T.length)err("Missing '}' for switch",l);const w=T[i];
 if(w.t=='case'||w.t=='default'){i++;if(is('->'))err("Arrow-style switch cases (case X -> ...) are not supported yet — use case X: ... break;",w.l);let lab='default';if(w.t=='case'){const a=[];while(!is(':')){if(is('->'))err("Arrow-style switch cases (case X -> ...) are not supported yet — use case X: ... break;",w.l);if(i>=T.length||is('}'))err("Expected ':' after case label",w.l);a.push(T[i++])}Syntax.expression(a,{token:w});lab=fm(a)}if(cs.some(c=>c.d)&&w.t==='default')err('A switch can only have one default label',w.l);eat(':');
 if(cur&&!cur.b.length){cur.lab+=', '+lab;if(w.t=='default')cur.d=1}else{cur={lab:w.t=='case'?'case '+lab:'default',d:w.t=='default',b:[]};cs.push(cur)}}
-else{if(!cur)err('Statement before the first case label',w.l);cur.b.push(...stmt())}}
-i++;return[{k:'sw',c,ct,cs,l}]}
+else{if(!cur)err('Statement before the first case label',w.l);cur.b.push(...stmt(true))}}
+i++;scope=outerScope;return[{k:'sw',c,ct,cs,l}]}
 if(t=='return'){i++;const a=semi();return[{k:'ret',t:'return'+(a.length?' '+fm(a):''),q:a,l}]}
 if(t=='break'||t=='continue'){i++;if(T[i]&&/^[A-Za-z_]/.test(T[i].t))err('Labeled '+t+' is not supported yet',l);eat(';');return[{k:t=='break'?'brk':'cnt',l}]}
 if(t=='try')err("'try / catch / finally' is not supported yet — exception paths can't be drawn faithfully",l);
 if(/^[A-Za-z_]\w*$/.test(t)&&T[i+1]&&T[i+1].t==':'&&!/^(case|default|public|private|protected)$/.test(t))err('Labels ('+t+':) are not supported yet',l);
 if(t=='goto')err('goto is not supported — it cannot be drawn as structured control flow');
 if(t=='case'||t=='default')err(`'${t}' outside of a switch`);
-return[simple()]}
+const a=semi();if(Syntax.typeOnly(a,scope)){if(!blockItem)err('Put this type declaration inside braces.',l);return[]}
+Syntax.valueDeclaration(a,scope);return[simple(a)]}
 const fns=[],glob=[],globq=[];
-while(i<T.length){if(is('}')){i++;continue}const h=[];let d=0,eq=false;
-while(i<T.length&&!(d==0&&(T[i].t==';'||(T[i].t=='{'&&!eq)))){if(java&&T[i].t=='@'&&T[i+1]&&/^[A-Za-z_]/.test(T[i+1].t)){i+=2;if(T[i]&&T[i].t=='('){let dd=0;do{if(T[i].t=='(')dd++;if(T[i].t==')')dd--;i++}while(dd&&i<T.length)}continue}if(T[i].t=='='&&d==0)eq=true;if(T[i].t=='(')d++;if(T[i].t==')')d--;h.push(T[i++])}
+while(i<T.length){if(is('}')){i++;continue}const h=[];let d=0,eq=false,p=-1;
+while(i<T.length){const t=T[i].t;
+if(!d&&(t===';'||(t==='{'&&!eq&&(java||!Syntax.aggregatePrefix(h)))))break;
+if(java&&t=='@'&&T[i+1]&&/^[A-Za-z_]/.test(T[i+1].t)){i+=2;if(T[i]&&T[i].t=='('){let dd=0;do{if(T[i].t=='(')dd++;if(T[i].t==')')dd--;i++}while(dd&&i<T.length)}continue}
+if(!d&&t==='=')eq=true;
+if(!d&&t==='('&&p<0)p=h.length;
+if(t.length===1&&'([{'.includes(t))d++;
+if(t.length===1&&')]}'.includes(t))d--;
+h.push(T[i++])}
 if(i>=T.length){if(h.length)err("Missing ';' at end of declaration",h[h.length-1].l);break}
 const ht=h.map(x=>x.t);
-if(T[i].t=='{'){const p=ht.indexOf('(');if(java&&ht.includes('class')&&p<0){if(!/^(?:(?:public|private|protected|static|final|abstract) )*class [A-Za-z_]\w*$/.test(ht.join(' ')))err('Unsupported or malformed class declaration',h[0].l);i++;continue}
-if(p>0&&!/^(struct|class|enum|union|namespace)$/.test(ht[0])&&!(java&&ht.some(x=>/^(interface|enum|record)$/.test(x)))){Syntax.signature(h);i++;fns.push({name:ht[p-1],rt:fm(h.slice(0,p-1).filter(x=>!MODS.test(x.t))).replace(/\S*::$/,'').trim(),params:fm(h.slice(p+1,ht.lastIndexOf(')'))),body:seq(),l:h[0].l})}
+if(T[i].t=='{'){if(java&&ht.includes('class')&&p<0){if(!/^(?:(?:public|private|protected|static|final|abstract) )*class [A-Za-z_]\w*$/.test(ht.join(' ')))err('Unsupported or malformed class declaration',h[0].l);i++;continue}
+if(p>0&&!/^(class|namespace|typedef)$/.test(ht[0])&&!(java&&ht.some(x=>/^(interface|enum|record)$/.test(x)))){Syntax.signature(h,p,{end:blockEnds.get(T[i])});i++;fns.push({name:ht[p-1],rt:fm(h.slice(0,p-1).filter(x=>!MODS.test(x.t))).replace(/\S*::$/,'').trim(),params:fm(h.slice(p+1,ht.lastIndexOf(')'))),body:seq(),l:h[0].l})}
 else if(ht[0]=='namespace'){if(ht.length!=2||!/^\w+$/.test(ht[1]))err('Malformed namespace declaration',h[0].l);i++;}
 else{err('This top-level construct is not supported. Use functions and typed variable declarations.',h[0]?.l||1)}}
-else{i++;if(h.length){if(/^(import|package)$/.test(ht[0])){if(!java||!(/^(import (static )?|package )[A-Za-z_]\w*( (\. [A-Za-z_]\w*))*(( \. \*)?)$/.test(ht.join(' '))))err('Malformed import or package declaration',h[0].l);}else if(ht[0]=='using'){if(!/^using namespace [A-Za-z_]\w*$/.test(ht.join(' ')))err('Only using namespace declarations are supported',h[0].l);}else if(ht[0]=='typedef')err('typedef is not supported yet. Use the original type.',h[0].l);else if(ht.includes('(')&&!ht.includes('='))Syntax.signature(h);}if(h.length&&!(ht.includes('(')&&!ht.includes('='))&&!/^(using|typedef)$/.test(ht[0])&&!(java&&/^(import|package)$/.test(ht[0]))){glob.push(fm(h));globq.push(h)}}}
+else{i++;if(!h.length||Syntax.typeOnly(h,scope))continue;
+if(/^(import|package)$/.test(ht[0])){if(!java||!(/^(import (static )?|package )[A-Za-z_]\w*( (\. [A-Za-z_]\w*))*(( \. \*)?)$/.test(ht.join(' '))))err('Malformed import or package declaration',h[0].l);}
+else if(ht[0]=='using'){if(!/^using namespace [A-Za-z_]\w*$/.test(ht.join(' ')))err('Only using namespace declarations are supported',h[0].l);}
+else if(p>=0&&!eq&&(java||ht[p+1]!=='*'))Syntax.signature(h,p);
+else{Syntax.valueDeclaration(h,scope);glob.push(fm(h));globq.push(h)}}}
 if(!fns.length)err(java?"No method found. Put your code inside a method such as 'public static void main(String[] args) { ... }'.":"No function found. Wrap your code in a function such as 'int main() { ... }'.",1);
+if(!java)for(let j=0;j<T.length-1;j++){if(T[j+1].t==='('&&Syntax.isValue(T[j]))T[j].indirectCall=true}
 fns.sort((a,b)=>(b.name=='main')-(a.name=='main'));
 return{fns,glob,vars,globq}}
 function parse(src,lang){LANG=lang||'c';if(!src.trim())throw{m:'Paste a program before generating a flowchart.',l:1};if(src.length>50000)throw{m:'This program is too large. Use fewer than 50,000 characters.',l:1};const r=LANG=='python'?parsePy(src):parseC(src,LANG=='java');r.lang=LANG;return Syntax.program(r)}
@@ -852,13 +870,15 @@ return pre.concat(['SET '+L+' TO '+(op=='='?val:L+' '+AOP[op]+' '+w)])}
 function isCall(a){if(a[a.length-1].t!=')')return false;const k=a.findIndex(t=>t.t=='(');if(k<1)return false;
 if(!a.slice(0,k).every(t=>/^([A-Za-z_]\w*|\.|::|->)$/.test(t.t)))return false;let dp=0;
 for(let i=k;i<a.length;i++){if(a[i].t=='(')dp++;if(a[i].t==')'){dp--;if(!dp&&i<a.length-1)return false}}return true}
-function declStart(a){let k=0;while(k<a.length-1&&MODS.test(a[k].t))k++;const b=a[k]&&a[k].t;k++;
+function declStart(a){if(a[0]?.declarationTypeEnd)return a[0].declarationTypeEnd;
+let k=0;while(k<a.length-1&&MODS.test(a[k].t))k++;const b=a[k]&&a[k].t;k++;
 if(/^(struct|enum|union)$/.test(b)&&a[k])k++;
 while(a[k]&&(a[k].t=='.'||a[k].t=='::')&&a[k+1])k+=2;
 while(a[k]&&TYK.test(a[k].t))k++;
 if(a[k]&&a[k].t=='<'){let dp=0;for(;k<a.length;k++){const t=a[k].t;if(t=='<')dp++;else if(t=='>')dp--;else if(t=='>>')dp-=2;if(dp<=0){k++;break}}}
 while(a[k]&&a[k].t=='['&&a[k+1]&&a[k+1].t==']')k+=2;return k}
-function isDeclStmt(a){const ft=fm(a),y0=a.map(t=>t.t);
+function isDeclStmt(a){if(a[0]?.declarationTypeEnd)return true;
+const ft=fm(a),y0=a.map(t=>t.t);
 return TPS.test(ft)||TPS.test(ft.replace(/^std::/,''))||(/^[A-Za-z_]\w*$/.test(y0[0])&&/^[A-Za-z_]\w*$/.test(y0[1]||'')&&!KWS.test(y0[0]))||/^(?:(?:final|static|const)\s+)*[A-Za-z_][\w.:]*\s*<.*>\s*[A-Za-z_]\w*\s*(=|$|,)/.test(ft)||/^(?:(?:final|static|const)\s+)*[A-Za-z_][\w.]*\s*(\[\s*\]\s*)+[A-Za-z_]\w*/.test(ft)}
 function decl(a){const k=declStart(a);if(k<1||k>=a.length)return null;
 const ty=jn(a.slice(0,k)).replace(/ ?([<>]) ?/g,'$1');
@@ -918,7 +938,7 @@ function detect(src) {
   const clean=text.replace(/#[^\n]*/g,'');
   if(/\bSystem\s*\.\s*(out|in|err)\b|\b(?:public|private|protected)\s+(?:static\s+)?(?:class|void|int|String|boolean)\b|^\s*(?:import|package)\s+java\./m.test(clean)||/\bclass\s+\w+[^;\n{]*\{/.test(clean))return 'java';
   if(/\b(?:int|void|float|double|char|long|bool|auto)\s+[*&\s]*[A-Za-z_]\w*\s*\([^;{}]*\)\s*\{|\b(?:std\s*::|using\s+namespace|cout\s*<<|cin\s*>>)/.test(clean))return 'c';
-  if(/^\s*(?:unsigned|signed|int|float|double|char|long|short|void)\s+\w+/m.test(clean))return 'c';
+  if(/^\s*(?:unsigned|signed|int|float|double|char|long|short|void)\s+\w+|^\s*typedef\s+\w+|^\s*(?:struct|enum|union)\b\s*(?:\{|[A-Za-z_]\w*\s*(?:[;{*]|[A-Za-z_]\w*\s*[(;=\[]))/m.test(clean))return 'c';
   return 'python';
 }
 /* ---------- app ---------- */

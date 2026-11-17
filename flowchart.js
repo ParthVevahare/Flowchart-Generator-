@@ -6,7 +6,10 @@
   else root.FlowGraph=api;
 })(typeof globalThis!=='undefined'?globalThis:this,function(Settings){
   'use strict';
-  const calls=tokens=>[...new Set((tokens||[]).filter((t,i,a)=>/^[A-Za-z_]\w*$/.test(t.t)&&a[i+1]?.t==='('&&a[i-1]?.t!=='new').map(t=>t.t))];
+  const calls=(tokens,language)=>[...new Set((tokens||[]).filter((t,i,a)=>
+    /^[A-Za-z_]\w*$/.test(t.t)&&a[i+1]?.t==='('&&a[i-1]?.t!=='new'&&
+    !(language==='c'&&(t.indirectCall||['.','->'].includes(a[i-1]?.t))))
+    .map(t=>t.t))];
   // Only fold literal predicates. Evaluating arbitrary source would be unsafe
   // and could erase side effects or paths dependent on runtime state.
   function truth(text,language){
@@ -29,7 +32,7 @@
   function buildFunction(f,program,isEntry,names,options){
     let serial=0;const nodes=[],edges=[];
     const add=(k,t,s={})=>{
-      const n={id:'n'+serial++,k,t,line:s.l||f.l||1,calls:calls(s.q||s.ct),statements:s.statements||[s]};
+      const n={id:'n'+serial++,k,t,line:s.l||f.l||1,calls:calls(s.q||s.ct,program.lang),statements:s.statements||[s]};
       if(k==='p'&&n.calls.some(n=>names.has(n)))n.k='call';
       nodes.push(n);return n.id;
     };

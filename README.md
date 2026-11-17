@@ -28,12 +28,13 @@ The parser deliberately accepts a structured subset rather than silently turning
 
 - Typed C/C++ functions and Java methods in simple class containers; Python functions and top-level scripts.
 - Variable declarations and assignments, arithmetic and comparisons, function calls, arrays/indexing, and common input/output operations.
+- C `struct`, `union`, and `enum` definitions, forward declarations, `typedef` aliases, designated initializers, compound literals, member access, and common function pointer declarations.
 - Conditions, `while`, `for`, `do/while` (C/Java), `break`, `continue`, `return`, and conventional `switch/case` statements (C/Java).
 - Python literals, tuples, lists, dictionaries, basic type annotations in function signatures, and imports.
 
 Malformed tokens, expressions, declarations, parameters, indentation, and invalid control-flow contexts produce line-specific diagnostics. Bare text and expressions without an action are rejected. Assignment inside a condition is intentionally rejected; use an explicit assignment followed by a comparison.
 
-This is syntax and control-flow validation, not a compiler or interpreter. It does not execute code, resolve types or undefined names, evaluate preprocessor macros, or prove runtime behavior. Classes with inheritance/constructors, C/C++ aggregate definitions, typedefs, exceptions, `goto`, Python comprehensions/generators, and other unsupported constructs need simplification before generating a chart. Function overloading is rejected because call resolution requires type information. Indirect/function-pointer calls are not expanded into helper links.
+The generator validates syntax and draws control flow from the pasted source. Compiler-dependent features such as macro expansion and type resolution are outside that analysis. Classes with inheritance or constructors, exceptions, `goto`, and Python comprehensions and generators still need simplification before generating a chart. Overloaded functions require distinct names for the chart to resolve calls. Calls through function pointers appear in the diagram without a link to a particular helper.
 
 To keep diagrams responsive, inputs are limited to 50,000 characters, 12,000 tokens, 20 functions and 500 flowchart steps. Excessive nesting is rejected with a diagnostic.
 

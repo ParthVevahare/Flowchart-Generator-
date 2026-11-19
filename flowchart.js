@@ -81,16 +81,32 @@
           // Build a cleanup path only when its continuation is used. A transfer
           // inside finally supersedes the pending one via the outer context.
           const memo=new Map();
-          function through(target){
-            if(!s.cleanup.length||!target)return target;
+          function through(target,primary=false){
+            if((!s.resource&&!s.cleanup.length)||!target)return target;
+            if(s.resource && primary){
+              let close;
+              return ()=>{
+                if(close)return close;
+                close=add('p','Close '+s.resource+' if non-null',s);
+                const suppress=add('p','Suppress close failure on the pending exception',s);
+                edge(close,suppress,'exception','exception');edge(suppress,target);edge(close,target);
+                return close;
+              };
+            }
             return ()=>{
-              if(!memo.has(target))memo.set(target,sequence(s.cleanup,target,ctx));
+              if(!memo.has(target)){
+                if(s.resource){
+                  const close=add('p','Close '+s.resource+' if non-null',s);
+                  edge(close,ctx.exceptionTo||exceptionExit(),'exception','exception');edge(close,target);
+                  memo.set(target,close);
+                }else memo.set(target,sequence(s.cleanup,target,ctx));
+              }
               return memo.get(target);
             };
           }
           const done=through(next);
           const outer={...ctx,returnTo:through(ctx.returnTo||exit),breakTo:through(ctx.breakTo),
-            continueTo:through(ctx.continueTo),yieldTo:through(ctx.yieldTo),exceptionTo:through(ctx.exceptionTo||exceptionExit())};
+            continueTo:through(ctx.continueTo),yieldTo:through(ctx.yieldTo),exceptionTo:through(ctx.exceptionTo||exceptionExit(),true)};
           let handler=outer.exceptionTo;
           for(const h of [...s.handlers].reverse()){
             const target=sequence(h.b,done,outer);
@@ -130,7 +146,7 @@
     const reachable=new Set(),todo=[entry],outgoing=new Map();
     edges.forEach(e=>{if(!outgoing.has(e.source))outgoing.set(e.source,[]);outgoing.get(e.source).push(e.target);});
     while(todo.length){const id=todo.pop();if(reachable.has(id))continue;reachable.add(id);todo.push(...(outgoing.get(id)||[]));}
-    const graph={name:f.name,heading:f.disp||f.name+'('+f.params+')',isEntry,entry,exit:reachable.has(exit)?exit:null,
+    const graph={name:f.name,...(f.initialization?{initialization:true}:{}),heading:f.disp||f.name+'('+f.params+')',isEntry,entry,exit:reachable.has(exit)?exit:null,
       nodes:nodes.filter(n=>reachable.has(n.id)).reverse(),edges:edges.filter(e=>reachable.has(e.source))};
     validate(graph);return graph;
   }

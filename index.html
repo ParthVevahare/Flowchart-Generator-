@@ -281,14 +281,14 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
 <script src="help.js?v=ce63e14e17fb" defer></script>
 <footer class="site-footer"><nav aria-label="Site information"><a href="guides/">Guides &amp; examples</a><a href="sitemap.xml">Sitemap</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav><p class="site-summary">Free code-to-flowchart converter for <a href="guides/c-to-flowchart.html">C</a>, <a href="guides/cpp-to-flowchart.html">C++</a>, <a href="guides/python-to-flowchart.html">Python</a> and <a href="guides/java-to-flowchart.html">Java</a>. Visualize algorithms, decisions and loops.</p></footer>
 <footer id="aff" hidden></footer><div id="toast" role="status" aria-live="polite"></div>
-<script src="vendor/advanced.js?v=8a1a5b110cf1"></script>
+<script src="vendor/advanced.js?v=6b870af65d60"></script>
 <script src="syntax.js?v=a0097c05a487"></script>
 <script src="vendor/prism-code.js?v=a98a437f55de"></script>
 <script src="code-colors.js?v=923a24621561"></script>
 <script src="vendor/elk.bundled.js?v=cbf61b0182e9"></script>
 <script src="guide-examples.js?v=b81470c475ab"></script>
 <script src="diagram-settings.js?v=7070afa10fb4"></script>
-<script src="flowchart.js?v=ac9bb2dbb980"></script>
+<script src="flowchart.js?v=15aab963dba6"></script>
 <script src="diagram-export.js?v=4c1dfdcb97e3"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -494,7 +494,7 @@ return{fns,glob,vars,globq}}
 function advancedSyntax(src,lang){
   const text=typeof CodeColors!=='undefined'?CodeColors.mask(src):src;
   if(lang==='python')return /^\s*(?:@|class\s|async\s|try\s*:|raise\b|yield\b)|\bfor\s+\w+\s+in\b[^\n]*[\])}]/m.test(text.replace(/^\s*(?:async\s+)?for\b[^\n]*/gm,''));
-  if(lang==='java')return /\b(?:interface|implements|extends|try|throw|catch)\b|\b\w+\s*<\s*[A-Z]\w*\s*[,>]|->|\bclass\s+\w+[^{]*\{[\s\S]*\bclass\s+/.test(text);
+  if(lang==='java')return AdvancedParser.hasJavaInitialization(src)||/\b(?:interface|implements|extends|try|throw|catch)\b|\b\w+\s*<\s*[A-Z]\w*\s*[,>]|->|\bclass\s+\w+[^{]*\{[\s\S]*\bclass\s+/.test(text);
   return /\bstruct\s+\w+\s*\{[^}]*\w+\s*\([^;{}]*\)\s*(?:const\s*)?\{|\btemplate\s*<|\bnamespace\s+\w+\s*\{|\bstd\s*::\s*(?!cout\b|cin\b|endl\b|cerr\b)\w+|\b(?:auto|class|catch|throw)\b|\b\w+\s*&\s*\w+\s*[,)]|\[[^\]\n]*\]\s*\([^)]*\)\s*\{/.test(text);
 }
 function parse(src,lang){LANG=lang||'c';if(!src.trim())throw{m:'Paste a program before generating a flowchart.',l:1};if(src.length>50000)throw{m:'This program is too large. Use fewer than 50,000 characters.',l:1};const advanced=typeof AdvancedParser!=='undefined'&&advancedSyntax(src,LANG);
@@ -659,7 +659,7 @@ async function buildProgram(program,preferences) {
     // Budget a full font-size per character, including wide glyphs such as W.
     // The full signature remains in the title; visible text stays in its panel.
     const heading=esc(characters.length>maxTitle?characters.slice(0,maxTitle-1).join('')+'…':p.heading);
-    const label=p.isEntry?'PROGRAM ENTRY':!graph.entry&&i===0?'FUNCTION ROOT (NO ENTRY POINT)':'FUNCTION DEFINITION';
+    const label=p.initialization?'INITIALIZATION':p.isEntry?'PROGRAM ENTRY':!graph.entry&&i===0?'FUNCTION ROOT (NO ENTRY POINT)':'FUNCTION DEFINITION';
     const edges=p.edges.map(e=>'<path data-edge="'+e.id+'" d="'+pd(e.points.map(q=>[q.x,q.y]))+'" fill="none" stroke="'+palette.edge+'" stroke-width="1.5" marker-end="url(#ar)"/>').join('');
     const labels=p.edges.filter(e=>e.label).map(e=>{const l=e.labelPosition;return l?pill(e.displayLabel,l.x+l.width/2,l.y+l.height/2,options,palette):'';}).join('');
     const nodes=p.nodes.map(n=>{

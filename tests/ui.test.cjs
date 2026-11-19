@@ -407,3 +407,20 @@ for(const [lang,source] of require('./fixtures/advanced.cjs')) {
     }
   });
 }
+
+test('JDBC example generates class initialization, resource cleanup and an SVG download',async t=>{
+  const page=await open(t);
+  const fs=require('node:fs');
+  await page.locator('#ta').fill(fs.readFileSync(path.join(__dirname,'fixtures/JdbcExample.java'),'utf8'));
+  await page.locator('#go').click();
+  await page.waitForFunction(()=>document.querySelector('#chart-state').textContent==='Program mapped');
+  assert.equal(await page.locator('#vp [data-function]').count(),2);
+  assert.match(await page.locator('#exb').textContent(),/close rs/i);
+  assert.match(await page.locator('#psb').textContent(),/SQLException/);
+  await page.locator('#exm').click();
+  const pending=page.waitForEvent('download');
+  await page.locator('#eSvg').click();
+  const svg=fs.readFileSync(await (await pending).path(),'utf8');
+  assert.match(svg,/JdbcExample.main/);
+  assert.match(svg,/Close conn if non-null/);
+});

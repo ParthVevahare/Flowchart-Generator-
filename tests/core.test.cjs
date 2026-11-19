@@ -338,3 +338,55 @@ test('async loop break bypasses else and generator expression remains lazy sourc
   assert.ok(graph.edges.some(e=>e.target===yielded.id&&e.label==='No'));
   assert.match(pseudo(program),/\(x for x in xs\)/);
 });
+
+test('JDBC fields and nested resources reach every generator',async()=>{
+  const source=fs.readFileSync(path.join(__dirname,'fixtures/JdbcExample.java'),'utf8');
+  const program=parse(source,'java'),chart=await buildProgram(program);
+  assert.match(chart.inner,/rs.next/);
+  assert.match(chart.algText,/executeUpdate/);
+  assert.match(pseudo(program),/close rs/i);
+  assert.match(pseudo(program),/jdbc:example:demo/);
+});
+
+test('JDBC acquisition failure closes only acquired resources and preserves the primary exception',()=>{
+  const src=fs.readFileSync(path.join(__dirname,'fixtures/JdbcExample.java'),'utf8');
+  const graph=context.FlowGraph.build(parse(src,'java')).functions.find(g=>g.name==='JdbcExample.main');
+  const byId=new Map(graph.nodes.map(n=>[n.id,n]));
+  const next=(n,exception=false)=>byId.get(graph.edges.find(e=>e.source===n.id && (e.kind==='exception')===exception).target);
+  const acquisition=graph.nodes.find(n=>n.t.startsWith('Acquire ResultSet rs'));
+  let close=next(acquisition,true);
+  for(const resource of ['selectStmt','pstmt','conn']){
+    assert.equal(close.t,'Close '+resource+' if non-null');
+    const suppressed=next(close,true);
+    assert.match(suppressed.t,/Suppress close failure/);
+    assert.equal(next(suppressed).id,next(close).id);
+    close=next(close);
+  }
+  assert.match(close.t,/Exception matches SQLException/);
+  const condition=graph.nodes.find(n=>n.t.includes('rs.next()') && n.k==='dec');
+  close=byId.get(graph.edges.find(e=>e.source===condition.id && e.label==='No').target);
+  for(const resource of ['rs','selectStmt','pstmt','conn']){
+    assert.equal(close.t,'Close '+resource+' if non-null');
+    close=next(close);
+  }
+  assert.equal(close.id,graph.exit);
+});
+
+test('Java class and instance initialization keep independent source order',()=>{
+  const p=parse('interface Limits{int MAX=4;} class A{ int x=first(), empty; static int y=2; { use(x); } static { use(y); } void f(){} }','java');
+  const phases=p.fns.filter(f=>f.initialization);
+  const values=phase=>Array.from(phases.find(f=>f.name===phase).body,s=>s.value);
+  assert.deepEqual(values('A.<instance initialization>'),['int x=first()','use(x)']);
+  assert.deepEqual(values('A.<class initialization>'),['static int y=2','use(y)']);
+  assert.deepEqual(values('Limits.<class initialization>'),['int MAX=4']);
+});
+
+test('return from a resource body closes before exiting and close failure can enter catch',()=>{
+  const g=context.FlowGraph.build(parse('class A {int f(Resource r){try(r){return 2;}catch(Exception e){return 3;}}}','java')).functions[0];
+  const returned=g.nodes.find(n=>n.t==='Return 2');
+  const target=(n,k)=>g.nodes.find(t=>t.id===g.edges.find(e=>e.source===n.id&&e.kind===k).target);
+  const close=target(returned,'finally-return');
+  assert.equal(close.t,'Close r if non-null');
+  assert.equal(target(close,'flow').id,g.exit);
+  assert.match(target(close,'exception').t,/matches Exception/);
+});

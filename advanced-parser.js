@@ -13,6 +13,16 @@ const children = n => {
   return out;
 };
 
+export function hasJavaInitialization(source) {
+  let found=false;
+  java.parse(source).iterate({enter(n){
+    if(['FieldDeclaration','ConstantDeclaration','StaticInitializer'].includes(n.name) ||
+       n.name==='Block' && n.node.parent?.name==='ClassBody')found=true;
+    if(found || functions.has(n.name))return false;
+  }});
+  return found;
+}
+
 export function parse(source, lang) {
   const grammar = lang === 'c' ? 'cpp' : lang;
   const tree = grammars[grammar].parse(source);
@@ -182,8 +192,9 @@ export function parse(source, lang) {
       return [{k:'for',rf:[target,iter],c:(a[0].name==='async'?'Await next item in ':'Items left in ')+iter+'?',async:a[0].name==='async',b,otherwise,l}];
     }
     if(name==='SwitchStatement') return [switchRules(n,ctx,false)];
-    if(name==='TryStatement') {
-      if(a.some(c=>/Resource/.test(c.name))) fail(n,'Try-with-resources cleanup is not supported.');
+    if(name==='TryStatement'||name==='TryWithResourcesStatement') {
+      const spec=find(n,'ResourceSpecification');
+      const protectedBody=spec?a[2]:a[1];
       let cleanup=[],otherwise=[];
       const handlers=[];
       if(grammar==='python') {
@@ -197,13 +208,24 @@ export function parse(source, lang) {
           const handler=a[i++],type=source.slice(start,handler.from).trim();
           handlers.push({lab:type||'any exception',all:!type,b:body(handler,ctx)});
         }
-      } else for(const clause of a.slice(2)) {
+      } else for(const clause of a.slice(spec?3:2)) {
         if(clause.name==='FinallyClause'){cleanup=body(block(clause),ctx);continue;}
         if(clause.name!=='CatchClause') fail(clause,'Unsupported exception clause.');
         const type=inner(children(clause)[1]);
         handlers.push({lab:type,all:type==='...',b:body(block(clause),ctx)});
       }
-      return [{k:'try',b:body(a[1],ctx),handlers,cleanup,otherwise,l}];
+      let protectedSteps=body(protectedBody,ctx);
+      if(spec) {
+        const resources=children(spec).filter(c=>c.name==='Resource');
+        if(resources.length>64) fail(spec,'Use at most 64 resources in one try.');
+        for(const r of resources.reverse()) {
+          const id=find(r,'Definition');
+          const resource=id?raw(id):raw(r);
+          const acquire=recordCalls(action(r,'Acquire',raw(r)),r,ctx);
+          protectedSteps=[acquire,{k:'try',resource,b:protectedSteps,handlers:[],cleanup:[],otherwise:[],l:line(r)}];
+        }
+      }
+      return [{k:'try',b:protectedSteps,handlers,cleanup,otherwise,l}];
     }
     if(['BreakStatement','ContinueStatement'].includes(name)) {
       const cont=name==='ContinueStatement';
@@ -242,8 +264,37 @@ export function parse(source, lang) {
     program.fns.push(f);
     f.body=body(b,{...ctx,fn:name,loop:false,canBreak:false});
   }
+  function javaInitializer(member,ctx) {
+    const a=children(member);
+    const isBlock=member.name==='Block'||member.name==='StaticInitializer';
+    const isStatic=member.name==='ConstantDeclaration'||member.name==='StaticInitializer'||
+      a.some(c=>c.name==='Modifiers' && find(c,'static'));
+    const phase=isStatic?'class':'instance';
+    const name=ctx.scope+'<'+phase+' initialization>';
+    const steps=[];
+    if(isBlock)steps.push(...body(member.name==='StaticInitializer'?block(member):member,ctx));
+    else {
+      const declarators=a.filter(c=>c.name==='VariableDeclarator');
+      const type=source.slice(member.from,declarators[0].from).trim();
+      for(const d of declarators) {
+        if(!find(d,'AssignOp')) continue;
+        steps.push(recordCalls(action(d,'Initialize',type+' '+raw(d)),d,ctx));
+      }
+    }
+    if(!steps.length)return;
+    let panel=program.fns.find(f=>f.name===name);
+    if(!panel) {
+      if(names.size>=20)fail(member,'Use at most 20 functions and initialization panels per diagram.');
+      names.add(name);
+      panel={name,disp:ctx.scope.slice(0,-1)+' '+phase+' initialization',initialization:true,params:'',l:line(member),body:[]};
+      program.fns.push(panel);
+    }
+    panel.body.push(...steps);
+  }
   function declarations(n,ctx,script) {
     const a=children(n);
+    if(grammar==='java' && ['FieldDeclaration','ConstantDeclaration','StaticInitializer','Block'].includes(n.name))
+      return javaInitializer(n,ctx);
     if(n.name==='DecoratedStatement') {
       if(script) for(const d of a.slice(0,-1)) script.push(action(d,'Evaluate decorator',raw(d).slice(1)));
       declarations(a.at(-1),ctx,script);
@@ -318,6 +369,7 @@ export function outline(body) {
       rows.push(row('Try',outline(s.b)));
       for(const h of s.handlers) rows.push(row('Catch '+h.lab,outline(h.b)));
       if(s.otherwise.length) rows.push(row('Else',outline(s.otherwise)));
+      if(s.resource)rows.push(row('On exit: close '+s.resource+' if non-null; suppress a close failure if an exception is already pending'));
       if(s.cleanup.length) rows.push(row('Finally',outline(s.cleanup)));
     } else rows.push(row((s.verb+' '+s.value).trim()));
     if(terminates(s)) break;
@@ -334,9 +386,9 @@ export function pseudocode(program) {
     }
   }
   for(const f of program.fns) {
-    lines.push(f.script?'PROGRAM':'FUNCTION '+(f.disp||f.name));
+    lines.push(f.script?'PROGRAM':f.initialization?'INITIALIZATION '+f.disp:'FUNCTION '+(f.disp||f.name));
     write(outline(f.body),1);
-    lines.push(f.script?'END PROGRAM':'END FUNCTION','');
+    lines.push(f.script?'END PROGRAM':f.initialization?'END INITIALIZATION':'END FUNCTION','');
   }
   return lines.join('\n').trimEnd();
 }

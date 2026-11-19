@@ -18,7 +18,9 @@ jobs:
           distribution: temurin
           java-version: 21
       - run: npm ci
-      - run: npx playwright install --with-deps chromium
+      - run: npx playwright install --only-shell chromium
+      - name: Check Chromium runtime dependencies
+        run: node -e "require('playwright').chromium.launch().then(browser => browser.close())" || npx playwright install-deps chromium
       - run: npm run build:parser && git diff --exit-code -- vendor/advanced.js
       - run: npm run check:guides
       - run: npm run check:assets

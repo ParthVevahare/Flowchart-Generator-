@@ -38,7 +38,7 @@ The browser also includes Lezer grammars for Java, Python and C++. The advanced 
 
 | Language | Examples covered by regression tests |
 | --- | --- |
-| Java | Generic interface signatures, implementation methods, an unqualified recursive method call, returned and initialized switch expressions with arrow expression arms |
+| Java | Generic interface signatures, implementation methods, an unqualified recursive method call, returned and initialized switch expressions with arrow expression arms and block yields |
 | Python | Classes with decorated async methods, list comprehensions, iteration, yield/await, exceptions with typed handlers, returns through finally |
 | C++ | Template structs, pointer members and dereferences, STL vector initialization, references in range loops, local lambda definitions, indirect calls, continue in a counted loop |
 
@@ -46,7 +46,7 @@ Each executable method or lambda body has its own function panel. Interface sign
 
 Protected evaluations have a conservative exception edge. Typed handlers are tested in source order. Unmatched exceptions propagate, and finally runs on ordinary and abrupt exits. The analysis does not infer runtime types or the exact set of exceptions an expression can raise.
 
-Unsupported constructs include overload resolution, macros requiring preprocessing, C++ destructor unwinding, Java try-with-resources, switch patterns and block-valued switch expressions, Python context managers, nested Python function definitions and dynamic dispatch. Initialized Java/C++ fields and top-level C++ object initialization require separate modeling. Unsupported statement forms and grammar errors identify their source line. The grammars recognize syntax without compiler type checking or full semantic validation.
+Unsupported constructs include overload resolution, macros requiring preprocessing, C++ destructor unwinding, Java try-with-resources, switch patterns and switch expressions embedded inside larger expressions, Python context managers, nested Python function definitions and dynamic dispatch. Initialized Java/C++ fields and top-level C++ object initialization require separate modeling. Unsupported statement forms and grammar errors identify their source line. The grammars recognize syntax without compiler type checking or full semantic validation.
 
 The input limit is 50,000 characters. The original parser limits programs to 12,000 tokens, 20 functions and 500 steps. The advanced path bounds syntax tree depth and size, limits executable definitions to 20, and caps each expanded control-flow graph at 5,000 nodes.
 

@@ -19,6 +19,7 @@ jobs:
           java-version: 21
       - run: npm ci
       - run: npx playwright install --with-deps chromium
+      - run: npm run build:parser && git diff --exit-code -- vendor/advanced.js
       - run: npm run check:guides
       - run: npm run check:assets
       - run: npm run check:sitemap

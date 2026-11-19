@@ -32,6 +32,7 @@ export function parse(source, lang) {
   function recordCalls(s,n,ctx) {
     const targets = [];
     function scan(c) {
+      if (c.name==='SwitchExpression') fail(c,'Use a switch expression directly in a return, declaration or simple assignment.');
       if (c.name === 'LambdaExpression') {
         if(grammar!=='cpp') fail(c,'Nested lambda bodies are not supported here.');
         const b=block(c);
@@ -41,7 +42,7 @@ export function parse(source, lang) {
       }
       if (['CallExpression','MethodInvocation'].includes(c.name)) {
         const first = children(c)[0];
-        if (first && ['Identifier','VariableName','MethodName'].includes(first.name))
+        if (first && c.name==='MethodInvocation' && first.name==='MethodName')
           targets.push(raw(first));
       }
       children(c).forEach(scan);
@@ -53,51 +54,74 @@ export function parse(source, lang) {
     return s;
   }
 
-  // The Java grammar recognizes arrow rules but recovers between "return"
-  // and "switch". Accept only this exact missing-expression recovery.
-  function switchPrefix(n) {
-    if(grammar!=='java'||n?.nextSibling?.name!=='SwitchStatement'||n.nextSibling.nextSibling?.name!==';') return null;
-    if(n.name==='ReturnStatement' && raw(n)==='return') return {verb:'Return',k:'ret',prefix:''};
-    const assign=n.getChild('AssignmentExpression')||n.getChild('VariableDeclarator');
-    if(!assign||!['LocalVariableDeclaration','ExpressionStatement'].includes(n.name)) return null;
-    const [id,op]=children(assign);
-    if(!op) return null;
-    if(!['Identifier','Definition'].includes(id.name)||raw(op)!=='='||!raw(n).endsWith('=')) return null;
-    return {verb:n.name==='LocalVariableDeclaration'?'Declare':'Assign',k:'p',prefix:raw(n)+' '};
-  }
   let depth=0, count=0;
   tree.iterate({enter(ref) {
     if (++depth>150 || ++count>15000) fail(ref,'Program is too deeply nested or too large to diagram.');
-    if (ref.type.isError && !(ref.from===ref.to &&
-      [ref.node.parent,ref.node.parent?.parent].some(p=>p && p.to===ref.from && switchPrefix(p))))
+    if (ref.type.isError)
       fail(ref,'Invalid or unsupported '+grammar+' syntax near '+JSON.stringify(source.slice(ref.from,ref.from+24).split('\n')[0])+'.');
   },leave(){depth--;}});
   function statements(nodes,ctx) {
-    const items=[];
-    for(let i=0;i<nodes.length;i++) {
-      const prefix=switchPrefix(nodes[i]);
-      if(prefix) items.push(switchRules(nodes[++i],ctx,prefix));
-      else items.push(...statement(nodes[i],ctx));
-    }
-    return items;
+    return nodes.flatMap(n=>statement(n,ctx));
+  }
+
+  // A switch used as an initializer or assignment commits the result after
+  // its selected arm yields. Restrict destinations to simple variables.
+  function switchValue(n,ctx) {
+    const expr=find(n,'SwitchExpression');
+    if(expr) return switchRules(expr,ctx,{verb:'Return',k:'ret',prefix:''});
+    const assignment=find(n,'AssignmentExpression')||find(n,'VariableDeclarator');
+    const rhs=assignment && find(assignment,'SwitchExpression');
+    if(!rhs) return null;
+    const [id,op]=children(assignment);
+    if(!['Identifier','Definition'].includes(id.name)||raw(op)!=='='||
+       children(n).filter(c=>c.name==='VariableDeclarator').length>1)
+      fail(n,'Use a single simple variable for a switch expression result.');
+    return switchRules(rhs,ctx,{verb:n.name==='LocalVariableDeclaration'?'Declare':'Assign',
+      k:'switchValue',prefix:source.slice(n.from,rhs.from).trim()+' '});
   }
   function switchRules(n,ctx,returns) {
-    const cases=content(find(n,'SwitchBlock')).map(rule=>{
+    const caseNodes=content(find(n,'SwitchBlock')||block(n));
+    const branchCtx={...ctx,canBreak:true};
+    const selector=inner(find(n,'ParenthesizedExpression')||find(n,'ConditionClause'));
+    if(!returns && !caseNodes.some(c=>c.name==='SwitchRule')){
+      const cases=[];
+      for(const c of caseNodes) {
+        if(c.name==='SwitchLabel'||c.name==='CaseStatement') {
+          const parts=children(c),d=parts[0].name==='default';
+          const lab=c.name==='SwitchLabel'?raw(c):d?'default':'case '+raw(parts[1]);
+          const b=c.name==='CaseStatement'?statements(parts.slice(d?1:2),branchCtx):[];
+          cases.push({lab,d,b,arrow:false});
+        } else if(cases.length) cases.at(-1).b.push(...statement(c,branchCtx));
+        else fail(c,'Place switch statements after a case label.');
+      }
+      return {k:'sw',c:selector,cs:cases,l:line(n)};
+    }
+    const cases=caseNodes.map(rule=>{
       if(rule.name!=='SwitchRule') fail(rule,'Only arrow switch rules are supported here.');
       const [label,value]=children(rule);
       const lab=raw(label);
-      if(returns && !['ExpressionStatement','ThrowStatement'].includes(value.name))
-        fail(value,'Use an expression or throw in a returned switch rule.');
+      const arm={...ctx,switchResult:returns,canBreak:!returns};
       const b=returns && value.name==='ExpressionStatement'
         ? [recordCalls(action(value,returns.verb,returns.prefix+trim(raw(value)),returns.k),value,ctx)]
-        : body(value,{...ctx,canBreak:true});
+        : body(value,arm);
+      if(returns && !b.some(terminates)) fail(value,'Switch expression arm must yield a value or throw.');
       return {lab,d:lab==='default',b,arrow:true};
     });
-    return {k:'sw',c:inner(find(n,'ParenthesizedExpression')),cs:cases,l:line(n)};
+    if(returns && !cases.some(c=>c.d)) fail(n,'Include a default arm. Type-based exhaustiveness is not inferred.');
+    return {k:'sw',c:selector,cs:cases,l:line(n)};
   }
   function statement(n,ctx) {
     const a=children(n), l=line(n), name=n.name;
     if(blocks.has(name)) return body(n,ctx);
+    if(grammar==='java' && ['ReturnStatement','ExpressionStatement','LocalVariableDeclaration'].includes(name)) {
+      const result=switchValue(n,ctx);
+      if(result) return [result];
+    }
+    if(grammar==='java' && name==='YieldStatement') {
+      const result=ctx.switchResult;
+      if(!result) fail(n,'yield requires an enclosing switch expression.');
+      return [recordCalls(action(n,result.verb,result.prefix+trim(source.slice(a[0].to,n.to)),result.k),n,ctx)];
+    }
     if(punctuation.has(name)||name==='PassStatement') return [];
     if(name==='StatementGroup') return statements(content(n),ctx);
     if(name==='IfStatement') {
@@ -157,7 +181,7 @@ export function parse(source, lang) {
       b.unshift(action(n,'Bind',target+' to next item'));
       return [{k:'for',rf:[target,iter],c:(a[0].name==='async'?'Await next item in ':'Items left in ')+iter+'?',async:a[0].name==='async',b,otherwise,l}];
     }
-    if(name==='SwitchStatement'&&grammar==='java') return [switchRules(n,ctx,false)];
+    if(name==='SwitchStatement') return [switchRules(n,ctx,false)];
     if(name==='TryStatement') {
       if(a.some(c=>/Resource/.test(c.name))) fail(n,'Try-with-resources cleanup is not supported.');
       let cleanup=[],otherwise=[];
@@ -265,7 +289,7 @@ export function parse(source, lang) {
 // identical across the two text views.
 function terminates(s) {
   const stops=body=>body.some(terminates);
-  if(['ret','brk','cnt','throw'].includes(s.k))return true;
+  if(['ret','brk','cnt','throw','switchValue'].includes(s.k))return true;
   if(s.k==='if')return s.e && stops(s.y) && stops(s.e);
   if(s.k==='try')return stops(s.cleanup) ||
     ((stops(s.b)||stops(s.otherwise)) && s.handlers.every(h=>stops(h.b)));
@@ -285,7 +309,11 @@ export function outline(body) {
       rows.push(row(heading+(s.s?' (update '+s.s+' after each iteration)':''),items));
       if(s.otherwise?.length) rows.push(row('On normal loop completion',outline(s.otherwise)));
       if(s.k==='do') rows.push(row('Repeat while '+s.c));
-    } else if(s.k==='sw') rows.push(row('Switch '+s.c,s.cs.map(c=>row(c.lab,outline(c.b)))));
+    } else if(s.k==='sw') rows.push(row('Switch '+s.c,s.cs.map((c,i)=>{
+      const actions=outline(c.b);
+      if(!c.arrow && i+1<s.cs.length && !c.b.some(terminates))actions.push(row('Continue into the next case'));
+      return row(c.lab,actions);
+    })));
     else if(s.k==='try') {
       rows.push(row('Try',outline(s.b)));
       for(const h of s.handlers) rows.push(row('Catch '+h.lab,outline(h.b)));

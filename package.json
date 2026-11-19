@@ -11,11 +11,12 @@
     "check:sitemap:live": "node scripts/check-sitemap.cjs --live",
     "version:assets": "node scripts/version-assets.cjs",
     "check:assets": "node scripts/version-assets.cjs --check",
-    "build:parser": "esbuild advanced-parser.js --bundle --minify --format=iife --global-name=AdvancedParser --outfile=vendor/advanced.js"
+    "build:parser": "node scripts/build-parser.cjs"
   },
   "devDependencies": {
     "@firebase/rules-unit-testing": "6.0.0",
     "@lezer/cpp": "^1.1.6",
+    "@lezer/generator": "^1.8.1",
     "@lezer/java": "^1.1.5",
     "@lezer/python": "^1.1.19",
     "esbuild": "^0.28.2",

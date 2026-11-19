@@ -90,7 +90,7 @@
           }
           const done=through(next);
           const outer={...ctx,returnTo:through(ctx.returnTo||exit),breakTo:through(ctx.breakTo),
-            continueTo:through(ctx.continueTo),exceptionTo:through(ctx.exceptionTo||exceptionExit())};
+            continueTo:through(ctx.continueTo),yieldTo:through(ctx.yieldTo),exceptionTo:through(ctx.exceptionTo||exceptionExit())};
           let handler=outer.exceptionTo;
           for(const h of [...s.handlers].reverse()){
             const target=sequence(h.b,done,outer);
@@ -101,20 +101,21 @@
           const success=sequence(s.otherwise,done,outer);
           next=sequence(s.b,success,{...outer,exceptionTo:handler});
         }else if(s.k==='sw'){
-          const id=mayRaise(add('dec','switch ('+s.c+')',s));nodes[nodes.length-1].switch=true;
+          const id=add('dec','switch ('+s.c+')',s);nodes[nodes.length-1].switch=true;mayRaise(id);
           const targets=[];let fallthrough=next;
           for(let j=s.cs.length-1;j>=0;j--){
-            fallthrough=sequence(s.cs[j].b,s.cs[j].arrow?next:fallthrough,{...ctx,breakTo:next});
+            fallthrough=sequence(s.cs[j].b,s.cs[j].arrow?next:fallthrough,{...ctx,breakTo:next,yieldTo:next});
             targets[j]=fallthrough;
           }
           s.cs.forEach((c,j)=>edge(id,targets[j],c.lab));
           if(!s.cs.some(c=>c.d))edge(id,next,'no match');
           next=id;
         }else{
-          const k=s.k==='ret'?'ret':s.k;
+          const k=s.k==='switchValue'?'p':s.k;
           const id=add(k,s.t||(k==='brk'?'break':k==='cnt'?'continue':''),s);
           if(!['brk','cnt'].includes(k))mayRaise(id);
           if(k==='ret')edge(id,ctx.returnTo||exit,'',typeof ctx.returnTo==='function'?'finally-return':'return');
+          else if(s.k==='switchValue')edge(id,ctx.yieldTo,'','yield');
           else if(k==='brk')edge(id,ctx.breakTo,'','break');
           else if(k==='cnt')edge(id,ctx.continueTo,'','continue');
           else edge(id,next);

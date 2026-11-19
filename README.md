@@ -32,13 +32,25 @@ The parser deliberately accepts a structured subset rather than silently turning
 - Conditions, `while`, `for`, `do/while` (C/Java), `break`, `continue`, `return`, and conventional `switch/case` statements (C/Java).
 - Python literals, tuples, lists, dictionaries, basic type annotations in function signatures, and imports.
 
-Malformed tokens, expressions, declarations, parameters, indentation, and invalid control-flow contexts produce line-specific diagnostics. Bare text and expressions without an action are rejected. Assignment inside a condition is intentionally rejected; use an explicit assignment followed by a comparison.
+### Advanced programs
 
-The generator validates syntax and draws control flow from the pasted source. Compiler-dependent features such as macro expansion and type resolution are outside that analysis. Classes with inheritance or constructors, exceptions, `goto`, and Python comprehensions and generators still need simplification before generating a chart. Overloaded functions require distinct names for the chart to resolve calls. Calls through function pointers appear in the diagram without a link to a particular helper.
+The browser also includes Lezer grammars for Java, Python and C++. The advanced parser converts grammar nodes into structured statements shared by the graph, algorithm and pseudocode views. Source expressions remain visible inside their enclosing step.
 
-To keep diagrams responsive, inputs are limited to 50,000 characters, 12,000 tokens, 20 functions and 500 flowchart steps. Excessive nesting is rejected with a diagnostic.
+| Language | Examples covered by regression tests |
+| --- | --- |
+| Java | Generic interface signatures, implementation methods, an unqualified recursive method call, returned and initialized switch expressions with arrow expression arms and block yields |
+| Python | Classes with decorated async methods, list comprehensions, iteration, yield/await, exceptions with typed handlers, returns through finally |
+| C++ | Template structs, pointer members and dereferences, STL vector initialization, references in range loops, local lambda definitions, indirect calls, continue in a counted loop |
 
-If Python contains only function definitions, the chart labels its first function as a function root with no entry point; it does not imply that defining a function executes it.
+Each executable method or lambda body has its own function panel. Interface signatures and uninitialized fields have no executable steps. The advanced writer displays collection operations, comprehensions, generator expressions and await as source expressions. It does not expand library implementations, comprehension iteration, coroutine scheduling, or generator resumption. A call through a receiver or callable value retains its spelling. Only an unqualified Java self-call receives a recursion reference in the advanced path.
+
+Protected evaluations have a conservative exception edge. Typed handlers are tested in source order. Unmatched exceptions propagate, and finally runs on ordinary and abrupt exits. The analysis does not infer runtime types or the exact set of exceptions an expression can raise.
+
+Unsupported constructs include overload resolution, macros requiring preprocessing, C++ destructor unwinding, Java try-with-resources, switch patterns and switch expressions embedded inside larger expressions, Python context managers, nested Python function definitions and dynamic dispatch. Initialized Java/C++ fields and top-level C++ object initialization require separate modeling. Unsupported statement forms and grammar errors identify their source line. The grammars recognize syntax without compiler type checking or full semantic validation.
+
+The input limit is 50,000 characters. The original parser limits programs to 12,000 tokens, 20 functions and 500 steps. The advanced path bounds syntax tree depth and size, limits executable definitions to 20, and caps each expanded control-flow graph at 5,000 nodes.
+
+Run `npm run build:parser` after editing `advanced-parser.js`, followed by `npm run version:assets`. Commit the generated browser bundle with the source. Its dependencies and versions are recorded in the npm lockfile, and their MIT notice is in `vendor/LEZER-LICENSE`.
 
 ## Checks
 

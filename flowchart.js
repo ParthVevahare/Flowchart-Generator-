@@ -22,7 +22,7 @@
     const out=[];
     for(const s of body){
       const prev=out[out.length-1];
-      const simple=s.k==='p'&&!calls(s.q).length;
+      const simple=s.k==='p'&&!s.directCalls?.length&&!calls(s.q).length;
       if(simple&&prev?.k==='p'&&prev.grouped&&prev.statements.length<3&&(prev.t.length+s.t.length)<100){
         prev.t+='\n'+s.t;prev.statements.push(s);
       }else out.push({...s,grouped:simple,statements:[s]});
@@ -32,15 +32,19 @@
   function buildFunction(f,program,isEntry,names,options){
     let serial=0;const nodes=[],edges=[];
     const add=(k,t,s={})=>{
-      const n={id:'n'+serial++,k,t,line:s.l||f.l||1,calls:calls(s.q||s.ct,program.lang),statements:s.statements||[s]};
+      if(serial>=5000)throw {m:'Control flow exceeds the 5000-node diagram limit.',l:s.l||f.l||1};
+      const n={id:'n'+serial++,k,t,line:s.l||f.l||1,calls:s.directCalls||calls(s.q||s.ct,program.lang),statements:s.statements||[s]};
       if(k==='p'&&n.calls.some(n=>names.has(n)))n.k='call';
       nodes.push(n);return n.id;
     };
     const edge=(source,target,label='',kind='flow')=>{
+      while(typeof target==='function')target=target();
       if(!target)throw new Error('Missing control-flow destination');
       edges.push({id:'e'+edges.length,source,target,label,kind});
     };
     const exit=add('term',isEntry?'STOP':'RETURN');
+    let exceptional;
+    function exceptionExit(){return exceptional ||= add('term','PROPAGATE EXCEPTION');}
     function decision(s){const id=add('dec',s.c,s),n=nodes[nodes.length-1];n.predicate=truth(s.c,program.lang);return id;}
     function branch(id,s,yes,no,kind='flow'){
       const v=truth(s.c,program.lang);
@@ -48,38 +52,70 @@
       if(v!==true)edge(id,no,'No');
     }
     function sequence(body,after,ctx){
-      const list=options.optimizeCommon?group(body):body;let next=after;
+      function mayRaise(id){
+        if(ctx.exceptionTo)edge(id,ctx.exceptionTo,'exception','exception');
+        return id;
+      }
+      const list=options.optimizeCommon&&!ctx.exceptionTo?group(body):body;let next=after;
       for(let i=list.length-1;i>=0;i--){const s=list[i];
         if(s.k==='if'){
-          const id=decision(s),yes=sequence(s.y,next,ctx),no=s.e?sequence(s.e,next,ctx):next;
+          const id=mayRaise(decision(s)),yes=sequence(s.y,next,ctx),no=s.e?sequence(s.e,next,ctx):next;
           branch(id,s,yes,no);next=id;
         }else if(['for','while','do'].includes(s.k)){
-          const id=decision(s);
+          const id=mayRaise(decision(s));
           let update=id;
-          if(s.k==='for'&&s.s){update=add('p',s.s,{l:s.l,q:s.stt});edge(update,id,'','back');}
+          if(s.k==='for'&&s.s){update=add('p',s.s,{l:s.l,q:s.stt});mayRaise(update);edge(update,id,'','back');}
           const body=sequence(s.b,update,{...ctx,breakTo:next,continueTo:update});
           // A do-loop enters its body before reaching its predicate.
-          branch(id,s,body,next,'loop');
+          branch(id,s,body,s.otherwise?.length?sequence(s.otherwise,next,ctx):next,'loop');
           if(s.k==='do')next=body;
           else{
             next=id;
             const init=s.i||(s.rf?'Iterate over '+s.rf[1]:null);
-            if(init){const start=add('p',init,{l:s.l,q:s.it||s.rft?.[1]});edge(start,id);next=start;}
+            if(init){const start=add('p',init,{l:s.l,q:s.it||s.rft?.[1]});mayRaise(start);edge(start,id);next=start;}
           }
+        }else if(s.k==='throw'){
+          const id=add('brk',s.t,s);
+          edge(id,ctx.exceptionTo||exceptionExit(),'','exception');next=id;
+        }else if(s.k==='try'){
+          // Build a cleanup path only when its continuation is used. A transfer
+          // inside finally supersedes the pending one via the outer context.
+          const memo=new Map();
+          function through(target){
+            if(!s.cleanup.length||!target)return target;
+            return ()=>{
+              if(!memo.has(target))memo.set(target,sequence(s.cleanup,target,ctx));
+              return memo.get(target);
+            };
+          }
+          const done=through(next);
+          const outer={...ctx,returnTo:through(ctx.returnTo||exit),breakTo:through(ctx.breakTo),
+            continueTo:through(ctx.continueTo),yieldTo:through(ctx.yieldTo),exceptionTo:through(ctx.exceptionTo||exceptionExit())};
+          let handler=outer.exceptionTo;
+          for(const h of [...s.handlers].reverse()){
+            const target=sequence(h.b,done,outer);
+            if(h.all){handler=target;continue;}
+            const match={c:'Exception matches '+h.lab+'?',l:s.l};
+            const id=decision(match);branch(id,match,target,handler);handler=id;
+          }
+          const success=sequence(s.otherwise,done,outer);
+          next=sequence(s.b,success,{...outer,exceptionTo:handler});
         }else if(s.k==='sw'){
-          const id=add('dec','switch ('+s.c+')',s);nodes[nodes.length-1].switch=true;
+          const id=add('dec','switch ('+s.c+')',s);nodes[nodes.length-1].switch=true;mayRaise(id);
           const targets=[];let fallthrough=next;
           for(let j=s.cs.length-1;j>=0;j--){
-            fallthrough=sequence(s.cs[j].b,fallthrough,{...ctx,breakTo:next});
+            fallthrough=sequence(s.cs[j].b,s.cs[j].arrow?next:fallthrough,{...ctx,breakTo:next,yieldTo:next});
             targets[j]=fallthrough;
           }
           s.cs.forEach((c,j)=>edge(id,targets[j],c.lab));
           if(!s.cs.some(c=>c.d))edge(id,next,'no match');
           next=id;
         }else{
-          const k=s.k==='ret'?'ret':s.k;
+          const k=s.k==='switchValue'?'p':s.k;
           const id=add(k,s.t||(k==='brk'?'break':k==='cnt'?'continue':''),s);
-          if(k==='ret')edge(id,exit,'','return');
+          if(!['brk','cnt'].includes(k))mayRaise(id);
+          if(k==='ret')edge(id,ctx.returnTo||exit,'',typeof ctx.returnTo==='function'?'finally-return':'return');
+          else if(s.k==='switchValue')edge(id,ctx.yieldTo,'','yield');
           else if(k==='brk')edge(id,ctx.breakTo,'','break');
           else if(k==='cnt')edge(id,ctx.continueTo,'','continue');
           else edge(id,next);
@@ -107,8 +143,8 @@
       out.get(e.source).push(e);
     }
     for(const n of graph.nodes){
-      const es=out.get(n.id);
-      if(n.id===graph.exit){if(es.length)throw new Error('Terminal exit must not have a successor');continue;}
+      const es=out.get(n.id).filter(e=>e.label!=='exception');
+      if(n.id===graph.exit||n.k==='term'&&n.t==='PROPAGATE EXCEPTION'){if(es.length)throw new Error('Terminal exit must not have a successor');continue;}
       if(n.k==='dec'){
         if(!n.switch){
           const labels=es.map(e=>e.label).sort().join(',');
@@ -116,7 +152,7 @@
           if(labels!==expected)throw new Error('Decision outcomes do not match predicate');
         }else if(!es.length)throw new Error('Switch has no destinations');
       }else if(es.length!==1)throw new Error('Statement must have exactly one successor');
-      if(n.k==='ret'&&es[0]?.target!==graph.exit)throw new Error('Return must target the function exit');
+      if(n.k==='ret'&&es[0]?.kind!=='finally-return'&&es[0]?.target!==graph.exit)throw new Error('Return must target the function exit');
     }
     const seen=new Set(),todo=[graph.entry];
     while(todo.length){const id=todo.pop();if(seen.has(id))continue;seen.add(id);todo.push(...out.get(id).map(e=>e.target));}
@@ -126,7 +162,7 @@
   function build(program,preferences){
     const options=Settings.normalize(preferences);
     const fns=program.fns,names=new Set(fns.map(f=>f.name));
-    const entry=fns.find(f=>f.script)||(program.lang!=='python'&&fns.find(f=>f.name==='main'))||null;
+    const entry=fns.find(f=>f.script)||(program.lang!=='python'&&fns.find(f=>f.entry||f.name==='main'))||null;
     const ordered=entry?[entry,...fns.filter(f=>f!==entry)]:fns;
     return{entry:entry?.name||null,functions:ordered.map(f=>buildFunction(f,program,f===entry,names,options))};
   }

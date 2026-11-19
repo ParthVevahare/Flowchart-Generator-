@@ -7,6 +7,7 @@ const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const app=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function parseC('));
 const context=vm.createContext({console,FlowGraph:require('../flowchart.js'),CodeColors:require('../code-colors.js')});
+vm.runInContext(fs.readFileSync(path.join(root,'vendor/advanced.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'syntax.js'),'utf8'),context);
 vm.runInContext(app.slice(0,app.indexOf('/* ---------- app ---------- */'))+'\nglobalThis.api={parse,EX,buildProgram,pseudo,detect};',context);
 const {parse,EX,buildProgram,pseudo,detect}=context.api;
@@ -206,3 +207,134 @@ for(const [source,lang] of [
   ['int main(){printf("print(1)");return 0;}','c'],
   ['public class Main { public static void main(String[] args){} }','java'],
 ])test(`detects ${lang} without relying on string contents`,()=>assert.equal(detect(source),lang));
+
+for (const [language, source] of require('./fixtures/advanced.cjs')) {
+  test('advanced program produces all three outputs for ' + language, async () => {
+    const program = parse(source, language);
+    const chart = await buildProgram(program);
+    assert.match(chart.inner, /data-function=/);
+    assert.doesNotMatch(chart.inner, /NaN|Infinity/);
+    assert.ok(pseudo(program).includes('RETURN'));
+    for (const fn of program.fns) {
+      assert.ok(vm.runInContext('algorithmFor', context)(fn, program, false).steps.length);
+    }
+  });
+}
+
+test('return in a try runs cleanup before exiting, and calls can reach their handler', () => {
+  const source = `def consume(items):
+    try:
+        for item in items:
+            if item:
+                return read(item)
+        raise ValueError()
+    except ValueError:
+        return 0
+    finally:
+        close()
+    late()
+`;
+  const program=parse(source,'python');
+  const graph=context.FlowGraph.build(program,{optimizeCommon:false}).functions.find(f=>f.name==='consume');
+  const nodes=new Map(graph.nodes.map(n=>[n.id,n]));
+  for(const ret of graph.nodes.filter(n=>n.k==='ret')) {
+    const cleanup=nodes.get(graph.edges.find(e=>e.source===ret.id && e.kind==='finally-return').target);
+    assert.match(cleanup.t,/close\(\)/);
+    assert.ok(graph.edges.some(e=>e.source===cleanup.id && e.target===graph.exit));
+  }
+  const read=graph.nodes.find(n=>n.t.includes('read(item)'));
+  assert.ok(graph.edges.some(e=>e.source===read.id && e.kind==='exception' &&
+    nodes.get(e.target).t.includes('matches ValueError')));
+  assert.ok(!graph.nodes.some(n=>n.t.includes('late()')));
+  assert.match(pseudo(program),/CATCH ValueError[\s\S]+FINALLY[\s\S]+close/);
+});
+
+test('switch expression initializes the declaration exactly once on each arm', () => {
+  const program=parse('class A { int f(int x){ int n = switch(x){case 1 -> 4;default -> 9;}; return n;} }','java');
+  const graph=context.FlowGraph.build(program).functions[0];
+  const arms=graph.nodes.filter(n=>n.t.startsWith('Declare int n = '));
+  assert.equal(arms.length,2);
+  const end=graph.nodes.find(n=>n.t==='Return n');
+  for(const n of arms)assert.ok(graph.edges.some(e=>e.source===n.id && e.target===end.id));
+});
+
+test('advanced C++ loop continue reaches update and named lambda return stays local', () => {
+  const program=parse('int main(){auto inc=[](int x){return x+1;}; for(int i=0;i<3;i++){if(i==1)continue;inc(i);}return 0;}','c');
+  const [main,lambda]=context.FlowGraph.build(program).functions;
+  assert.equal(lambda.name,'main::inc');
+  const jump=main.nodes.find(n=>n.k==='cnt'),update=main.nodes.find(n=>n.t==='i++');
+  assert.ok(main.edges.some(e=>e.source===jump.id && e.target===update.id));
+  assert.ok(lambda.nodes.some(n=>n.k==='ret'&&n.t==='Return x+1'));
+  assert.ok(!main.nodes.flatMap(n=>n.calls).includes('inc'));
+});
+
+test('unsupported statements and grammar recovery have source lines', () => {
+  for(const [lang,source,l] of [
+    ['python','class A:\n def f(self):\n  with open("a") as f:\n   return f.read()',3],
+    ['java','interface A {}\nclass B { int f(){ return 2 + ; } }',2],
+    ['c','template<class T> int f(T x){\n goto done;\n done: return 1;}',2]
+  ])assert.throws(()=>parse(source,lang),e=>e.l===l&&!!e.m);
+});
+
+test('Java grammar keeps a returned switch inside its if and a block yield inside its arm',()=>{
+  const source=`class Score {
+    int score(int x) {
+      if (x > 0) return switch(x) {
+        case 1 -> { int n = x + 1; yield n; }
+        default -> 3;
+      };
+      return 0;
+    }
+  }`;
+  const program=parse(source,'java');
+  const graph=context.FlowGraph.build(program).functions[0];
+  const branch=graph.nodes.find(n=>n.t.includes('x > 0'));
+  const successor=label=>graph.nodes.find(n=>n.id===graph.edges.find(e=>e.source===branch.id&&e.label===label).target);
+  assert.equal(successor('Yes').switch,true);
+  assert.equal(successor('No').t,'Return 0');
+  assert.match(pseudo(program),/DECLARE int n = x \+ 1[\s\S]+RETURN n/);
+});
+
+test('handler matching and cleanup remain connected for a Java switch inside try',()=>{
+  const program=parse('class A{int f(int x){try{return switch(x){default -> g();};}catch(RuntimeException e){throw e;}finally{close();}}}','java');
+  const graph=context.FlowGraph.build(program).functions[0];
+  const select=graph.nodes.find(n=>n.switch);
+  assert.ok(graph.edges.some(e=>e.source===select.id&&e.kind==='exception'));
+  assert.ok(graph.nodes.some(n=>n.t==='PROPAGATE EXCEPTION'));
+});
+
+test('C++ STL inline lambda has its own body and catch-all handles explicit throw',()=>{
+  const program=parse('int main(){std::vector<int> xs{1};try{std::for_each(xs.begin(),xs.end(),[](int &x){x++;});throw 2;}catch(...){return 7;}}','c');
+  const [main,lambda]=context.FlowGraph.build(program).functions;
+  assert.match(lambda.name,/main::lambda/);
+  const fail=main.nodes.find(n=>n.t==='Throw 2'),handler=main.nodes.find(n=>n.t==='Return 7');
+  assert.ok(main.edges.some(e=>e.source===fail.id&&e.target===handler.id));
+});
+
+test('advanced switch keeps colon fallthrough and jumps out on break',()=>{
+  for(const [lang,source] of [
+    ['java','class X<T>{int f(int n){switch(n){case 1:n++;case 2:break;default:return 7;}return n;}}'],
+    ['c','template<class T> int f(T n){switch(n){case 1:n++;case 2:break;default:return 7;}return n;}']
+  ]){
+    const program=parse(source,lang),graph=context.FlowGraph.build(program).functions[0];
+    const inc=graph.nodes.find(n=>n.t.includes('n++')),jump=graph.nodes.find(n=>n.k==='brk');
+    assert.ok(graph.edges.some(e=>e.source===inc.id&&e.target===jump.id));
+    assert.match(pseudo(program),/next case/);
+  }
+});
+
+test('receiver calls named like their method do not become recursive references',()=>{
+  const program=parse('class A<T>{ int run(T run){ run.other(); return run(); } }','java');
+  const graph=context.FlowGraph.build(program).functions[0];
+  assert.equal(graph.nodes.find(n=>n.t.includes('other')).calls.length,0);
+  assert.ok(graph.nodes.find(n=>n.k==='ret').calls.includes('A.run'));
+});
+
+test('async loop break bypasses else and generator expression remains lazy source',()=>{
+  const program=parse('async def scan(xs):\n stream = (x for x in xs)\n async for x in xs:\n  if x: break\n else:\n  yield 0\n return','python');
+  const graph=context.FlowGraph.build(program).functions.find(f=>f.name==='scan');
+  const jump=graph.nodes.find(n=>n.k==='brk'),yielded=graph.nodes.find(n=>n.t==='Yield 0');
+  assert.ok(graph.edges.some(e=>e.source===jump.id&&e.target!==yielded.id));
+  assert.ok(graph.edges.some(e=>e.target===yielded.id&&e.label==='No'));
+  assert.match(pseudo(program),/\(x for x in xs\)/);
+});

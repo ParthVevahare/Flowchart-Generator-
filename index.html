@@ -281,13 +281,14 @@ html[data-theme=dark]{--syntax-keyword:#c4a5ff;--syntax-string:#a8d594;--syntax-
 <script src="help.js?v=ce63e14e17fb" defer></script>
 <footer class="site-footer"><nav aria-label="Site information"><a href="guides/">Guides &amp; examples</a><a href="sitemap.xml">Sitemap</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms of Service</a></nav><p class="site-summary">Free code-to-flowchart converter for <a href="guides/c-to-flowchart.html">C</a>, <a href="guides/cpp-to-flowchart.html">C++</a>, <a href="guides/python-to-flowchart.html">Python</a> and <a href="guides/java-to-flowchart.html">Java</a>. Visualize algorithms, decisions and loops.</p></footer>
 <footer id="aff" hidden></footer><div id="toast" role="status" aria-live="polite"></div>
+<script src="vendor/advanced.js?v=65e2d48f615d"></script>
 <script src="syntax.js?v=a0097c05a487"></script>
 <script src="vendor/prism-code.js?v=a98a437f55de"></script>
 <script src="code-colors.js?v=923a24621561"></script>
 <script src="vendor/elk.bundled.js?v=cbf61b0182e9"></script>
 <script src="guide-examples.js?v=b81470c475ab"></script>
 <script src="diagram-settings.js?v=7070afa10fb4"></script>
-<script src="flowchart.js?v=ed9751d44766"></script>
+<script src="flowchart.js?v=b227e74537ca"></script>
 <script src="diagram-export.js?v=4c1dfdcb97e3"></script>
 <script>
 const $=id=>document.getElementById(id),esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -490,7 +491,19 @@ if(!fns.length)err(java?"No method found. Put your code inside a method such as 
 if(!java)for(let j=0;j<T.length-1;j++){if(T[j+1].t==='('&&Syntax.isValue(T[j]))T[j].indirectCall=true}
 fns.sort((a,b)=>(b.name=='main')-(a.name=='main'));
 return{fns,glob,vars,globq}}
-function parse(src,lang){LANG=lang||'c';if(!src.trim())throw{m:'Paste a program before generating a flowchart.',l:1};if(src.length>50000)throw{m:'This program is too large. Use fewer than 50,000 characters.',l:1};const r=LANG=='python'?parsePy(src):parseC(src,LANG=='java');r.lang=LANG;return Syntax.program(r)}
+function advancedSyntax(src,lang){
+  const text=typeof CodeColors!=='undefined'?CodeColors.mask(src):src;
+  if(lang==='python')return /^\s*(?:@|class\s|async\s|try\s*:|raise\b|yield\b)|\bfor\s+\w+\s+in\b[^\n]*[\])}]/m.test(text.replace(/^\s*(?:async\s+)?for\b[^\n]*/gm,''));
+  if(lang==='java')return /\b(?:interface|implements|extends|try|throw|catch)\b|\b\w+\s*<\s*[A-Z]\w*\s*[,>]|->|\bclass\s+\w+[^{]*\{[\s\S]*\bclass\s+/.test(text);
+  return /\bstruct\s+\w+\s*\{[^}]*\w+\s*\([^;{}]*\)\s*(?:const\s*)?\{|\btemplate\s*<|\bnamespace\s+\w+\s*\{|\bstd\s*::\s*(?!cout\b|cin\b|endl\b|cerr\b)\w+|\b(?:auto|class|catch|throw)\b|\b\w+\s*&\s*\w+\s*[,)]|\[[^\]\n]*\]\s*\([^)]*\)\s*\{/.test(text);
+}
+function parse(src,lang){LANG=lang||'c';if(!src.trim())throw{m:'Paste a program before generating a flowchart.',l:1};if(src.length>50000)throw{m:'This program is too large. Use fewer than 50,000 characters.',l:1};const advanced=typeof AdvancedParser!=='undefined'&&advancedSyntax(src,LANG);
+if(advanced){
+  if(LANG==='c'){try{const c=parseC(src,false);c.lang=LANG;return Syntax.program(c);}catch(error){/* Try C++ grammar. */}}
+  return AdvancedParser.parse(src,LANG);
+}
+try{const r=LANG=='python'?parsePy(src):parseC(src,LANG=='java');r.lang=LANG;return Syntax.program(r);}
+catch(error){if(LANG==='java'&&typeof AdvancedParser!=='undefined')return AdvancedParser.parse(src,LANG);throw error;}}
 /* ---------- python ---------- */
 const PYOPS=/\*\*=|\/\/=|>>=|<<=|\.\.\.|->|:=|\*\*|\/\/|==|!=|<=|>=|\+=|-=|\*=|\/=|%=|&=|\|=|\^=|@=|<<|>>|[-+*\/%&|^~<>=!@.,:;()\[\]{}]/y;
 const PYID=/[^\W\d]\w*/uy,PYNUM=/0[xXoObB][\w]+|(?:\d[\d_]*\.?[\d_]*|\.\d[\d_]*)(?:[eE][+-]?\d+)?[jJ]?/y,PYSTR=/(?:[rRbBuUfF]{1,2})?("""|'''|"|')/y;
@@ -671,6 +684,7 @@ async function buildProgram(program,preferences) {
  * retain the original AST. Unknown constructs get a diagnostic, not a guess.
  */
 function algorithmFor(f, program, first) {
+if(program.advanced)return {title:'Algorithm: '+(f.disp||f.name),steps:AdvancedParser.outline(f.body)};
 const lang=program.lang||'c', entry=f.script||f.name=='main';
 const fail=(m,s)=>{throw {m,l:s&&s.l}};
 const fmt=a=>{const strings=[];const safe=(a||[]).map(x=>/^(?:[rRbBuUfF]{0,2})?["']/.test(x.t)?{...x,t:'ALGSTRING'+(strings.push(x.t)-1)+'TOKEN'}:x);
@@ -924,7 +938,7 @@ read:s=>['READ '+jn(s.pl)+(s.pc&&s.pc!='str'?'   // converted with '+s.pc+'()':'
 jout:s=>{const a=s.pa,e=s.pe?' TO ERROR STREAM':'';if(s.pm=='println')return['PRINT LINE'+e+(a.length?' '+jn(a):'')];if(s.pm=='print')return['PRINT'+e+' '+jn(a)];return['PRINT FORMATTED'+e+' '+jn(a)]},
 jread:s=>{const L=[];if(s.pl.length>=2&&s.pl[1].t!='.'&&!(s.pl[1].t=='['&&s.pl[2]&&s.pl[2].t!=']')){const d=decl(s.pl);if(d)L.push(...d)}
 const r=s.pr,plain=r.length==5&&r[1].t=='.'&&r[3].t=='('&&r[4].t==')';L.push('READ '+s.pn+(plain?'':'   // via '+jn(r)));return L}};
-function pseudo(Pr){PS={};LANG=Pr.lang||'c';const L=[];
+function pseudo(Pr){if(Pr.advanced)return AdvancedParser.pseudocode(Pr);PS={};LANG=Pr.lang||'c';const L=[];
 if(Pr.globq.length){L.push('// Global declarations');Pr.globq.forEach(q=>stm({q}).forEach(x=>L.push(x)));L.push('')}
 Pr.fns.forEach((f,i)=>{if(f.script){L.push('PROGRAM');pg(f.body,1,L,[]);L.push('END PROGRAM')}else{const rt=f.rt?(f.rt=='void'?' RETURNS nothing':' RETURNS '+f.rt):'';L.push('FUNCTION '+f.name+'('+f.params+')'+rt);pg(f.body,1,L,[]);L.push('END FUNCTION')}if(i<Pr.fns.length-1)L.push('')});
 const n=[];if(PS.mod)n.push(LANG=='python'?'MOD means remainder (the % operator; in Python the result takes the sign of the right-hand number).':'MOD means remainder (the % operator).');
@@ -936,7 +950,9 @@ function detect(src) {
   const text=typeof CodeColors!=='undefined'?CodeColors.mask(src):src.replace(/"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'/g,'""').replace(/\/\*[\s\S]*?\*\/|\/\/[^\n]*/g,'');
   if(/^\s*#\s*(include|define)\b/m.test(text))return 'c';
   const clean=text.replace(/#[^\n]*/g,'');
-  if(/\bSystem\s*\.\s*(out|in|err)\b|\b(?:public|private|protected)\s+(?:static\s+)?(?:class|void|int|String|boolean)\b|^\s*(?:import|package)\s+java\./m.test(clean)||/\bclass\s+\w+[^;\n{]*\{/.test(clean))return 'java';
+  if(/\b(?:interface|implements|extends)\s+\w+/.test(clean))return 'java';
+  if(/\bclass\s+\w+[^{}]*\{[\s\S]*\}\s*;\s*$|\btemplate\s*<|\bstd\s*::|\bnamespace\s+\w+\s*\{/.test(clean))return 'c';
+  if(/\binterface\s+\w+|\bSystem\s*\.\s*(out|in|err)\b|\b(?:public|private|protected)\s+(?:static\s+)?(?:class|void|int|String|boolean)\b|^\s*(?:import|package)\s+java\./m.test(clean)||/\bclass\s+\w+[^;\n{]*\{/.test(clean))return 'java';
   if(/\b(?:int|void|float|double|char|long|bool|auto)\s+[*&\s]*[A-Za-z_]\w*\s*\([^;{}]*\)\s*\{|\b(?:std\s*::|using\s+namespace|cout\s*<<|cin\s*>>)/.test(clean))return 'c';
   if(/^\s*(?:unsigned|signed|int|float|double|char|long|short|void)\s+\w+|^\s*typedef\s+\w+|^\s*(?:struct|enum|union)\b\s*(?:\{|[A-Za-z_]\w*\s*(?:[;{*]|[A-Za-z_]\w*\s*[(;=\[]))/m.test(clean))return 'c';
   return 'python';

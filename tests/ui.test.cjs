@@ -385,3 +385,25 @@ test('syntax tokens have readable contrast in both themes and safely display HTM
   }
  }
 });
+
+for(const [lang,source] of require('./fixtures/advanced.cjs')) {
+  test('advanced '+lang+' program generates, explains and exports in the browser',async t=>{
+    const page=await open(t);
+    await page.locator('#ta').fill(source);
+    await page.locator('#go').click();
+    await page.waitForFunction(()=>document.querySelector('#chart-state').textContent==='Program mapped');
+    assert.ok(await page.locator('#vp [data-function]').count()>=1);
+    assert.ok((await page.locator('#psb').textContent()).includes('RETURN'));
+    assert.ok((await page.locator('#exb').textContent()).includes('Algorithm:'));
+    assert.equal(await page.locator('#cpa').isDisabled(),false);
+    for(const format of ['Svg','Png']) {
+      await page.locator('#exm').click();
+      const pending=page.waitForEvent('download');
+      await page.locator('#e'+format).click();
+      const download=await pending;
+      const bytes=require('node:fs').readFileSync(await download.path());
+      if(format==='Svg')assert.match(bytes.toString(),/data-function=/);
+      else assert.equal(bytes.subarray(0,8).toString('hex'),'89504e470d0a1a0a');
+    }
+  });
+}

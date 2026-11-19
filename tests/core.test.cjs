@@ -7,6 +7,7 @@ const root=path.join(__dirname,'..');
 const html=fs.readFileSync(path.join(root,'index.html'),'utf8');
 const app=[...html.matchAll(/<script(?:\s[^>]*)?>([\s\S]*?)<\/script>/g)].map(m=>m[1]).find(s=>s.includes('function parseC('));
 const context=vm.createContext({console,FlowGraph:require('../flowchart.js'),CodeColors:require('../code-colors.js')});
+vm.runInContext(fs.readFileSync(path.join(root,'vendor/advanced.js'),'utf8'),context);
 vm.runInContext(fs.readFileSync(path.join(root,'syntax.js'),'utf8'),context);
 vm.runInContext(app.slice(0,app.indexOf('/* ---------- app ---------- */'))+'\nglobalThis.api={parse,EX,buildProgram,pseudo,detect};',context);
 const {parse,EX,buildProgram,pseudo,detect}=context.api;
@@ -206,3 +207,71 @@ for(const [source,lang] of [
   ['int main(){printf("print(1)");return 0;}','c'],
   ['public class Main { public static void main(String[] args){} }','java'],
 ])test(`detects ${lang} without relying on string contents`,()=>assert.equal(detect(source),lang));
+
+for (const [language, source] of require('./fixtures/advanced.cjs')) {
+  test('advanced program produces all three outputs for ' + language, async () => {
+    const program = parse(source, language);
+    const chart = await buildProgram(program);
+    assert.match(chart.inner, /data-function=/);
+    assert.doesNotMatch(chart.inner, /NaN|Infinity/);
+    assert.ok(pseudo(program).includes('RETURN'));
+    for (const fn of program.fns) {
+      assert.ok(vm.runInContext('algorithmFor', context)(fn, program, false).steps.length);
+    }
+  });
+}
+
+test('return in a try runs cleanup before exiting, and calls can reach their handler', () => {
+  const source = `def consume(items):
+    try:
+        for item in items:
+            if item:
+                return read(item)
+        raise ValueError()
+    except ValueError:
+        return 0
+    finally:
+        close()
+    late()
+`;
+  const program=parse(source,'python');
+  const graph=context.FlowGraph.build(program,{optimizeCommon:false}).functions.find(f=>f.name==='consume');
+  const nodes=new Map(graph.nodes.map(n=>[n.id,n]));
+  for(const ret of graph.nodes.filter(n=>n.k==='ret')) {
+    const cleanup=nodes.get(graph.edges.find(e=>e.source===ret.id && e.kind==='finally-return').target);
+    assert.match(cleanup.t,/close\(\)/);
+    assert.ok(graph.edges.some(e=>e.source===cleanup.id && e.target===graph.exit));
+  }
+  const read=graph.nodes.find(n=>n.t.includes('read(item)'));
+  assert.ok(graph.edges.some(e=>e.source===read.id && e.kind==='exception' &&
+    nodes.get(e.target).t.includes('matches ValueError')));
+  assert.ok(!graph.nodes.some(n=>n.t.includes('late()')));
+  assert.match(pseudo(program),/CATCH ValueError[\s\S]+FINALLY[\s\S]+close/);
+});
+
+test('switch expression initializes the declaration exactly once on each arm', () => {
+  const program=parse('class A { int f(int x){ int n = switch(x){case 1 -> 4;default -> 9;}; return n;} }','java');
+  const graph=context.FlowGraph.build(program).functions[0];
+  const arms=graph.nodes.filter(n=>n.t.startsWith('Declare int n = '));
+  assert.equal(arms.length,2);
+  const end=graph.nodes.find(n=>n.t==='Return n');
+  for(const n of arms)assert.ok(graph.edges.some(e=>e.source===n.id && e.target===end.id));
+});
+
+test('advanced C++ loop continue reaches update and named lambda return stays local', () => {
+  const program=parse('int main(){auto inc=[](int x){return x+1;}; for(int i=0;i<3;i++){if(i==1)continue;inc(i);}return 0;}','c');
+  const [main,lambda]=context.FlowGraph.build(program).functions;
+  assert.equal(lambda.name,'main::inc');
+  const jump=main.nodes.find(n=>n.k==='cnt'),update=main.nodes.find(n=>n.t==='i++');
+  assert.ok(main.edges.some(e=>e.source===jump.id && e.target===update.id));
+  assert.ok(lambda.nodes.some(n=>n.k==='ret'&&n.t==='Return x+1'));
+  assert.ok(!main.nodes.flatMap(n=>n.calls).includes('inc'));
+});
+
+test('unsupported statements and grammar recovery have source lines', () => {
+  for(const [lang,source,l] of [
+    ['python','class A:\n def f(self):\n  with open("a") as f:\n   return f.read()',3],
+    ['java','interface A {}\nclass B { int f(){ return 2 + ; } }',2],
+    ['c','template<class T> int f(T x){\n goto done;\n done: return 1;}',2]
+  ])assert.throws(()=>parse(source,lang),e=>e.l===l&&!!e.m);
+});
